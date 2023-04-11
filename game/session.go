@@ -1,8 +1,9 @@
 package game
 
 import (
+	"errors"
 	"fmt"
-	"github.com/BigJk/project_gonzo/game/interaction"
+	"github.com/BigJk/project_gonzo/util"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"sort"
@@ -26,6 +27,7 @@ const (
 // FightState represents the current state of the fight in regard to the
 // deck of the player.
 type FightState struct {
+	Round         int
 	Description   string
 	CurrentPoints int
 	Deck          []string
@@ -36,25 +38,25 @@ type FightState struct {
 
 // Session represents the state inside a game session.
 type Session struct {
-	luaState     *lua.LState
-	resources    *ResourcesManager
-	interactions interaction.Provider
+	luaState  *lua.LState
+	resources *ResourcesManager
 
 	state         GameState
-	actors        map[string]*Actor
+	actors        map[string]Actor
 	instances     map[string]any
 	stagesCleared int
 	currentEvent  *Event
 	currentFight  FightState
+
+	stateCheckpoints []StateCheckpoint
 
 	Logs []LogEntry
 }
 
 func NewSession(options ...func(s *Session)) *Session {
 	session := &Session{
-		interactions: &interaction.EmptyProvider{},
-		state:        GameStateEvent,
-		actors: map[string]*Actor{
+		state: GameStateEvent,
+		actors: map[string]Actor{
 			PlayerActorID: NewActor(PlayerActorID),
 		},
 		instances:     map[string]any{},
@@ -65,6 +67,12 @@ func NewSession(options ...func(s *Session)) *Session {
 	session.resources = NewResourcesManager(session.luaState)
 	session.SetEvent("START")
 
+	session.UpdatePlayer(func(actor *Actor) bool {
+		actor.HP = 10
+		actor.MaxHP = 15
+		return true
+	})
+
 	for i := range options {
 		options[i](session)
 	}
@@ -72,12 +80,56 @@ func NewSession(options ...func(s *Session)) *Session {
 	return session
 }
 
-func (s *Session) WithInteractions(provider interaction.Provider) {
-	s.interactions = provider
-}
-
 func (s *Session) WithAlternativeStartEvent(id string) {
 	s.SetEvent(id)
+}
+
+//
+// Checkpoints
+//
+
+func (s *Session) MarkState() StateCheckpointMarker {
+	return StateCheckpointMarker{checkpoints: s.stateCheckpoints}
+}
+
+func (s *Session) PushState(events map[StateEvent]any) {
+	savedState := *s
+
+	// Only have the current session have the state checkpoints
+	savedState.stateCheckpoints = make([]StateCheckpoint, 0)
+	savedState.actors = lo.MapValues(util.CopyMap(savedState.actors), func(actor Actor, key string) Actor {
+		return actor.Clone()
+	})
+	savedState.instances = util.CopyMap(savedState.instances)
+
+	s.stateCheckpoints = append(s.stateCheckpoints, StateCheckpoint{
+		Session: &savedState,
+		Events:  events,
+	})
+}
+
+func (s *Session) GetFormerState(index int) *Session {
+	if index == 0 {
+		return s
+	}
+
+	index = len(s.stateCheckpoints) + index
+	if index >= len(s.stateCheckpoints) {
+		return nil
+	}
+
+	return s.stateCheckpoints[index].Session
+}
+
+func (s *Session) FindLastState(event StateEvent) (*Session, map[StateEvent]any) {
+	for i := len(s.stateCheckpoints); i >= 0; i-- {
+		if s.stateCheckpoints[i].Events != nil {
+			if _, ok := s.stateCheckpoints[i].Events[event]; ok {
+				return s.stateCheckpoints[i].Session, s.stateCheckpoints[i].Events
+			}
+		}
+	}
+	return nil, nil
 }
 
 //
@@ -120,13 +172,32 @@ func (s *Session) SetupFight() {
 
 	s.PlayerDrawCard(DrawSize)
 }
+
 func (s *Session) GetFight() FightState {
 	return s.currentFight
 }
 
-func (s *Session) FinishPlayerTurn() {
-	s.currentFight.CurrentPoints = PointsPerRound
+func (s *Session) GetStagesCleared() int {
+	return s.stagesCleared
+}
 
+func (s *Session) FinishPlayerTurn() {
+	for k, v := range s.actors {
+		if k == PlayerActorID || v.IsNone() {
+			continue
+		}
+
+		if enemy, ok := s.resources.Enemies[v.TypeID]; ok {
+			_, _ = enemy.Callbacks[CallbackOnTurn].Call(v.TypeID, k, s.currentFight.Round)
+		}
+	}
+
+	s.currentFight.CurrentPoints = PointsPerRound
+	s.currentFight.Round += 1
+	s.currentFight.Used = append(s.currentFight.Used, s.currentFight.Hand...)
+	s.currentFight.Hand = []string{}
+
+	s.PlayerDrawCard(DrawSize)
 }
 
 func (s *Session) FinishFight() bool {
@@ -289,26 +360,34 @@ func (s *Session) GetCards(owner string) []string {
 	return s.actors[owner].Cards.ToSlice()
 }
 
-func (s *Session) PlayerCastHand(i int, target string) {
-	cardId := s.currentFight.Hand[i]
-
-	// Only cast a card if points are available
-	if card, _ := s.GetCard(cardId); card != nil {
-		if s.currentFight.CurrentPoints < card.PointCost {
-			return
-		}
+func (s *Session) PlayerCastHand(i int, target string) error {
+	if i >= len(s.currentFight.Hand) {
+		return errors.New("hand empty")
 	}
 
+	cardId := s.currentFight.Hand[i]
+
+	// Only cast a card if points are available and subtract them.
+	if card, _ := s.GetCard(cardId); card != nil {
+		if s.currentFight.CurrentPoints < card.PointCost {
+			return errors.New("not enough points")
+		}
+
+		s.currentFight.CurrentPoints -= card.PointCost
+	} else {
+		return errors.New("card not exists")
+	}
+
+	// Move from hand to used
 	s.currentFight.Hand = lo.Reject(s.currentFight.Hand, func(item string, index int) bool {
 		return index == i
 	})
 	s.currentFight.Used = append(s.currentFight.Used, cardId)
 
+	// Cast
 	s.CastCard(cardId, target)
 
-	if len(s.currentFight.Hand) == 0 {
-		s.PlayerDrawCard(DrawSize)
-	}
+	return nil
 }
 
 func (s *Session) PlayerDrawCard(amount int) {
@@ -387,14 +466,34 @@ func (s *Session) DealDamage(source string, target string, damage int) int {
 			damage = 0
 		}
 
-		val.HP = lo.Clamp(val.HP-damage, 0, val.MaxHP)
+		hpLeft := lo.Clamp(val.HP-damage, 0, val.MaxHP)
 
 		// Remove dead non-player actor
-		if target != PlayerActorID && val.HP == 0 {
+		if target != PlayerActorID && hpLeft == 0 {
+			s.PushState(map[StateEvent]any{
+				StateEventDeath: StateEventDeathData{
+					Target: target,
+					Damage: damage,
+				},
+			})
 			s.Log(LogTypeSuccess, fmt.Sprintf("%s died and dropped %d gold!", val.Name, val.Gold))
-			s.GetPlayer().Gold += val.Gold
+			s.UpdatePlayer(func(actor *Actor) bool {
+				actor.Gold += val.Gold
+				return true
+			})
 			s.RemoveActor(target)
 			s.FinishFight()
+		} else {
+			s.PushState(map[StateEvent]any{
+				StateEventDamage: StateEventDamageData{
+					Target: target,
+					Damage: damage,
+				},
+			})
+			s.UpdateActor(target, func(actor *Actor) bool {
+				actor.HP = hpLeft
+				return true
+			})
 		}
 
 		return damage
@@ -450,7 +549,11 @@ func (s *Session) Heal(source string, target string, heal int) int {
 			heal = 0
 		}
 
-		val.HP = lo.Clamp(val.HP+heal, 0, val.MaxHP)
+		s.UpdateActor(target, func(actor *Actor) bool {
+			actor.HP = lo.Clamp(val.HP+heal, 0, val.MaxHP)
+			return true
+		})
+
 		return heal
 	}
 	return 0
@@ -460,15 +563,26 @@ func (s *Session) Heal(source string, target string, heal int) int {
 // Actor Functions
 //
 
-func (s *Session) GetPlayer() *Actor {
+func (s *Session) GetPlayer() Actor {
 	return s.actors[PlayerActorID]
 }
 
-func (s *Session) GetActor(id string) *Actor {
+func (s *Session) UpdatePlayer(update func(actor *Actor) bool) {
+	s.UpdateActor(PlayerActorID, update)
+}
+
+func (s *Session) GetActor(id string) Actor {
 	return s.actors[id]
 }
 
-func (s *Session) AddActor(actor *Actor) {
+func (s *Session) UpdateActor(id string, update func(actor *Actor) bool) {
+	actor := s.GetActor(id)
+	if update(&actor) {
+		s.actors[id] = actor
+	}
+}
+
+func (s *Session) AddActor(actor Actor) {
 	s.actors[actor.ID] = actor
 }
 
@@ -482,12 +596,9 @@ func (s *Session) AddActorFromEnemy(id string) string {
 		actor.HP = base.InitialHP
 		actor.MaxHP = base.MaxHP
 
-		s.AddActor(actor)
+		_, _ = base.Callbacks[CallbackOnInit].Call(id, actor.ID)
 
-		if onInit, ok := base.Callbacks[CallbackOnInit]; ok {
-			// TODO: error handling
-			_, _ = onInit(id, actor.ID)
-		}
+		s.AddActor(actor)
 
 		return actor.ID
 	}
@@ -545,18 +656,18 @@ func (s *Session) GetOpponentCount(viewpoint string) int {
 	}
 }
 
-func (s *Session) GetOpponentByIndex(viewpoint string, i int) *Actor {
+func (s *Session) GetOpponentByIndex(viewpoint string, i int) Actor {
 	switch viewpoint {
 	// From the viewpoint of the player we can have multiple enemies.
 	case PlayerActorID:
 		if len(s.actors) <= 1 {
-			return nil
+			return Actor{}
 		}
 
 		ids := lo.Keys(s.actors)
 		sort.Strings(ids)
 		if i < 0 || i >= len(ids) {
-			return nil
+			return Actor{}
 		}
 
 		return s.actors[ids[i]]
@@ -566,13 +677,13 @@ func (s *Session) GetOpponentByIndex(viewpoint string, i int) *Actor {
 	}
 }
 
+func (s *Session) GetEnemy(typeId string) Enemy {
+	return *s.resources.Enemies[typeId]
+}
+
 //
 // Misc Functions
 //
-
-func (s *Session) Notification(msg string) {
-	<-s.interactions.Notify(msg)
-}
 
 func (s *Session) Log(t LogType, msg string) {
 	s.Logs = append(s.Logs, LogEntry{

@@ -1,0 +1,59 @@
+package game
+
+import "github.com/samber/lo"
+
+type StateEvent string
+
+const (
+	StateEventDeath  = StateEvent("Death")
+	StateEventDamage = StateEvent("Damage")
+	StateEventHeal   = StateEvent("Heal")
+)
+
+type StateEventDeathData struct {
+	Target string
+	Damage int
+}
+
+type StateEventDamageData struct {
+	Target string
+	Damage int
+}
+
+type StateEventHealData struct {
+	Target string
+	Damage int
+}
+
+// StateCheckpoint saves the state of a session at a certain point. This can be used
+// to retroactively check what happened between certain actions.
+type StateCheckpoint struct {
+	Session *Session
+
+	// Events describe the events that
+	Events map[StateEvent]any
+}
+
+// StateCheckpointMarker is a saved state of a checkpoint log.
+type StateCheckpointMarker struct {
+	checkpoints []StateCheckpoint
+}
+
+// New returns the new states that happened between the marker and a new session.
+func (sm StateCheckpointMarker) New(session *Session) []StateCheckpoint {
+	if len(sm.checkpoints) >= len(session.stateCheckpoints) {
+		return nil
+	}
+	return session.stateCheckpoints[len(sm.checkpoints):]
+}
+
+// NewEvent returns the new states that happened between the marker and a new session that contain a certain event.
+func (sm StateCheckpointMarker) NewEvent(session *Session, event StateEvent) []StateCheckpoint {
+	return lo.Filter(sm.New(session), func(item StateCheckpoint, index int) bool {
+		if item.Events == nil {
+			return false
+		}
+		_, ok := item.Events[event]
+		return ok
+	})
+}

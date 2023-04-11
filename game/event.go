@@ -15,3 +15,7 @@ type Event struct {
 	OnEnter     OwnedCallback
 	OnEnd       OwnedCallback
 }
+
+func (e Event) IsNone() bool {
+	return len(e.ID) == 0
+}

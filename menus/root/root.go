@@ -4,7 +4,6 @@ import (
 	"github.com/BigJk/project_gonzo/menus"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
-	"time"
 )
 
 type Model struct {
@@ -19,9 +18,7 @@ func New(root tea.Model) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Tick(time.Second*15, func(t time.Time) tea.Msg {
-		return tea.Quit()
-	})
+	return nil
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

@@ -7,5 +7,7 @@ type Enemy struct {
 	Description string
 	InitialHP   int
 	MaxHP       int
+	Look        string
+	Color       string
 	Callbacks   map[string]OwnedCallback
 }

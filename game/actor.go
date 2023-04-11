@@ -18,11 +18,23 @@ type Actor struct {
 	StatusEffects mapset.Set[string]
 }
 
-func NewActor(ID string) *Actor {
-	return &Actor{
+func (a Actor) IsNone() bool {
+	return len(a.ID) == 0
+}
+
+func (a Actor) Clone() Actor {
+	// The sets are backed by maps, so we need to clone them to create new pointer instances.
+	a.Artifacts = a.Artifacts.Clone()
+	a.Cards = a.Cards.Clone()
+	a.StatusEffects = a.StatusEffects.Clone()
+	return a
+}
+
+func NewActor(ID string) Actor {
+	return Actor{
 		ID:            ID,
-		Artifacts:     mapset.NewSet[string](),
-		Cards:         mapset.NewSet[string](),
-		StatusEffects: mapset.NewSet[string](),
+		Artifacts:     mapset.NewThreadUnsafeSet[string](),
+		Cards:         mapset.NewThreadUnsafeSet[string](),
+		StatusEffects: mapset.NewThreadUnsafeSet[string](),
 	}
 }

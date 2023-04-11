@@ -11,6 +11,8 @@ register_enemy(
     {
         Name = "Door",
         Description = "It's in your way...",
+        Look = "D",
+        Color = "#cccccc",
         InitialHP = 10,
         MaxHP = 10,
         Callbacks = { }
@@ -22,6 +24,8 @@ register_enemy(
     {
         Name = "Mutated Hamster",
         Description = "Small but furious...",
+        Look = "H",
+        Color = "#e6e65a",
         InitialHP = 4,
         MaxHP = 4,
         Callbacks = {

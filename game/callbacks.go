@@ -6,4 +6,5 @@ const (
 	CallbackOnCast       = "OnCast"
 	CallbackOnInit       = "OnInit"
 	CallbackOnPickUp     = "OnPickUp"
+	CallbackOnTurn       = "OnTurn"
 )
