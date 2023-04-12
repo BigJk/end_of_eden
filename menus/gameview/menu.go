@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BigJk/project_gonzo/game"
 	"github.com/BigJk/project_gonzo/menus"
+	"github.com/BigJk/project_gonzo/menus/style"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,12 +16,12 @@ import (
 )
 
 var (
-	styleMenuContent = lipgloss.NewStyle().Margin(0, 0, 0, 2).Padding(0, 1).Border(lipgloss.NormalBorder(), false, false, false, true).BorderForeground(menus.BaseGrayDarker)
+	styleMenuContent = lipgloss.NewStyle().Margin(0, 0, 0, 2).Padding(0, 1).Border(lipgloss.NormalBorder(), false, false, false, true).BorderForeground(style.BaseGrayDarker)
 	styleLogs        = map[game.LogType]lipgloss.Style{
 		game.LogTypeInfo:    lipgloss.NewStyle(),
-		game.LogTypeWarning: lipgloss.NewStyle().Foreground(menus.BaseYellow),
-		game.LogTypeDanger:  lipgloss.NewStyle().Foreground(menus.BaseRed),
-		game.LogTypeSuccess: lipgloss.NewStyle().Foreground(menus.BaseGreen),
+		game.LogTypeWarning: lipgloss.NewStyle().Foreground(style.BaseYellow),
+		game.LogTypeDanger:  lipgloss.NewStyle().Foreground(style.BaseRed),
+		game.LogTypeSuccess: lipgloss.NewStyle().Foreground(style.BaseGreen),
 	}
 )
 
@@ -68,8 +69,8 @@ func NewMenuModel(parent tea.Model, session *game.Session) MenuModel {
 	}
 
 	delegation := list.NewDefaultDelegate()
-	delegation.Styles.SelectedTitle = delegation.Styles.SelectedTitle.Foreground(menus.BaseRed).BorderForeground(menus.BaseRed)
-	delegation.Styles.SelectedDesc = delegation.Styles.SelectedDesc.Foreground(menus.BaseRedDarker).BorderForeground(menus.BaseRed)
+	delegation.Styles.SelectedTitle = delegation.Styles.SelectedTitle.Foreground(style.BaseRed).BorderForeground(style.BaseRed)
+	delegation.Styles.SelectedDesc = delegation.Styles.SelectedDesc.Foreground(style.BaseRedDarker).BorderForeground(style.BaseRed)
 
 	model := MenuModel{
 		parent:    parent,
@@ -85,7 +86,7 @@ func NewMenuModel(parent tea.Model, session *game.Session) MenuModel {
 	model.list.SetShowFilter(false)
 	model.list.SetShowStatusBar(false)
 	model.list.SetShowHelp(false)
-	model.list.Styles.Title = lipgloss.NewStyle().Background(menus.BaseRedDarker).Foreground(menus.BaseWhite).Padding(0, 2, 0, 2)
+	model.list.Styles.Title = lipgloss.NewStyle().Background(style.BaseRedDarker).Foreground(style.BaseWhite).Padding(0, 2, 0, 2)
 
 	return model
 }
@@ -99,7 +100,7 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Size = msg
 
-		h, v := menus.ListStyle.GetFrameSize()
+		h, v := style.ListStyle.GetFrameSize()
 		m.list.SetSize(m.Size.Width/4-h, msg.Height-v)
 
 		m = m.updateLogViewport()
@@ -135,9 +136,9 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m MenuModel) View() string {
 	var contentBox string
 
-	contentStyle := styleMenuContent.Width(m.Size.Width - m.Size.Width/4 - menus.ListStyle.GetHorizontalFrameSize()).Height(m.Size.Height)
+	contentStyle := styleMenuContent.Width(m.Size.Width - m.Size.Width/4 - style.ListStyle.GetHorizontalFrameSize()).Height(m.Size.Height)
 	if !m.listFocus {
-		contentStyle = contentStyle.Copy().BorderForeground(menus.BaseGray)
+		contentStyle = contentStyle.Copy().BorderForeground(style.BaseGray)
 	}
 
 	switch m.choices[m.list.Index()].(choiceItem).key {
@@ -145,18 +146,18 @@ func (m MenuModel) View() string {
 		contentBox = contentStyle.Render(
 			lipgloss.JoinVertical(
 				lipgloss.Top,
-				menus.HeaderStyle.Render("Character"),
+				style.HeaderStyle.Render("Character"),
 			))
 	case ChoiceLogs:
 		contentBox = contentStyle.Render(lipgloss.JoinVertical(
 			lipgloss.Top,
-			menus.HeaderStyle.Render("Logs"),
+			style.HeaderStyle.Render("Logs"),
 			m.logsViewport.View(),
 		))
 	case ChoiceArtifacts:
-		contentBox = contentStyle.Render(menus.HeaderStyle.Render("Artifacts"))
+		contentBox = contentStyle.Render(style.HeaderStyle.Render("Artifacts"))
 	case ChoiceCards:
-		contentBox = contentStyle.Render(menus.HeaderStyle.Render("Cards"))
+		contentBox = contentStyle.Render(style.HeaderStyle.Render("Cards"))
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, "\n"+m.list.View(), contentBox)
@@ -167,11 +168,11 @@ func (m MenuModel) listWidth() int {
 }
 
 func (m MenuModel) contentWidth() int {
-	return m.Size.Width - m.listWidth() - menus.ListStyle.GetHorizontalFrameSize()
+	return m.Size.Width - m.listWidth() - style.ListStyle.GetHorizontalFrameSize()
 }
 
 func (m MenuModel) updateLogViewport() MenuModel {
-	headerHeight := menus.HeaderStyle.GetVerticalFrameSize() + 1
+	headerHeight := style.HeaderStyle.GetVerticalFrameSize() + 1
 	verticalMarginHeight := headerHeight
 
 	if !m.logsInitialized {
@@ -181,12 +182,12 @@ func (m MenuModel) updateLogViewport() MenuModel {
 		m.logsViewport.SetContent(strings.Join(lo.Map(lo.Reverse(m.Session.Logs), func(item game.LogEntry, index int) string {
 			return wordwrap.String(
 				fmt.Sprintf("  %s |- %s %s %s",
-					lipgloss.NewStyle().Foreground(menus.BaseGray).Render(fmt.Sprintf("#%05d", index)),
-					lipgloss.NewStyle().Foreground(menus.BaseGray).Render(item.Time.Format(time.RFC822)),
+					lipgloss.NewStyle().Foreground(style.BaseGray).Render(fmt.Sprintf("#%05d", index)),
+					lipgloss.NewStyle().Foreground(style.BaseGray).Render(item.Time.Format(time.RFC822)),
 					styleLogs[item.Type].Render(fmt.Sprintf(" [ %-8s ]", item.Type)),
 					item.Message,
 				),
-				m.contentWidth()-menus.ListStyle.GetHorizontalFrameSize(),
+				m.contentWidth()-style.ListStyle.GetHorizontalFrameSize(),
 			)
 		}), "\n"))
 		m.logsInitialized = true

@@ -5,6 +5,7 @@ import (
 	"github.com/BigJk/project_gonzo/menus"
 	"github.com/BigJk/project_gonzo/menus/about"
 	"github.com/BigJk/project_gonzo/menus/gameview"
+	"github.com/BigJk/project_gonzo/menus/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"strings"
@@ -34,7 +35,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Size = msg
 		updated, cmd := m.choices.Update(tea.WindowSizeMsg{
 			Width:  msg.Width,
-			Height: msg.Height - (strings.Count(menus.Title, "\n") + menus.TitleStyle.GetVerticalFrameSize() + 1),
+			Height: msg.Height - (strings.Count(menus.Title, "\n") + style.TitleStyle.GetVerticalFrameSize() + 1),
 		})
 		m.choices = updated.(ChoicesModel)
 		return m, cmd
@@ -58,5 +59,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinVertical(lipgloss.Top, menus.TitleStyle.Render(menus.Title), m.choices.View())
+	return lipgloss.JoinVertical(lipgloss.Top, style.TitleStyle.Render(menus.Title), m.choices.View())
 }

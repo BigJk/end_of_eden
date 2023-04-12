@@ -2,6 +2,7 @@ package about
 
 import (
 	"github.com/BigJk/project_gonzo/menus"
+	"github.com/BigJk/project_gonzo/menus/style"
 	"github.com/BigJk/project_gonzo/util"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -34,26 +35,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-var aboutStyle = menus.ListStyle.Copy().
+var aboutStyle = style.ListStyle.Copy().
 	Align(lipgloss.Left).
 	Padding(1, 2).
 	Border(lipgloss.NormalBorder(), false, false, false, true).
-	BorderForeground(menus.BaseWhite)
+	BorderForeground(style.BaseWhite)
 
 func (m Model) View() string {
-	title := menus.TitleStyle.Render(menus.Title)
+	title := style.TitleStyle.Render(menus.Title)
 
 	version := lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(menus.BaseWhite).
+		BorderForeground(style.BaseWhite).
 		Margin(0, 2).
 		Padding(0, 2).
-		Foreground(menus.BaseRed).
+		Foreground(style.BaseRed).
 		Render("Version: 0.0.1 alpha")
 
 	about := aboutStyle.Height(lipgloss.Height(menus.About)).Width(util.Min(m.Size.Width, 65)).Render(menus.About)
 
-	back := lipgloss.NewStyle().Margin(0, 2).Foreground(menus.BaseRed).Render("<- ESC")
+	back := lipgloss.NewStyle().Margin(0, 2).Foreground(style.BaseRed).Render("<- ESC")
 
 	return lipgloss.JoinVertical(lipgloss.Top, title, version, about, back)
 }

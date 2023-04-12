@@ -38,7 +38,7 @@ func NewResourcesManager(state *lua.LState) *ResourcesManager {
 	man.LuaState.SetGlobal("register_event", man.LuaState.NewFunction(man.luaRegisterEvent))
 
 	// Load all local scripts
-	_ = filepath.Walk("./scripts", func(path string, info fs.FileInfo, err error) error {
+	_ = filepath.Walk("./assets/scripts", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}

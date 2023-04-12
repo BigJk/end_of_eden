@@ -3,7 +3,11 @@
 -- casts a random card onto a target from the cards that the actor specified by guid owns.
 function cast_random(guid, target)
     local cards = get_cards(guid)
-    cast_card(cards[math.random(#cards)], target)
+    if #cards == 0 then
+        debug_log("can't cast_random with zero cards available!")
+    else
+        cast_card(cards[math.random(#cards)], target)
+    end
 end
 
 register_enemy(

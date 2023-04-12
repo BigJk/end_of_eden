@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/menus/mainmenu"
 	"github.com/BigJk/project_gonzo/menus/root"
 	tea "github.com/charmbracelet/bubbletea"
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+	audio.InitAudio()
+
 	zone.NewGlobal()
 	zone.SetEnabled(true)
 

@@ -2,8 +2,10 @@ package gameview
 
 import (
 	"fmt"
+	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
 	"github.com/BigJk/project_gonzo/menus"
+	"github.com/BigJk/project_gonzo/menus/style"
 	"github.com/BigJk/project_gonzo/util"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,20 +16,6 @@ import (
 	"github.com/samber/lo"
 	"strconv"
 	"strings"
-)
-
-var (
-	titleStyle = func() lipgloss.Style {
-		b := lipgloss.RoundedBorder()
-		b.Right = "├"
-		return lipgloss.NewStyle().BorderStyle(b).BorderForeground(menus.BaseWhite).Foreground(menus.BaseWhite).Padding(0, 1)
-	}()
-
-	infoStyle = func() lipgloss.Style {
-		b := lipgloss.RoundedBorder()
-		b.Left = "┤"
-		return titleStyle.Copy().BorderStyle(b)
-	}()
 )
 
 const (
@@ -128,6 +116,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		m.lastMouse = msg
 
+		if msg.Type == tea.MouseLeft {
+			if zone.Get(ZoneEndTurn).InBounds(msg) {
+				before := m.Session.MarkState()
+
+				m.Session.FinishPlayerTurn()
+
+				damage := before.NewEvent(m.Session, game.StateEventDamage)
+				if len(damage) > 0 {
+					audio.Play("dmg1.mp3")
+				}
+			}
+		}
+
 		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
 			switch m.Session.GetGameState() {
 			case game.GameStateEvent:
@@ -190,6 +191,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.Size = msg
+
+		for i := range m.deathAnimations {
+			m.deathAnimations[i].SetSize(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1)
+		}
 	}
 
 	//
@@ -227,17 +232,19 @@ func (m Model) View() string {
 
 	switch m.Session.GetGameState() {
 	case game.GameStateFight:
-		var topView string
-		if len(m.deathAnimations) == 0 {
-			topView = m.fightEnemyView()
-		} else {
-			topView = m.deathAnimations[0].View()
+		if len(m.deathAnimations) > 0 {
+			return lipgloss.JoinVertical(
+				lipgloss.Top,
+				m.fightStatusTop(),
+				m.deathAnimations[0].View(),
+				m.fightStatusBottom(),
+			)
 		}
 
 		return lipgloss.JoinVertical(
 			lipgloss.Top,
 			m.fightStatusTop(),
-			lipgloss.NewStyle().Width(m.Size.Width).Height(m.fightEnemyViewHeight()).Render(topView),
+			lipgloss.NewStyle().Width(m.Size.Width).Height(m.fightEnemyViewHeight()).Render(m.fightEnemyView()),
 			m.fightDivider(),
 			lipgloss.NewStyle().Width(m.Size.Width).Height(m.fightCardViewHeight()).Render(m.fightCardView()),
 			m.fightStatusBottom(),
@@ -282,7 +289,9 @@ func (m Model) tryCast() Model {
 	diff := before.NewEvent(m.Session, game.StateEventDeath)
 	m.deathAnimations = lo.Map(diff, func(item game.StateCheckpoint, index int) DeathAnimationModel {
 		death := item.Events[game.StateEventDeath].(game.StateEventDeathData)
-		return NewDeathAnimationModel(m.Size.Width, m.fightEnemyViewHeight(), item.Session.GetActor(death.Target), death)
+		actor := item.Session.GetActor(death.Target)
+		enemy := m.Session.GetEnemy(actor.TypeID)
+		return NewDeathAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, actor, enemy, death)
 	})
 
 	return m
@@ -303,23 +312,23 @@ func (m Model) tryFinishEvent() Model {
 func (m Model) fightStatusTop() string {
 	style := lipgloss.NewStyle().
 		Width(m.Size.Width).
-		Foreground(menus.BaseWhite).
+		Foreground(style.BaseWhite).
 		Border(lipgloss.BlockBorder(), false, false, true, false).
-		BorderForeground(menus.BaseRed)
+		BorderForeground(style.BaseRedDarker)
 
 	fight := m.Session.GetFight()
 	player := m.Session.GetPlayer()
 
 	return style.Render(lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		lipgloss.NewStyle().Foreground(menus.BaseRed).Render(`▐█ ▀ ▪▪     •█▌▐█▪▀·.█▌▪     
+		lipgloss.NewStyle().Foreground(style.BaseRedDarker).Render(`▐█ ▀ ▪▪     •█▌▐█▪▀·.█▌▪     
 ▄█ ▀█▄ ▄█▀▄ ▐█▐▐▌▄█▀▀▀• ▄█▀▄ 
 ▐█▄▪▐█▐█▌.▐▌██▐█▌█▌▪▄█▀▐█▌.▐▌`),
 		lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Gold: %d", player.Gold)),
-		lipgloss.NewStyle().Bold(true).Foreground(menus.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("HP: %d / %d", player.HP, player.MaxHP)),
-		lipgloss.NewStyle().Bold(true).Foreground(menus.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Stage", m.Session.GetStagesCleared()+1)),
-		lipgloss.NewStyle().Bold(true).Foreground(menus.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Round", fight.Round+1)),
-		lipgloss.NewStyle().Italic(true).Foreground(menus.BaseGray).Padding(0, 4, 0, 0).Render("\""+fight.Description+"\""),
+		lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("HP: %d / %d", player.HP, player.MaxHP)),
+		lipgloss.NewStyle().Bold(true).Foreground(style.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Stage", m.Session.GetStagesCleared()+1)),
+		lipgloss.NewStyle().Bold(true).Foreground(style.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Round", fight.Round+1)),
+		lipgloss.NewStyle().Italic(true).Foreground(style.BaseGray).Padding(0, 4, 0, 0).Render("\""+fight.Description+"\""),
 	))
 }
 
@@ -327,18 +336,18 @@ func (m Model) fightDivider() string {
 	if m.inOpponentSelection {
 		const message = " Select a target for your card... "
 
-		return lipgloss.Place(m.Size.Width, 1, lipgloss.Center, lipgloss.Center, menus.RedText.Bold(true).Render(message), lipgloss.WithWhitespaceForeground(menus.BaseGrayDarker), lipgloss.WithWhitespaceChars("─"))
+		return lipgloss.Place(m.Size.Width, 1, lipgloss.Center, lipgloss.Center, style.RedText.Bold(true).Render(message), lipgloss.WithWhitespaceForeground(style.BaseGrayDarker), lipgloss.WithWhitespaceChars("─"))
 	}
 
-	return lipgloss.NewStyle().Foreground(menus.BaseGrayDarker).Render(strings.Repeat("─", m.Size.Width))
+	return lipgloss.NewStyle().Foreground(style.BaseGrayDarker).Render(strings.Repeat("─", m.Size.Width))
 }
 
 func (m Model) fightStatusBottom() string {
 	style := lipgloss.NewStyle().
 		Width(m.Size.Width).
-		Foreground(menus.BaseWhite).
+		Foreground(style.BaseWhite).
 		Border(lipgloss.BlockBorder(), true, false, false, false).
-		BorderForeground(menus.BaseRed)
+		BorderForeground(style.BaseRedDarker)
 
 	fight := m.Session.GetFight()
 
@@ -346,15 +355,15 @@ func (m Model) fightStatusBottom() string {
 		lipgloss.Center,
 		lipgloss.Place(m.Size.Width-40, 3, lipgloss.Left, lipgloss.Center, lipgloss.JoinHorizontal(
 			lipgloss.Center,
-			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(menus.BaseWhite)).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Deck: %d", len(fight.Deck))),
+			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(style.BaseWhite)).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Deck: %d", len(fight.Deck))),
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Used: %d", len(fight.Used))),
-			lipgloss.NewStyle().Bold(true).Foreground(menus.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Exhausted: %d", len(fight.Used)))),
-			lipgloss.NewStyle().Bold(true).Foreground(menus.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound)))),
+			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Exhausted: %d", len(fight.Used)))),
+			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound)))),
 		),
 		lipgloss.Place(40, 3, lipgloss.Right, lipgloss.Center, lipgloss.JoinHorizontal(
 			lipgloss.Center,
-			zone.Mark(ZoneEndTurn, menus.HeaderStyle.Copy().Background(lo.Ternary(zone.Get(ZoneEndTurn).InBounds(m.lastMouse), menus.BaseRed, menus.BaseRedDarker)).Margin(0, 4, 0, 0).Render("End Turn")),
-			menus.RedText.Render(`▀ █▌█▌▪
+			zone.Mark(ZoneEndTurn, style.HeaderStyle.Copy().Background(lo.Ternary(zone.Get(ZoneEndTurn).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 4, 0, 0).Render("End Turn")),
+			style.RedDarkerText.Render(`▀ █▌█▌▪
  ·██· 
 ▪▐█·█▌`))),
 	))
@@ -368,6 +377,8 @@ func (m Model) fightCardViewHeight() int {
 	return m.Size.Height - m.fightEnemyViewHeight() - 1 - 4 - 4
 }
 
+var faceStyle = lipgloss.NewStyle().Border(lipgloss.OuterHalfBlockBorder()).Padding(0, 1).Margin(0, 0, 1, 0).BorderForeground(style.BaseGrayDarker).Foreground(style.BaseRed)
+
 func (m Model) fightEnemyView() string {
 	var enemyBoxes []string
 
@@ -379,12 +390,8 @@ func (m Model) fightEnemyView() string {
 		}
 		enemyType := m.Session.GetEnemy(enemy.TypeID)
 
-		faceStyle := lipgloss.NewStyle().Border(lipgloss.OuterHalfBlockBorder()).Padding(0, 1).Margin(0, 0, 1, 0).BorderForeground(menus.BaseGrayDarker).Foreground(menus.BaseRed)
-		if m.inOpponentSelection && i == m.selectedOpponent {
-			faceStyle.BorderForeground(menus.BaseWhite)
-		}
-		face := faceStyle.Foreground(lipgloss.Color(enemyType.Color)).Render(enemyType.Look)
-		enemyBoxes = append(enemyBoxes, zone.Mark(fmt.Sprintf("%s%d", ZoneEnemy, i), lipgloss.NewStyle().Foreground(menus.BaseWhite).Margin(0, 2).
+		face := faceStyle.Copy().BorderForeground(lo.Ternary(m.inOpponentSelection && i == m.selectedOpponent, style.BaseWhite, style.BaseGrayDarker)).Foreground(lipgloss.Color(enemyType.Color)).Render(enemyType.Look)
+		enemyBoxes = append(enemyBoxes, zone.Mark(fmt.Sprintf("%s%d", ZoneEnemy, i), lipgloss.NewStyle().Foreground(style.BaseWhite).Margin(0, 2).
 			Render(lipgloss.JoinVertical(lipgloss.Center, face, enemy.Name, fmt.Sprintf("%d / %d", enemy.HP, enemy.MaxHP))),
 		))
 	}
@@ -394,7 +401,7 @@ func (m Model) fightEnemyView() string {
 
 func (m Model) fightCardView() string {
 	cardStyle := lipgloss.NewStyle().Width(30).Padding(1, 2).Margin(0, 2)
-	cantCastStyle := lipgloss.NewStyle().Foreground(menus.BaseRed)
+	cantCastStyle := lipgloss.NewStyle().Foreground(style.BaseRed)
 
 	fight := m.Session.GetFight()
 	var cardBoxes = lo.Map(m.Session.GetFight().Hand, func(guid string, index int) string {
@@ -407,11 +414,11 @@ func (m Model) fightCardView() string {
 			pointText = cantCastStyle.Render(pointText)
 		}
 
-		style := cardStyle.Border(lipgloss.NormalBorder(), selected, false, false, false).BorderBackground(lipgloss.Color(card.Color)).Background(lipgloss.Color(card.Color)).BorderForeground(menus.BaseWhite).Foreground(menus.BaseWhite)
+		style := cardStyle.Border(lipgloss.NormalBorder(), selected, false, false, false).BorderBackground(lipgloss.Color(card.Color)).Background(lipgloss.Color(card.Color)).BorderForeground(style.BaseWhite).Foreground(style.BaseWhite)
 		if selected {
-			return style.Height(util.Min(m.fightCardViewHeight()-1, m.fightCardViewHeight()/2+5)).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, menus.BoldStyle.Render(card.Name), card.Description), 20))
+			return style.Height(util.Min(m.fightCardViewHeight()-1, m.fightCardViewHeight()/2+5)).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), card.Description), 20))
 		}
-		return style.Height(m.fightCardViewHeight() / 2).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, menus.BoldStyle.Render(card.Name), card.Description), 20))
+		return style.Height(m.fightCardViewHeight() / 2).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), card.Description), 20))
 	})
 
 	cardBoxes = lo.Map(cardBoxes, func(item string, i int) string {
@@ -441,14 +448,17 @@ func (m Model) eventUpdateContent() Model {
 	return m
 }
 
+var titleStyle = lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder()).BorderForeground(style.BaseRedDarker).Foreground(style.BaseWhite).Padding(0, 1)
+var infoStyle = lipgloss.NewStyle().BorderStyle(lipgloss.ThickBorder()).BorderForeground(style.BaseRedDarker).Foreground(style.BaseWhite).Padding(0, 1)
+
 func (m Model) eventHeaderView() string {
 	if m.Session.GetEvent() == nil {
 		return ""
 	}
 
 	title := titleStyle.Render(m.Session.GetEvent().Name)
-	line := menus.BaseText.Render(strings.Repeat("─", util.Max(0, m.viewport.Width-lipgloss.Width(title))))
-	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
+	line := style.GrayTextDarker.Render(strings.Repeat("━", util.Max(0, m.viewport.Width-lipgloss.Width(title))))
+	return "\n" + lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }
 
 func (m Model) eventFooterView() string {
@@ -457,12 +467,12 @@ func (m Model) eventFooterView() string {
 	}
 
 	info := infoStyle.Render(fmt.Sprintf("%3.f%%", m.viewport.ScrollPercent()*100))
-	line := menus.BaseText.Render(strings.Repeat("─", util.Max(0, m.viewport.Width-lipgloss.Width(info))))
+	line := style.GrayTextDarker.Render(strings.Repeat("━", util.Max(0, m.viewport.Width-lipgloss.Width(info))))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
-var choiceStyle = lipgloss.NewStyle().Padding(0, 1).Border(lipgloss.RoundedBorder(), true).BorderForeground(menus.BaseWhite).Foreground(menus.BaseWhite)
-var choiceSelectedStyle = choiceStyle.Copy().BorderForeground(menus.BaseRed).Foreground(menus.BaseWhite)
+var choiceStyle = lipgloss.NewStyle().Padding(0, 1).Border(lipgloss.ThickBorder(), true).BorderForeground(style.BaseGrayDarker).Foreground(style.BaseWhite)
+var choiceSelectedStyle = choiceStyle.Copy().BorderForeground(style.BaseRed).Foreground(style.BaseWhite)
 
 func (m Model) eventChoices() []string {
 	if m.Session.GetEvent() == nil {
@@ -484,5 +494,5 @@ func (m Model) eventChoices() []string {
 func (m Model) eventChoiceHeight() int {
 	return lo.SumBy(m.eventChoices(), func(item string) int {
 		return lipgloss.Height(item)
-	})
+	}) + 1
 }

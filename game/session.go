@@ -188,7 +188,9 @@ func (s *Session) FinishPlayerTurn() {
 		}
 
 		if enemy, ok := s.resources.Enemies[v.TypeID]; ok {
-			_, _ = enemy.Callbacks[CallbackOnTurn].Call(v.TypeID, k, s.currentFight.Round)
+			if _, err := enemy.Callbacks[CallbackOnTurn].Call(v.TypeID, k, s.currentFight.Round); err != nil {
+				s.DebugLog(err.Error())
+			}
 		}
 	}
 
@@ -596,9 +598,13 @@ func (s *Session) AddActorFromEnemy(id string) string {
 		actor.HP = base.InitialHP
 		actor.MaxHP = base.MaxHP
 
-		_, _ = base.Callbacks[CallbackOnInit].Call(id, actor.ID)
-
+		// Its important we add the actor before any callbacks so that it's instance is available
+		// to add cards etc. to!
 		s.AddActor(actor)
+
+		if _, err := base.Callbacks[CallbackOnInit].Call(id, actor.ID); err != nil {
+			s.DebugLog(err.Error())
+		}
 
 		return actor.ID
 	}

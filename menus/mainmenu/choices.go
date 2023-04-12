@@ -1,10 +1,11 @@
 package mainmenu
 
 import (
-	"github.com/BigJk/project_gonzo/menus"
+	"github.com/BigJk/project_gonzo/menus/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	zone "github.com/lrstanley/bubblezone"
 )
 
 type Choice string
@@ -23,8 +24,8 @@ type choiceItem struct {
 	key         Choice
 }
 
-func (i choiceItem) Title() string       { return i.title }
-func (i choiceItem) Description() string { return i.desc }
+func (i choiceItem) Title() string       { return zone.Mark("choice_"+string(i.key), i.title) }
+func (i choiceItem) Description() string { return zone.Mark("choice_desc_"+string(i.key), i.desc) }
 func (i choiceItem) FilterValue() string { return i.title }
 
 type ChoicesModel struct {
@@ -43,8 +44,8 @@ func NewChoicesModel() ChoicesModel {
 	}
 
 	delegation := list.NewDefaultDelegate()
-	delegation.Styles.SelectedTitle = delegation.Styles.SelectedTitle.Foreground(menus.BaseRed).BorderForeground(menus.BaseRed)
-	delegation.Styles.SelectedDesc = delegation.Styles.SelectedDesc.Foreground(menus.BaseRedDarker).BorderForeground(menus.BaseRed)
+	delegation.Styles.SelectedTitle = delegation.Styles.SelectedTitle.Foreground(style.BaseRed).BorderForeground(style.BaseRed)
+	delegation.Styles.SelectedDesc = delegation.Styles.SelectedDesc.Foreground(style.BaseRedDarker).BorderForeground(style.BaseRed)
 
 	model := ChoicesModel{
 		choices:  choices,
@@ -57,7 +58,7 @@ func NewChoicesModel() ChoicesModel {
 	model.list.SetShowFilter(false)
 	model.list.SetShowStatusBar(false)
 	//model.list.SetShowHelp(false)
-	model.list.Styles.Title = lipgloss.NewStyle().Background(menus.BaseRedDarker).Foreground(menus.BaseWhite).Padding(0, 2, 0, 2)
+	model.list.Styles.Title = lipgloss.NewStyle().Background(style.BaseRedDarker).Foreground(style.BaseWhite).Padding(0, 2, 0, 2)
 
 	return model
 }
@@ -74,7 +75,7 @@ func (m ChoicesModel) Init() tea.Cmd {
 func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		h, v := menus.ListStyle.GetFrameSize()
+		h, v := style.ListStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
@@ -87,6 +88,18 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.selected = choice.key
 			}
 		}
+	case tea.MouseMsg:
+		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
+			for i := range m.choices {
+				if zone.Get("choice_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) || zone.Get("choice_desc_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) {
+					m.list.Select(i)
+					if msg.Type == tea.MouseLeft {
+						m.selected = m.choices[i].(choiceItem).key
+					}
+					break
+				}
+			}
+		}
 	}
 
 	var cmd tea.Cmd
@@ -96,5 +109,5 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ChoicesModel) View() string {
-	return menus.ListStyle.Render(m.list.View())
+	return style.ListStyle.Render(m.list.View())
 }

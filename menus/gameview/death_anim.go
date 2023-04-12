@@ -2,9 +2,11 @@ package gameview
 
 import (
 	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/menus"
+	"github.com/BigJk/project_gonzo/menus/style"
+	"github.com/BigJk/project_gonzo/util"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"math"
 	"time"
 )
 
@@ -14,15 +16,18 @@ type DeathAnimationModel struct {
 	width    int
 	height   int
 	target   game.Actor
+	enemy    game.Enemy
 	death    game.StateEventDeathData
 	progress float64
+	started  bool
 }
 
-func NewDeathAnimationModel(width int, height int, target game.Actor, death game.StateEventDeathData) DeathAnimationModel {
+func NewDeathAnimationModel(width int, height int, target game.Actor, targetEnemy game.Enemy, death game.StateEventDeathData) DeathAnimationModel {
 	return DeathAnimationModel{
 		width:  width,
 		height: height,
 		target: target,
+		enemy:  targetEnemy,
 		death:  death,
 	}
 }
@@ -38,33 +43,50 @@ func (m DeathAnimationModel) Init() tea.Cmd {
 }
 
 func (m DeathAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg.(type) {
+	switch msg := msg.(type) {
+	case tea.Key:
+		if m.progress > 0.1 && (msg.Type == tea.KeyEnter || msg.Type == tea.KeySpace) {
+			return nil, nil
+		}
+	case tea.MouseMsg:
+		if m.progress > 0.1 && msg.Type == tea.MouseLeft {
+			return nil, nil
+		}
 	case DeathAnimationFrame:
-		elapsed := (1.0 / 30.0) / 5.0
+		elapsed := 1.0 / 30.0 / 5.0
 		m.progress += elapsed
+
+		if m.progress >= 1.0 {
+			return nil, nil
+		}
+
+		return m, tea.Tick(time.Second/time.Duration(30), func(t time.Time) tea.Msg {
+			return DeathAnimationFrame(t)
+		})
 	}
 
-	if m.progress >= 1.0 {
-		return nil, nil
+	if m.started == false {
+		m.started = true
+		return m, tea.Tick(time.Second/time.Duration(30), func(t time.Time) tea.Msg {
+			return DeathAnimationFrame(t)
+		})
 	}
 
-	return m, tea.Tick(time.Second/time.Duration(30), func(t time.Time) tea.Msg {
-		return DeathAnimationFrame(t)
-	})
+	return m, nil
 }
 
 func (m DeathAnimationModel) View() string {
-	headerStyle := lipgloss.NewStyle().Margin(4).Padding(2).Border(lipgloss.NormalBorder())
-
-	faceStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(0, 1).BorderForeground(menus.BaseWhite).Foreground(menus.BaseRed)
-	face := faceStyle.Render("@")
-
+	face := faceStyle.Copy().BorderForeground(style.BaseRed).Foreground(lipgloss.Color(m.enemy.Color)).Render(m.enemy.Look)
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Center,
-			headerStyle.Render("Enemy Slayed"),
+			style.BaseText.Render(m.target.Name),
+			lipgloss.NewStyle().Margin(3, 0).Foreground(util.RGBColor(byte(math.Max(math.Sin(m.progress*40)*256, 120)), 0, 0)).Render(`▄ •▄ ▪  ▄▄▌  ▄▄▌  ▄▄▄ .·▄▄▄▄  ▄▄ ▄▄ 
+█▌▄▌▪██ ██•  ██•  ▀▄.▀·██▪ ██ ██▌██▌
+▐▀▀▄·▐█·██▪  ██▪  ▐▀▀▪▄▐█· ▐█▌▐█·▐█·
+▐█.█▌▐█▌▐█▌▐▌▐█▌▐▌▐█▄▄▌██. ██ .▀ .▀ 
+·▀  ▀▀▀▀.▀▀▀ .▀▀▀  ▀▀▀ ▀▀▀▀▀•  ▀  ▀`),
 			face,
-			m.target.Name,
 		),
 	)
 }

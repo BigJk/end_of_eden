@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/gluamapper"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
@@ -104,6 +105,13 @@ func SessionAdapter(session *Session) *lua.LState {
 
 	l.SetGlobal("debug_log", l.NewFunction(func(state *lua.LState) int {
 		session.DebugLog(state.ToString(1))
+		return 0
+	}))
+
+	// Audio
+
+	l.SetGlobal("play_audio", l.NewFunction(func(state *lua.LState) int {
+		audio.Play(state.ToString(1))
 		return 0
 	}))
 
