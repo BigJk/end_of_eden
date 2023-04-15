@@ -1,24 +1,4 @@
 register_artifact(
-    "TEST_ARTIFACT",
-    {
-        Name = "Test Artifact",
-        Description = "This is a cool description",
-        Price = 1337,
-        Order = -10,
-        Callbacks = {
-            OnPickUp = function(type, guid, owner)
-                -- hello world
-                return nil
-            end,
-            OnCombatEnd = function(type, guid, owner)
-                -- hello world
-                return nil
-            end
-        }
-    }
-);
-
-register_artifact(
     "DOUBLE_DAMAGE",
     {
         Name = "Stone Of Gigantic Strength",
@@ -26,8 +6,11 @@ register_artifact(
         Price = 1000,
         Order = -10,
         Callbacks = {
-            OnDamageCalc = function(type, guid, source, target, damage)
-                return damage * 2
+            OnDamageCalc = function(ctx)
+                if ctx.target == ctx.owner then
+                    return ctx.damage * 2
+                end
+                return nil
             end,
         }
     }
@@ -41,9 +24,27 @@ register_artifact(
             Price = 200,
             Order = 0,
             Callbacks = {
-                OnDamageCalc = function(type, guid, source, target, damage)
-                    heal()
-                    return damage
+                OnDamage = function(ctx)
+                    if ctx.target == ctx.owner then
+                        heal(ctx.owner, 2)
+                    end
+                    return nil
+                end,
+            }
+        }
+);
+
+register_artifact(
+        "RADIANT_SEED",
+        {
+            Name = "Radiant Seed",
+            Description = "A small glowing seed.",
+            Price = 50,
+            Order = 0,
+            Callbacks = {
+                OnPickUp = function(ctx)
+                    give_card("RADIANT_SEED", ctx.owner)
+                    return nil
                 end,
             }
         }

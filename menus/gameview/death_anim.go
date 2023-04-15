@@ -1,12 +1,12 @@
 package gameview
 
 import (
+	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
+	"github.com/BigJk/project_gonzo/menus/animation"
 	"github.com/BigJk/project_gonzo/menus/style"
-	"github.com/BigJk/project_gonzo/util"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"math"
 	"time"
 )
 
@@ -53,6 +53,10 @@ func (m DeathAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return nil, nil
 		}
 	case DeathAnimationFrame:
+		if m.progress == 0 {
+			audio.Play("death_scream_1")
+		}
+
 		elapsed := 1.0 / 30.0 / 5.0
 		m.progress += elapsed
 
@@ -75,18 +79,24 @@ func (m DeathAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+const killedText = `▄ •▄ ▪  ▄▄▌  ▄▄▌  ▄▄▄ .·▄▄▄▄  ▄▄ ▄▄ 
+█▌▄▌▪██ ██•  ██•  ▀▄.▀·██▪ ██ ██▌██▌
+▐▀▀▄·▐█·██▪  ██▪  ▐▀▀▪▄▐█· ▐█▌▐█·▐█·
+▐█.█▌▐█▌▐█▌▐▌▐█▌▐▌▐█▄▄▌██. ██ .▀ .▀ 
+·▀  ▀▀▀▀.▀▀▀ .▀▀▀  ▀▀▀ ▀▀▀▀▀•  ▀  ▀`
+
 func (m DeathAnimationModel) View() string {
+	killedText := animation.JitterText(killedText, m.progress*2.5, 0, 10)
+
 	face := faceStyle.Copy().BorderForeground(style.BaseRed).Foreground(lipgloss.Color(m.enemy.Color)).Render(m.enemy.Look)
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Center,
-			style.BaseText.Render(m.target.Name),
-			lipgloss.NewStyle().Margin(3, 0).Foreground(util.RGBColor(byte(math.Max(math.Sin(m.progress*40)*256, 120)), 0, 0)).Render(`▄ •▄ ▪  ▄▄▌  ▄▄▌  ▄▄▄ .·▄▄▄▄  ▄▄ ▄▄ 
-█▌▄▌▪██ ██•  ██•  ▀▄.▀·██▪ ██ ██▌██▌
-▐▀▀▄·▐█·██▪  ██▪  ▐▀▀▪▄▐█· ▐█▌▐█·▐█·
-▐█.█▌▐█▌▐█▌▐▌▐█▌▐▌▐█▄▄▌██. ██ .▀ .▀ 
-·▀  ▀▀▀▀.▀▀▀ .▀▀▀  ▀▀▀ ▀▀▀▀▀•  ▀  ▀`),
+			style.RedText.Render(`━╋━
+ ┃`),
 			face,
+			style.BaseText.Render(m.target.Name),
+			lipgloss.NewStyle().Margin(2, 0, 0, 0).Foreground(style.BaseRed).Render(killedText),
 		),
 	)
 }

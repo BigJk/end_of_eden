@@ -2,76 +2,17 @@ package game
 
 import (
 	"github.com/BigJk/project_gonzo/audio"
-	"github.com/BigJk/project_gonzo/gluamapper"
+	"github.com/BigJk/project_gonzo/luhelp"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
+	"log"
 )
-
-// OwnedCallback represents a callback that will execute inside a lua vm.
-type OwnedCallback func(args ...any) (any, error)
-
-func (cb OwnedCallback) Call(args ...any) (any, error) {
-	if cb == nil {
-		return nil, nil
-	}
-
-	return cb(args...)
-}
-
-// NewMapper creates a new lua -> go mapper that is able to convert lua functions to OwnedCallback.
-func NewMapper(state *lua.LState) *gluamapper.Mapper {
-	return gluamapper.NewMapper(gluamapper.Option{
-		TagName: "lua",
-		FnHook: func(value lua.LValue) any {
-			return BindToLua(state, value)
-		},
-	})
-}
-
-// BindToLua will create a OwnedCallback from a lua function and state.
-func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
-	return func(args ...any) (any, error) {
-		// Call our lua function
-		if err := state.CallByParam(lua.P{
-			Fn:      value,
-			NRet:    1,
-			Protect: true,
-		}, lo.Map(args, func(item any, index int) lua.LValue {
-			return luar.New(state, item)
-		})...); err != nil {
-			return nil, err
-		}
-
-		// Fetch return value
-		ret := state.Get(-1)
-		state.Pop(1)
-
-		// Parse to accepted return values
-		switch ret.Type() {
-		case lua.LTString:
-			return lua.LVAsString(ret), nil
-		case lua.LTNumber:
-			return float64(lua.LVAsNumber(ret)), nil
-		case lua.LTBool:
-			return lua.LVAsBool(ret), nil
-		case lua.LTTable:
-			mapper := NewMapper(state)
-			var data map[string]interface{}
-			if err := mapper.Map(ret.(*lua.LTable), &data); err != nil {
-				return nil, err
-			}
-			return data, nil
-		}
-
-		// Don't error for now
-		return nil, nil
-	}
-}
 
 // SessionAdapter creates a lua vm that is bound to the session in the given Session.
 func SessionAdapter(session *Session) *lua.LState {
 	l := lua.NewState()
+	mapper := luhelp.NewMapper(l)
 
 	// Constants
 
@@ -104,7 +45,36 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("debug_log", l.NewFunction(func(state *lua.LState) int {
-		session.DebugLog(state.ToString(1))
+		if state.GetTop() == 1 {
+			log.Println("[LUA] " + state.ToString(1))
+			return 0
+		}
+
+		log.Printf("[LUA] "+state.ToString(1)+"\n", lo.Map(make([]any, state.GetTop()-1), func(_ any, index int) any {
+			val := state.Get(2 + index)
+
+			switch val.Type() {
+			case lua.LTString:
+				return lua.LVAsString(val)
+			case lua.LTNumber:
+				return float64(lua.LVAsNumber(val))
+			case lua.LTBool:
+				return lua.LVAsBool(val)
+			case lua.LTTable:
+				var data map[string]interface{}
+				if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
+					return "Error: " + err.Error()
+				}
+				return data
+			case lua.LTUserData:
+				return val.(*lua.LUserData).Value
+			case lua.LTNil:
+				return "nil"
+			}
+
+			return "<" + val.Type().String() + ">"
+		})...)
+
 		return 0
 	}))
 
@@ -127,6 +97,16 @@ func SessionAdapter(session *Session) *lua.LState {
 		return 0
 	}))
 
+	l.SetGlobal("get_fight_round", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LNumber(session.GetFightRound()))
+		return 1
+	}))
+
+	l.SetGlobal("get_fight", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luar.New(state, session.GetFightRound()))
+		return 1
+	}))
+
 	// Actor Operations
 
 	l.SetGlobal("get_player", l.NewFunction(func(state *lua.LState) int {
@@ -140,18 +120,24 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("get_opponent_by_index", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luar.New(state, session.GetOpponentByIndex(state.ToString(1), int(state.ToNumber(2)))))
+		log.Println(int(state.ToNumber(2)) - 1)
+		state.Push(luar.New(state, session.GetOpponentByIndex(state.ToString(1), int(state.ToNumber(2))-1)))
+		return 1
+	}))
+
+	l.SetGlobal("get_opponent_count", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LNumber(session.GetOpponentCount(state.ToString(1))))
+		return 1
+	}))
+
+	l.SetGlobal("get_opponent_guids", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luar.New(state, session.GetOpponentGUIDs(state.ToString(1))))
 		return 1
 	}))
 
 	l.SetGlobal("remove_actor", l.NewFunction(func(state *lua.LState) int {
 		session.GetActor(state.ToString(1))
 		return 0
-	}))
-
-	l.SetGlobal("get_opponent_count", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LNumber(session.GetOpponentCount(state.ToString(1))))
-		return 1
 	}))
 
 	l.SetGlobal("add_actor_by_enemy", l.NewFunction(func(state *lua.LState) int {
@@ -168,6 +154,18 @@ func SessionAdapter(session *Session) *lua.LState {
 
 	l.SetGlobal("remove_artifact", l.NewFunction(func(state *lua.LState) int {
 		session.RemoveArtifact(state.ToString(1))
+		return 0
+	}))
+
+	// Artifacts
+
+	l.SetGlobal("give_status_effect", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString(session.GiveStatusEffect(state.ToString(1), state.ToString(2))))
+		return 1
+	}))
+
+	l.SetGlobal("remove_status_effect", l.NewFunction(func(state *lua.LState) int {
+		session.RemoveStatusEffect(state.ToString(1))
 		return 0
 	}))
 
@@ -196,7 +194,37 @@ func SessionAdapter(session *Session) *lua.LState {
 	// Damage & Heal
 
 	l.SetGlobal("deal_damage", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)))))
+		if state.GetTop() == 3 {
+			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), false)))
+		} else {
+			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), bool(state.ToBool(4)))))
+		}
+		return 1
+	}))
+
+	l.SetGlobal("deal_damage_multi", l.NewFunction(func(state *lua.LState) int {
+		var guids []string
+
+		switch state.Get(2).Type() {
+		case lua.LTTable:
+			if err := mapper.Map(state.Get(2).(*lua.LTable), &guids); err != nil {
+				log.Printf("Error in deal_damage_multi: %v\n", err)
+				return 0
+			}
+		case lua.LTUserData:
+			if val, ok := state.Get(2).(*lua.LUserData).Value.([]string); ok {
+				guids = val
+			}
+		default:
+			log.Printf("Error in deal_damage_multi: wrong type %v", state.Get(2).Type().String())
+			return 0
+		}
+
+		if state.GetTop() == 3 {
+			state.Push(luar.New(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), false)))
+		} else {
+			state.Push(luar.New(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), bool(state.ToBool(4)))))
+		}
 		return 1
 	}))
 

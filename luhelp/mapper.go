@@ -1,5 +1,4 @@
-// gluamapper provides an easy way to map GopherLua tables to Go structs.
-package gluamapper
+package luhelp
 
 /*
 
@@ -38,17 +37,19 @@ import (
 
 // Option is a configuration that is used to create a new mapper.
 type Option struct {
-	// Function to convert a lua table key to Go's one. This defaults to "ToUpperCamelCase".
+	// NameFunc to convert a lua table key to Go's one. This defaults to "ToUpperCamelCase".
 	NameFunc func(string) string
 
-	// Returns error if unused keys exist.
+	// ErrorUnused returns error if unused keys exist.
 	ErrorUnused bool
 
-	// A struct tag name for lua table keys . This defaults to "gluamapper"
+	// TagName struct tag name for lua table keys.
 	TagName string
 
+	// DecodeHook for MapStructure.
 	DecodeHook any
 
+	// FnHook to convert lua function to some go value.
 	FnHook func(value lua.LValue) any
 }
 
@@ -57,26 +58,21 @@ type Mapper struct {
 	Option Option
 }
 
-// NewMapper returns a new mapper.
-func NewMapper(opt Option) *Mapper {
-	if opt.NameFunc == nil {
-		opt.NameFunc = ToUpperCamelCase
-	}
-	if opt.TagName == "" {
-		opt.TagName = "gluamapper"
-	}
-	if opt.FnHook == nil {
-		opt.FnHook = func(value lua.LValue) any {
-			return value
-		}
-	}
-	return &Mapper{opt}
+// NewMapper returns a new mapper bound to a lua state.
+func NewMapper(state *lua.LState) *Mapper {
+	return &Mapper{Option{
+		TagName:  LuaTag,
+		NameFunc: toUpperCamelCase,
+		FnHook: func(value lua.LValue) any {
+			return BindToLua(state, value)
+		},
+	}}
 }
 
 // Map maps the lua table to the given struct pointer.
 func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 	opt := mapper.Option
-	mp, ok := ToGoValue(tbl, opt).(map[any]any)
+	mp, ok := toGoValue(tbl, opt).(map[any]any)
 	if !ok {
 		return errors.New("arguments #1 must be a table, but got an array")
 	}
@@ -94,25 +90,15 @@ func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 	return decoder.Decode(mp)
 }
 
-// Map maps the lua table to the given struct pointer with default options.
-func Map(tbl *lua.LTable, st any) error {
-	return NewMapper(Option{}).Map(tbl, st)
-}
-
-// Id is an Option.NameFunc that returns given string as-is.
-func Id(s string) string {
-	return s
-}
-
-var camelre = regexp.MustCompile(`_([a-z])`)
+var camelRegex = regexp.MustCompile(`_([a-z])`)
 
 // ToUpperCamelCase is an Option.NameFunc that converts strings from snake case to upper camel case.
-func ToUpperCamelCase(s string) string {
-	return strings.ToUpper(string(s[0])) + camelre.ReplaceAllStringFunc(s[1:len(s)], func(s string) string { return strings.ToUpper(s[1:len(s)]) })
+func toUpperCamelCase(s string) string {
+	return strings.ToUpper(string(s[0])) + camelRegex.ReplaceAllStringFunc(s[1:len(s)], func(s string) string { return strings.ToUpper(s[1:len(s)]) })
 }
 
 // ToGoValue converts the given LValue to a Go object.
-func ToGoValue(lv lua.LValue, opt Option) any {
+func toGoValue(lv lua.LValue, opt Option) any {
 	if lv.Type() == lua.LTFunction {
 		return opt.FnHook(lv)
 	}
@@ -131,14 +117,14 @@ func ToGoValue(lv lua.LValue, opt Option) any {
 		if maxn == 0 { // table
 			ret := make(map[any]any)
 			v.ForEach(func(key, value lua.LValue) {
-				keystr := fmt.Sprint(ToGoValue(key, opt))
-				ret[opt.NameFunc(keystr)] = ToGoValue(value, opt)
+				keyStr := fmt.Sprint(toGoValue(key, opt))
+				ret[opt.NameFunc(keyStr)] = toGoValue(value, opt)
 			})
 			return ret
 		} else { // array
 			ret := make([]any, 0, maxn)
 			for i := 1; i <= maxn; i++ {
-				ret = append(ret, ToGoValue(v.RawGetInt(i), opt))
+				ret = append(ret, toGoValue(v.RawGetInt(i), opt))
 			}
 			return ret
 		}

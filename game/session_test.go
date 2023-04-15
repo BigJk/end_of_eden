@@ -21,8 +21,11 @@ func TestSessionLua(t *testing.T) {
 		// Set player name
 		testName := "Test Value"
 		testGold := 4123
-		session.GetPlayer().Name = testName
-		session.GetPlayer().Gold = testGold
+		session.UpdatePlayer(func(actor *Actor) bool {
+			actor.Name = testName
+			actor.Gold = testGold
+			return true
+		})
 
 		if err := session.luaState.DoString(`
 player_name = get_player().Name
@@ -78,7 +81,7 @@ register_artifact(
 		session.GiveArtifact("DOUBLE_DAMAGE", PlayerActorID)
 		session.GiveArtifact("MINUS", PlayerActorID)
 
-		session.DealDamage(PlayerActorID, enemyGuid, 20)
+		session.DealDamage(PlayerActorID, enemyGuid, 20, false)
 
 		assert.Equal(t, 100-(20*2-5), enemyActor.HP)
 	})
@@ -143,8 +146,11 @@ register_enemy(
 			t.Fatal(err)
 		}
 
-		session.GetPlayer().HP = 50
-		session.GetPlayer().MaxHP = 50
+		session.UpdatePlayer(func(actor *Actor) bool {
+			actor.HP = 50
+			actor.MaxHP = 50
+			return true
+		})
 
 		enemyGuid := session.AddActorFromEnemy(enemyType)
 		_, err := session.resources.Enemies[enemyType].Callbacks["OnInit"](enemyType, enemyGuid)

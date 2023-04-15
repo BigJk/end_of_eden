@@ -33,11 +33,11 @@ register_enemy(
         InitialHP = 4,
         MaxHP = 4,
         Callbacks = {
-            OnInit = function(type, guid)
-                give_card("BITE", guid)
+            OnInit = function(ctx)
+                give_card("BITE", ctx.guid)
             end,
-            OnTurn = function(type, guid)
-                cast_random(guid, PLAYER_ID)
+            OnTurn = function(ctx)
+                cast_random(ctx.guid, PLAYER_ID)
             end
         }
     }

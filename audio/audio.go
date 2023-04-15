@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/beep/effects"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
+	"github.com/faiface/beep/wav"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -19,30 +20,47 @@ func InitAudio() {
 			return nil
 		}
 
-		if !info.IsDir() && strings.HasSuffix(path, ".mp3") {
-			f, err := os.Open(path)
-			if err != nil {
-				return err
-			}
+		var streamer beep.StreamSeekCloser
+		var format beep.Format
 
-			streamer, format, err := mp3.Decode(f)
-			if err != nil {
-				return err
-			}
+		if !info.IsDir() {
+			if strings.HasSuffix(path, ".mp3") {
+				f, err := os.Open(path)
+				if err != nil {
+					return err
+				}
 
+				streamer, format, err = mp3.Decode(f)
+				if err != nil {
+					return err
+				}
+			} else if strings.HasSuffix(path, ".wav") {
+				f, err := os.Open(path)
+				if err != nil {
+					return err
+				}
+
+				streamer, format, err = wav.Decode(f)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		if streamer != nil {
 			buf := beep.NewBuffer(beep.Format{
 				SampleRate:  24000,
 				NumChannels: 2,
 				Precision:   2,
 			})
 			buf.Append(beep.Resample(6, format.SampleRate, 24000, streamer))
-			sounds[filepath.Base(path)] = buf
+			sounds[strings.Split(filepath.Base(path), ".")[0]] = buf
 		}
 
 		return nil
 	})
 
-	if err := speaker.Init(24000, 24000/2); err != nil {
+	if err := speaker.Init(24000, 100); err != nil {
 		panic(err)
 	}
 }

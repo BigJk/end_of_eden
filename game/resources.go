@@ -1,7 +1,7 @@
 package game
 
 import (
-	"github.com/BigJk/project_gonzo/gluamapper"
+	"github.com/BigJk/project_gonzo/luhelp"
 	lua "github.com/yuin/gopher-lua"
 	"io/fs"
 	"path/filepath"
@@ -11,24 +11,26 @@ import (
 // ResourcesManager can load Artifacts, Cards, Events and Enemy data from lua.
 // The manager will walk the ./scripts directory and evaluate all found .lua files
 type ResourcesManager struct {
-	LuaState  *lua.LState
-	Artifacts map[string]*Artifact
-	Cards     map[string]*Card
-	Events    map[string]*Event
-	Enemies   map[string]*Enemy
+	LuaState      *lua.LState
+	Artifacts     map[string]*Artifact
+	Cards         map[string]*Card
+	Events        map[string]*Event
+	Enemies       map[string]*Enemy
+	StatusEffects map[string]*StatusEffect
 
-	mapper *gluamapper.Mapper
+	mapper *luhelp.Mapper
 }
 
 func NewResourcesManager(state *lua.LState) *ResourcesManager {
 	man := &ResourcesManager{
-		LuaState:  state,
-		Artifacts: map[string]*Artifact{},
-		Cards:     map[string]*Card{},
-		Events:    map[string]*Event{},
-		Enemies:   map[string]*Enemy{},
+		LuaState:      state,
+		Artifacts:     map[string]*Artifact{},
+		Cards:         map[string]*Card{},
+		Events:        map[string]*Event{},
+		Enemies:       map[string]*Enemy{},
+		StatusEffects: map[string]*StatusEffect{},
 
-		mapper: NewMapper(state),
+		mapper: luhelp.NewMapper(state),
 	}
 
 	// Attach all register methods
@@ -36,6 +38,7 @@ func NewResourcesManager(state *lua.LState) *ResourcesManager {
 	man.LuaState.SetGlobal("register_card", man.LuaState.NewFunction(man.luaRegisterCard))
 	man.LuaState.SetGlobal("register_enemy", man.LuaState.NewFunction(man.luaRegisterEnemy))
 	man.LuaState.SetGlobal("register_event", man.LuaState.NewFunction(man.luaRegisterEvent))
+	man.LuaState.SetGlobal("register_status_effect", man.LuaState.NewFunction(man.luaRegisterStatusEffect))
 
 	// Load all local scripts
 	_ = filepath.Walk("./assets/scripts", func(path string, info fs.FileInfo, err error) error {
@@ -58,7 +61,7 @@ func NewResourcesManager(state *lua.LState) *ResourcesManager {
 
 func (man *ResourcesManager) luaRegisterArtifact(l *lua.LState) int {
 	def := Artifact{
-		Callbacks: map[string]OwnedCallback{},
+		Callbacks: map[string]luhelp.OwnedCallback{},
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
@@ -75,7 +78,7 @@ func (man *ResourcesManager) luaRegisterArtifact(l *lua.LState) int {
 
 func (man *ResourcesManager) luaRegisterCard(l *lua.LState) int {
 	def := Card{
-		Callbacks: map[string]OwnedCallback{},
+		Callbacks: map[string]luhelp.OwnedCallback{},
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
@@ -92,7 +95,7 @@ func (man *ResourcesManager) luaRegisterCard(l *lua.LState) int {
 
 func (man *ResourcesManager) luaRegisterEnemy(l *lua.LState) int {
 	def := Enemy{
-		Callbacks: map[string]OwnedCallback{},
+		Callbacks: map[string]luhelp.OwnedCallback{},
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
@@ -119,5 +122,22 @@ func (man *ResourcesManager) luaRegisterEvent(l *lua.LState) int {
 	def.ID = l.ToString(1)
 
 	man.Events[def.ID] = &def
+	return 0
+}
+
+func (man *ResourcesManager) luaRegisterStatusEffect(l *lua.LState) int {
+	def := StatusEffect{
+		Callbacks: map[string]luhelp.OwnedCallback{},
+	}
+
+	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
+		// TODO: error handling
+		return 0
+	}
+
+	// Set id after evaluating the table to avoid ID overwrite
+	def.ID = l.ToString(1)
+
+	man.StatusEffects[def.ID] = &def
 	return 0
 }

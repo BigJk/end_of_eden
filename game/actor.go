@@ -6,7 +6,7 @@ const PlayerActorID = "PLAYER"
 
 // Actor represents a player or enemy.
 type Actor struct {
-	ID            string
+	GUID          string `luar:"guid"`
 	TypeID        string
 	Name          string
 	Description   string
@@ -19,7 +19,7 @@ type Actor struct {
 }
 
 func (a Actor) IsNone() bool {
-	return len(a.ID) == 0
+	return len(a.GUID) == 0
 }
 
 func (a Actor) Clone() Actor {
@@ -32,7 +32,7 @@ func (a Actor) Clone() Actor {
 
 func NewActor(ID string) Actor {
 	return Actor{
-		ID:            ID,
+		GUID:          ID,
 		Artifacts:     mapset.NewThreadUnsafeSet[string](),
 		Cards:         mapset.NewThreadUnsafeSet[string](),
 		StatusEffects: mapset.NewThreadUnsafeSet[string](),

@@ -6,12 +6,28 @@ register_card("MELEE_HIT",
         NeedTarget = true,
         PointCost = 1,
         Callbacks = {
-            OnCast = function(type, guid, caster, target)
-                deal_damage(caster, target, 2)
+            OnCast = function(ctx)
+                deal_damage(ctx.caster, ctx.target, 2)
                 return nil
             end,
         }
     }
+);
+
+register_card("SLICE",
+        {
+            Name = "Slice",
+            Description = "Try to inflict a wound on the enemy.",
+            Color = "#cf532d",
+            NeedTarget = true,
+            PointCost = 1,
+            Callbacks = {
+                OnCast = function(ctx)
+                    give_status_effect("VULNERABLE", ctx.target)
+                    return nil
+                end,
+            }
+        }
 );
 
 register_card("BITE",
@@ -22,25 +38,29 @@ register_card("BITE",
             NeedTarget = true,
             PointCost = 1,
             Callbacks = {
-                OnCast = function(type, guid, caster, target)
+                OnCast = function(ctx)
+                    debug_log(ctx)
                     -- Deal 1 damage from caster to target
-                    deal_damage(caster, target, 1)
+                    deal_damage(ctx.caster, ctx.target, 1)
                     return nil
                 end,
             }
         }
 );
 
-register_card("GATHER_HEALTH",
+register_card("RADIANT_SEED",
         {
-            Name = "Gather Health",
-            Description = "Try to heal up a bit and restore 5 hp.",
-            Color = "#006400",
+            Name = "Radiant Seed",
+            Description = "Inflict 10 damage to all enemies, but also causes 5 damage to the caster.",
+            Color = "#82c93e",
             NeedTarget = false,
             PointCost = 2,
             Callbacks = {
-                OnCast = function(type, guid, caster, target)
-                    heal(caster, caster, 5)
+                OnCast = function(ctx)
+                    -- Deal 5 damage to caster without any modifiers applying
+                    deal_damage(ctx.caster, ctx.caster, 5, true)
+                    -- Deal 10 damage to opponents
+                    deal_damage_multi(ctx.caster, get_opponent_guids(ctx.caster), 10)
                     return nil
                 end,
             }

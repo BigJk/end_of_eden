@@ -1,9 +1,11 @@
 package game
 
+import "github.com/BigJk/project_gonzo/luhelp"
+
 // EventChoice represents a possible choice in the Event.
 type EventChoice struct {
 	Description string
-	Callback    OwnedCallback
+	Callback    luhelp.OwnedCallback
 }
 
 // Event represents a encounter-able event.
@@ -12,8 +14,8 @@ type Event struct {
 	Name        string
 	Description string
 	Choices     []EventChoice
-	OnEnter     OwnedCallback
-	OnEnd       OwnedCallback
+	OnEnter     luhelp.OwnedCallback
+	OnEnd       luhelp.OwnedCallback
 }
 
 func (e Event) IsNone() bool {

@@ -50,7 +50,9 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
                 give_card("MELEE_HIT", PLAYER_ID)
                 give_card("MELEE_HIT", PLAYER_ID)
                 give_card("MELEE_HIT", PLAYER_ID)
-                give_card("GATHER_HEALTH", PLAYER_ID)
+                give_card("SLICE", PLAYER_ID)
+
+                give_artifact("RADIANT_SEED", PLAYER_ID)
         end,
         OnEnd = function()
                 -- If player attacks or escape was unsuccessful we setup a fight

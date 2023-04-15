@@ -21,3 +21,7 @@ func CopyMap[K, V comparable](m map[K]V) map[K]V {
 	}
 	return result
 }
+
+func InsertString(s string, insert string, n int) string {
+	return s[:n] + insert + s[n:]
+}

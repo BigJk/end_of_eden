@@ -1,5 +1,7 @@
 package game
 
+import "github.com/BigJk/project_gonzo/luhelp"
+
 // Enemy represents a definition of a enemy that can be linked from a Actor.
 type Enemy struct {
 	ID          string
@@ -9,5 +11,5 @@ type Enemy struct {
 	MaxHP       int
 	Look        string
 	Color       string
-	Callbacks   map[string]OwnedCallback
+	Callbacks   map[string]luhelp.OwnedCallback
 }

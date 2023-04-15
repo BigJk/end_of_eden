@@ -8,6 +8,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var (
+	aboutStyle      = style.ListStyle.Copy().Align(lipgloss.Left).Padding(1, 2).Border(lipgloss.NormalBorder(), false, false, false, true).BorderForeground(style.BaseWhite)
+	versionStyle    = lipgloss.NewStyle().Border(lipgloss.NormalBorder(), false, false, false, true).BorderForeground(style.BaseWhite).Margin(0, 2).Padding(0, 2).Foreground(style.BaseRed)
+	backButtonStyle = lipgloss.NewStyle().Margin(0, 2).Foreground(style.BaseRed)
+)
+
 type Model struct {
 	menus.MenuBase
 
@@ -35,26 +41,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-var aboutStyle = style.ListStyle.Copy().
-	Align(lipgloss.Left).
-	Padding(1, 2).
-	Border(lipgloss.NormalBorder(), false, false, false, true).
-	BorderForeground(style.BaseWhite)
-
 func (m Model) View() string {
 	title := style.TitleStyle.Render(menus.Title)
 
-	version := lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(style.BaseWhite).
-		Margin(0, 2).
-		Padding(0, 2).
-		Foreground(style.BaseRed).
-		Render("Version: 0.0.1 alpha")
-
+	version := versionStyle.Render("Version: 0.0.1 alpha")
 	about := aboutStyle.Height(lipgloss.Height(menus.About)).Width(util.Min(m.Size.Width, 65)).Render(menus.About)
-
-	back := lipgloss.NewStyle().Margin(0, 2).Foreground(style.BaseRed).Render("<- ESC")
+	back := backButtonStyle.Render("<- ESC")
 
 	return lipgloss.JoinVertical(lipgloss.Top, title, version, about, back)
 }
