@@ -292,6 +292,40 @@ func (s *Session) GetFightRound() int {
 	return s.currentFight.Round
 }
 
+func (s *Session) TraverseArtifactsStatus(guids []string, artifact func(instance ArtifactInstance, artifact *Artifact), status func(instance StatusEffectInstance, statusEffect *StatusEffect)) {
+	sort.SliceStable(guids, func(i, j int) bool {
+		oa := util.Max(s.GetArtifactOrder(guids[i]), s.GetStatusEffectOrder(guids[i]))
+		ob := util.Max(s.GetArtifactOrder(guids[j]), s.GetStatusEffectOrder(guids[j]))
+		return oa < ob
+	})
+
+	for _, id := range guids {
+		instance, ok := s.instances[id]
+		if !ok {
+			continue
+		}
+
+		switch instance := instance.(type) {
+		case ArtifactInstance:
+			// Fetch the backing definition of the type
+			art, ok := s.resources.Artifacts[instance.TypeID]
+			if !ok {
+				continue
+			}
+
+			artifact(instance, art)
+		case StatusEffectInstance:
+			// Fetch the backing definition of the type
+			se, ok := s.resources.StatusEffects[instance.TypeID]
+			if !ok {
+				continue
+			}
+
+			status(instance, se)
+		}
+	}
+}
+
 //
 // Status Effect Functions
 //
@@ -538,65 +572,33 @@ func (s *Session) PlayerDrawCard(amount int) {
 
 func (s *Session) DealDamage(source string, target string, damage int, flat bool) int {
 	if val, ok := s.actors[target]; ok {
-		defer func() {
-			// TODO: OnDamage
-		}()
-
 		if !flat {
-			instances := s.GetActor(source).Artifacts.ToSlice()
-			instances = append(instances, s.GetActor(target).StatusEffects.ToSlice()...)
-			instances = append(instances, s.GetActor(source).StatusEffects.ToSlice()...)
-			sort.SliceStable(instances, func(i, j int) bool {
-				oa := util.Max(s.GetArtifactOrder(instances[i]), s.GetStatusEffectOrder(instances[i]))
-				ob := util.Max(s.GetArtifactOrder(instances[j]), s.GetStatusEffectOrder(instances[j]))
-				return oa < ob
-			})
-
-			for _, id := range instances {
-				// Fetch the instance of the artifact
-				instance, ok := s.instances[id]
-				if !ok {
-					continue
-				}
-
-				// Check if it's really a artifact instance
-				switch instance := instance.(type) {
-				case ArtifactInstance:
-					// Fetch the backing definition of the type
-					art, ok := s.resources.Artifacts[instance.TypeID]
-					if !ok {
-						continue
-					}
-
-					// Call damage calc callback if present
+			s.TraverseArtifactsStatus(lo.Flatten([][]string{
+				s.GetActor(source).Artifacts.ToSlice(),
+				s.GetActor(target).StatusEffects.ToSlice(),
+				s.GetActor(source).StatusEffects.ToSlice(),
+			}),
+				func(instance ArtifactInstance, art *Artifact) {
 					res, err := art.Callbacks[CallbackOnDamageCalc].Call(CreateContext("typeId", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 					if err != nil {
 						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
 					} else if res != nil {
-						// Update damage
 						if newDamage, ok := res.(float64); ok {
 							damage = int(newDamage)
 						}
 					}
-				case StatusEffectInstance:
-					// Fetch the backing definition of the type
-					se, ok := s.resources.StatusEffects[instance.TypeID]
-					if !ok {
-						continue
-					}
-
-					// Call damage calc callback if present
+				},
+				func(instance StatusEffectInstance, se *StatusEffect) {
 					res, err := se.Callbacks[CallbackOnDamageCalc].Call(CreateContext("typeId", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
 					if err != nil {
 						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
 					} else if res != nil {
-						// Update damage
 						if newDamage, ok := res.(float64); ok {
 							damage = int(newDamage)
 						}
 					}
-				}
-			}
+				},
+			)
 		}
 
 		if source == PlayerActorID {
@@ -611,6 +613,29 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 		if damage < 0 {
 			damage = 0
 		}
+
+		// Trigger OnDamage callbacks
+		s.TraverseArtifactsStatus(lo.Flatten([][]string{
+			s.GetActor(source).Artifacts.ToSlice(),
+			s.GetActor(target).StatusEffects.ToSlice(),
+			s.GetActor(source).StatusEffects.ToSlice(),
+		}),
+			func(instance ArtifactInstance, art *Artifact) {
+				_, err := art.Callbacks[CallbackOnDamage].Call(CreateContext("typeId", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
+				if err != nil {
+					log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+				}
+			},
+			func(instance StatusEffectInstance, se *StatusEffect) {
+				_, err := se.Callbacks[CallbackOnDamage].Call(CreateContext("typeId", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
+				if err != nil {
+					log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+				}
+			},
+		)
+
+		// Re-fetch actor in case the OnDamage callback triggered some kind of damage or healing.
+		val = s.actors[target]
 
 		hpLeft := lo.Clamp(val.HP-damage, 0, val.MaxHP)
 
@@ -653,58 +678,41 @@ func (s *Session) DealDamageMulti(source string, targets []string, damage int, f
 	})
 }
 
-func (s *Session) Heal(source string, target string, heal int) int {
+func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 	if val, ok := s.actors[target]; ok {
-		// TODO: check status effects etc.
-
-		sourceActor := s.GetActor(source)
-		artifacts := sourceActor.Artifacts.ToSlice()
-		sort.SliceStable(artifacts, func(i, j int) bool {
-			return s.GetArtifactOrder(artifacts[i]) < s.GetArtifactOrder(artifacts[j])
-		})
-
-		for _, id := range artifacts {
-			// Fetch the instance of the artifact
-			artInstance, ok := s.instances[id]
-			if !ok {
-				continue
-			}
-
-			// Check if it's really a artifact instance
-			switch instance := artInstance.(type) {
-			case ArtifactInstance:
-				// Fetch the backing definition of the type
-				art, ok := s.resources.Artifacts[instance.TypeID]
-				if !ok {
-					continue
-				}
-
-				// Call damage calc callback if present
-				res, err := art.Callbacks[CallbackOnHealCalc].Call(CreateContext("typeId", art.ID, "guid", instance.GUID, "source", source, "target", target, "heal", heal))
-				if err != nil {
-					log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
-				} else if res != nil {
-					if newHeal, ok := res.(float64); ok {
-						heal = int(newHeal)
+		if !flat {
+			s.TraverseArtifactsStatus(lo.Flatten([][]string{
+				s.GetActor(source).Artifacts.ToSlice(),
+				s.GetActor(target).StatusEffects.ToSlice(),
+				s.GetActor(source).StatusEffects.ToSlice(),
+			}),
+				func(instance ArtifactInstance, art *Artifact) {
+					res, err := art.Callbacks[CallbackOnHealCalc].Call(CreateContext("typeId", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "heal", heal))
+					if err != nil {
+						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+					} else if res != nil {
+						if newHeal, ok := res.(float64); ok {
+							heal = int(newHeal)
+						}
 					}
-				}
-			case StatusEffectInstance:
-				// Fetch the backing definition of the type
-				se, ok := s.resources.StatusEffects[instance.TypeID]
-				if !ok {
-					continue
-				}
-
-				// Call damage calc callback if present
-				res, err := se.Callbacks[CallbackOnHealCalc].Call(CreateContext("typeId", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "heal", heal))
-				if err != nil {
-					log.Printf("Error from Callback:CallbackOnHealCalc type=%s %s\n", instance.TypeID, err.Error())
-				} else if res != nil {
-					if newHeal, ok := res.(float64); ok {
-						heal = int(newHeal)
+				},
+				func(instance StatusEffectInstance, se *StatusEffect) {
+					res, err := se.Callbacks[CallbackOnHealCalc].Call(CreateContext("typeId", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "heal", heal))
+					if err != nil {
+						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+					} else if res != nil {
+						if newHeal, ok := res.(float64); ok {
+							heal = int(newHeal)
+						}
 					}
-				}
-			}
+				},
+			)
+		}
+
+		if target == PlayerActorID {
+			s.Log(LogTypeDanger, fmt.Sprintf("You healed %d damage", heal))
+		} else {
+			s.Log(LogTypeSuccess, fmt.Sprintf("%s healed %d damage", val.Name, heal))
 		}
 
 		// Negative heal aka damage is not allowed!
