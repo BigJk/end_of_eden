@@ -284,12 +284,16 @@ func (s *Session) SetFightDescription(description string) {
 	s.currentFight.Description = description
 }
 
-func (s *Session) GetInstance(guid string) any {
-	return s.instances[guid]
-}
-
 func (s *Session) GetFightRound() int {
 	return s.currentFight.Round
+}
+
+//
+// Instances
+//
+
+func (s *Session) GetInstance(guid string) any {
+	return s.instances[guid]
 }
 
 func (s *Session) TraverseArtifactsStatus(guids []string, artifact func(instance ArtifactInstance, artifact *Artifact), status func(instance StatusEffectInstance, statusEffect *StatusEffect)) {

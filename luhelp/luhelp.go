@@ -37,9 +37,15 @@ func ToLua(val any) lua.LValue {
 	valType := reflect.TypeOf(val)
 
 	switch valType.Kind() {
+	case reflect.Pointer:
+		valValue := reflect.ValueOf(val)
+		if valValue.IsNil() {
+			return lua.LNil
+		}
+		return ToLua(valValue.Elem().Interface())
 	case reflect.Struct:
 		s := structs.New(val)
-		s.TagName = "LuaTag"
+		s.TagName = LuaTag
 		return ToLua(s.Map())
 	case reflect.Map:
 		resultTable := &lua.LTable{}

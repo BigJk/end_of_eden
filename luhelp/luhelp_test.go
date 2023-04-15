@@ -22,6 +22,8 @@ func TestLuHelp(t *testing.T) {
 			Bar      string            `lua:"bar"`
 			Data     map[string]any    `lua:"data"`
 			Inner    testStructInner   `lua:"inner"`
+			InnerPtr *testStructInner  `lua:"innerPtr"`
+			NilPtr   *testStructInner  `lua:"nilPtr"`
 			Slice    []testStructInner `lua:"slice"`
 			StrSlice []string          `lua:"strSlice"`
 		}
@@ -37,6 +39,11 @@ func TestLuHelp(t *testing.T) {
 				A: 3,
 				B: "2",
 				C: 1,
+			},
+			InnerPtr: &testStructInner{
+				A: 231,
+				B: "23123",
+				C: 22,
 			},
 			Slice: []testStructInner{
 				{
