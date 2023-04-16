@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/yuin/gopher-lua"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -72,22 +73,41 @@ func NewMapper(state *lua.LState) *Mapper {
 // Map maps the lua table to the given struct pointer.
 func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 	opt := mapper.Option
-	mp, ok := toGoValue(tbl, opt).(map[any]any)
-	if !ok {
-		return errors.New("arguments #1 must be a table, but got an array")
+	val := toGoValue(tbl, opt)
+
+	switch val := val.(type) {
+	case map[any]any:
+		config := &mapstructure.DecoderConfig{
+			DecodeHook:       opt.DecodeHook,
+			WeaklyTypedInput: true,
+			Result:           st,
+			TagName:          opt.TagName,
+			ErrorUnused:      opt.ErrorUnused,
+		}
+		decoder, err := mapstructure.NewDecoder(config)
+		if err != nil {
+			return err
+		}
+		return decoder.Decode(val)
+	case []any:
+		targetType := reflect.TypeOf(st).Elem()
+		if targetType.Kind() == reflect.Slice {
+			targetElemType := targetType.Elem()
+			fromLuaType := reflect.TypeOf(val).Elem()
+
+			if fromLuaType.ConvertibleTo(targetElemType) {
+				return errors.New("slice types don't match")
+			}
+
+			for i := range val {
+				reflect.ValueOf(st).Elem().Set(reflect.Append(reflect.ValueOf(st).Elem(), reflect.ValueOf(val[i])))
+			}
+
+			return nil
+		}
 	}
-	config := &mapstructure.DecoderConfig{
-		DecodeHook:       opt.DecodeHook,
-		WeaklyTypedInput: true,
-		Result:           st,
-		TagName:          opt.TagName,
-		ErrorUnused:      opt.ErrorUnused,
-	}
-	decoder, err := mapstructure.NewDecoder(config)
-	if err != nil {
-		return err
-	}
-	return decoder.Decode(mp)
+
+	return errors.New("could not decode")
 }
 
 var camelRegex = regexp.MustCompile(`_([a-z])`)

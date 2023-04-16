@@ -77,6 +77,10 @@ func SessionAdapter(session *Session) *lua.LState {
 		return 0
 	}))
 
+	if err := l.DoString("print = debug_log"); err != nil {
+		panic("Can't overwrite print with debug_log")
+	}
+
 	// Audio
 
 	l.SetGlobal("play_audio", l.NewFunction(func(state *lua.LState) int {
@@ -91,6 +95,11 @@ func SessionAdapter(session *Session) *lua.LState {
 		return 0
 	}))
 
+	l.SetGlobal("set_game_state", l.NewFunction(func(state *lua.LState) int {
+		session.SetGameState(GameState(state.ToString(1)))
+		return 0
+	}))
+
 	l.SetGlobal("set_fight_description", l.NewFunction(func(state *lua.LState) int {
 		session.SetFightDescription(state.ToString(1))
 		return 0
@@ -101,8 +110,23 @@ func SessionAdapter(session *Session) *lua.LState {
 		return 1
 	}))
 
+	l.SetGlobal("get_stages_cleared", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LNumber(session.GetStagesCleared()))
+		return 1
+	}))
+
 	l.SetGlobal("get_fight", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LNumber(session.GetFightRound()))
+		return 1
+	}))
+
+	l.SetGlobal("get_event_history", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp.ToLua(session.GetEventHistory()))
+		return 1
+	}))
+
+	l.SetGlobal("had_event", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp.ToLua(session.HadEvent(state.ToString(1))))
 		return 1
 	}))
 
@@ -234,6 +258,13 @@ func SessionAdapter(session *Session) *lua.LState {
 			state.Push(lua.LNumber(session.Heal(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), bool(state.ToBool(4)))))
 		}
 		return 1
+	}))
+
+	// Player
+
+	l.SetGlobal("player_draw_card", l.NewFunction(func(state *lua.LState) int {
+		session.PlayerDrawCard(int(state.ToNumber(1)))
+		return 0
 	}))
 
 	return l

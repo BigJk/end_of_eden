@@ -24,14 +24,14 @@ register_enemy(
 )
 
 register_enemy(
-    "MUTATED_HAMSTER",
+    "RUST_MITE",
     {
-        Name = "Mutated Hamster",
-        Description = "Small but furious...",
-        Look = "H",
+        Name = "Rust Mite",
+        Description = "Loves to eat metal.",
+        Look = "M",
         Color = "#e6e65a",
-        InitialHP = 4,
-        MaxHP = 4,
+        InitialHP = 16,
+        MaxHP = 16,
         Callbacks = {
             OnInit = function(ctx)
                 give_card("BITE", ctx.guid)

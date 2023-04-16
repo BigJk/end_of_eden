@@ -55,17 +55,7 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
                 give_artifact("RADIANT_SEED", PLAYER_ID)
         end,
         OnEnd = function()
-                -- If player attacks or escape was unsuccessful we setup a fight
-                add_actor_by_enemy("MUTATED_HAMSTER")
-                add_actor_by_enemy("MUTATED_HAMSTER")
-                add_actor_by_enemy("MUTATED_HAMSTER")
-
-                set_fight_description("You face some mutated hamsters that want a bite from you!")
-
-                -- After the fight be outside
-                set_event("FIRST_OUTSIDE")
-
-                return GAME_STATE_FIGHT
+                return GAME_STATE_RANDOM
         end,
     }
 )

@@ -134,14 +134,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
 			switch m.Session.GetGameState() {
 			case game.GameStateEvent:
-				for i := 0; i < len(m.Session.GetEvent().Choices); i++ {
-					if choiceZone := zone.Get(fmt.Sprintf("%s%d", ZoneEventChoice, i)); choiceZone.InBounds(msg) {
-						if msg.Type == tea.MouseLeft && m.selectedChoice == i {
-							audio.Play("button")
+				if m.Session.GetEvent() != nil {
+					for i := 0; i < len(m.Session.GetEvent().Choices); i++ {
+						if choiceZone := zone.Get(fmt.Sprintf("%s%d", ZoneEventChoice, i)); choiceZone.InBounds(msg) {
+							if msg.Type == tea.MouseLeft && m.selectedChoice == i {
+								audio.Play("button")
 
-							m = m.tryFinishEvent()
-						} else {
-							m.selectedChoice = i
+								m = m.tryFinishEvent()
+								break
+							} else {
+								m.selectedChoice = i
+							}
 						}
 					}
 				}

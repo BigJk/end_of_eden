@@ -10,6 +10,14 @@ func TestLuHelp(t *testing.T) {
 	state := lua.NewState()
 	mapper := NewMapper(state)
 
+	t.Run("SliceMapper", func(t *testing.T) {
+		data := []string{"A", "B", "C"}
+
+		var passed []string
+		assert.NoError(t, mapper.Map(ToLua(data).(*lua.LTable), &passed))
+		assert.Equal(t, data, passed)
+	})
+
 	t.Run("Struct", func(t *testing.T) {
 		type testStructInner struct {
 			A int     `lua:"a"`

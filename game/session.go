@@ -6,6 +6,7 @@ import (
 	"github.com/BigJk/project_gonzo/util"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
+	"golang.org/x/exp/slices"
 	"log"
 	"sort"
 	"time"
@@ -148,6 +149,8 @@ func (s *Session) SetGameState(state GameState) {
 	switch s.state {
 	case GameStateFight:
 		s.SetupFight()
+	case GameStateRandom:
+		s.LetTellerDecide()
 	}
 }
 
@@ -172,8 +175,10 @@ func (s *Session) SetupFight() {
 	s.currentFight.Deck = lo.Shuffle(s.GetPlayer().Cards.ToSlice())
 	s.currentFight.Hand = []string{}
 	s.currentFight.Exhausted = []string{}
+	s.currentFight.Round = 0
 
 	s.PlayerDrawCard(DrawSize)
+	s.TriggerOnPlayerTurn()
 }
 
 func (s *Session) GetFight() FightState {
@@ -185,6 +190,7 @@ func (s *Session) GetStagesCleared() int {
 }
 
 func (s *Session) FinishPlayerTurn() {
+	// Enemies are allowed to act.
 	for k, v := range s.actors {
 		if k == PlayerActorID || v.IsNone() {
 			continue
@@ -197,8 +203,8 @@ func (s *Session) FinishPlayerTurn() {
 		}
 	}
 
+	// Turn over so we remove all dead status effects.
 	var removeStatus []string
-
 	for guid, instance := range s.instances {
 		switch instance := instance.(type) {
 		case StatusEffectInstance:
@@ -219,19 +225,22 @@ func (s *Session) FinishPlayerTurn() {
 		s.RemoveStatusEffect(removeStatus[i])
 	}
 
+	// Advance to new Round
 	s.currentFight.CurrentPoints = PointsPerRound
 	s.currentFight.Round += 1
 	s.currentFight.Used = append(s.currentFight.Used, s.currentFight.Hand...)
 	s.currentFight.Hand = []string{}
 
 	s.PlayerDrawCard(DrawSize)
+	s.TriggerOnPlayerTurn()
 }
 
 func (s *Session) FinishFight() bool {
 	if s.GetOpponentCount(PlayerActorID) == 0 {
+		s.currentFight.Description = ""
 		s.stagesCleared += 1
 
-		// If a event is already set we switch to it
+		// If an event is already set we switch to it
 		if s.currentEvent != nil {
 			s.SetGameState(GameStateEvent)
 		} else if s.stagesCleared%10 == 0 {
@@ -286,6 +295,67 @@ func (s *Session) SetFightDescription(description string) {
 
 func (s *Session) GetFightRound() int {
 	return s.currentFight.Round
+}
+
+func (s *Session) HadEvent(id string) bool {
+	return lo.Contains(s.eventHistory, id)
+}
+
+func (s *Session) GetEventHistory() []string {
+	return s.eventHistory
+}
+
+//
+// StoryTeller
+//
+
+func (s *Session) ActiveTeller() *StoryTeller {
+	teller := lo.Filter(lo.Values(s.resources.StoryTeller), func(teller *StoryTeller, index int) bool {
+		res, err := teller.Active(CreateContext("typeId", teller.ID))
+		if err != nil {
+			log.Printf("Error from Callback:Active type=%s %s\n", teller.ID, err.Error())
+			return false
+		}
+		if val, ok := res.(float64); ok {
+			return val > 0
+		}
+		return false
+	})
+
+	if len(teller) == 0 {
+		log.Printf("No active teller found!")
+		return nil
+	}
+
+	slices.SortFunc(teller, func(a, b *StoryTeller) bool {
+		aOrder, _ := a.Active(CreateContext("typeId", a.ID))
+		bOrder, _ := b.Active(CreateContext("typeId", b.ID))
+
+		return aOrder.(float64) > bOrder.(float64)
+	})
+
+	return teller[0]
+}
+
+func (s *Session) LetTellerDecide() {
+	active := s.ActiveTeller()
+
+	if active == nil {
+		log.Printf("No active teller found! Can't decide")
+		return
+	}
+
+	res, err := active.Decide(CreateContext("typeId", active.ID))
+	if err != nil {
+		log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, err.Error())
+		return
+	}
+
+	if val, ok := res.(string); ok {
+		s.SetGameState(GameState(val))
+	} else {
+		log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, "return wasn't a game state")
+	}
 }
 
 //
@@ -510,12 +580,17 @@ func (s *Session) RemoveCard(guid string) {
 	delete(s.instances, guid)
 }
 
-func (s *Session) CastCard(guid string, target string) {
+func (s *Session) CastCard(guid string, target string) bool {
 	if card, instance := s.GetCard(guid); card != nil {
-		if _, err := card.Callbacks[CallbackOnCast].Call(CreateContext("typeId", card.ID, "guid", guid, "caster", instance.Owner, "target", target)); err != nil {
+		res, err := card.Callbacks[CallbackOnCast].Call(CreateContext("typeId", card.ID, "guid", guid, "caster", instance.Owner, "target", target))
+		if err != nil {
 			log.Printf("Error from Callback:CallbackOnCast type=%s %s\n", instance.TypeID, err.Error())
 		}
+		if val, ok := res.(bool); ok {
+			return val
+		}
 	}
+	return false
 }
 
 func (s *Session) GetCards(owner string) []string {
@@ -540,14 +615,17 @@ func (s *Session) PlayerCastHand(i int, target string) error {
 		return errors.New("card not exists")
 	}
 
-	// Move from hand to used
+	// Remove from hand.
 	s.currentFight.Hand = lo.Reject(s.currentFight.Hand, func(item string, index int) bool {
 		return index == i
 	})
-	s.currentFight.Used = append(s.currentFight.Used, cardId)
 
-	// Cast
-	s.CastCard(cardId, target)
+	// Cast and exhaust if needed.
+	if s.CastCard(cardId, target) {
+		s.currentFight.Exhausted = append(s.currentFight.Exhausted, cardId)
+	} else {
+		s.currentFight.Used = append(s.currentFight.Used, cardId)
+	}
 
 	return nil
 }
@@ -873,6 +951,28 @@ func (s *Session) GetOpponentGUIDs(viewpoint string) []string {
 
 func (s *Session) GetEnemy(typeId string) Enemy {
 	return *s.resources.Enemies[typeId]
+}
+
+//
+// Misc Callback
+//
+
+func (s *Session) TriggerOnPlayerTurn() {
+	s.TraverseArtifactsStatus(lo.Flatten([][]string{
+		s.GetPlayer().Artifacts.ToSlice(),
+		s.GetPlayer().StatusEffects.ToSlice(),
+	}),
+		func(instance ArtifactInstance, artifact *Artifact) {
+			if _, err := artifact.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("typeId", artifact.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound())); err != nil {
+				log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
+			}
+		},
+		func(instance StatusEffectInstance, statusEffect *StatusEffect) {
+			if _, err := statusEffect.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("typeId", statusEffect.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound(), "stacks", instance.Stacks)); err != nil {
+				log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
+			}
+		},
+	)
 }
 
 //

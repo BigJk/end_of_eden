@@ -39,7 +39,6 @@ register_card("BITE",
             PointCost = 1,
             Callbacks = {
                 OnCast = function(ctx)
-                    debug_log(ctx)
                     -- Deal 1 damage from caster to target
                     deal_damage(ctx.caster, ctx.target, 1)
                     return nil

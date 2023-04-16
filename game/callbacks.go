@@ -10,6 +10,7 @@ const (
 	CallbackOnInit         = "OnInit"
 	CallbackOnPickUp       = "OnPickUp"
 	CallbackOnTurn         = "OnTurn"
+	CallbackOnPlayerTurn   = "OnPlayerTurn"
 	CallbackOnStatusAdd    = "OnStatusAdd"
 	CallbackOnStatusStack  = "OnStatusStack"
 	CallbackOnStatusRemove = "OnStatusRemove"
