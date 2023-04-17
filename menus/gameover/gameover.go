@@ -80,6 +80,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.lastMouse = msg
 
 		if msg.Type == tea.MouseLeft && zone.Get(ZoneToMenu).InBounds(msg) {
+			m.Session.Close()
 			return nil, nil
 		}
 	case GameOverFrame:

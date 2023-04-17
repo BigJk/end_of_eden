@@ -88,6 +88,10 @@ func (s *Session) WithAlternativeStartEvent(id string) {
 	s.SetEvent(id)
 }
 
+func (s *Session) Close() {
+	s.luaState.Close()
+}
+
 //
 // Checkpoints
 //
