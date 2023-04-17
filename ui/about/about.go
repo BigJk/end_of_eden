@@ -1,8 +1,8 @@
 package about
 
 import (
-	"github.com/BigJk/project_gonzo/menus"
-	"github.com/BigJk/project_gonzo/menus/style"
+	"github.com/BigJk/project_gonzo/ui"
+	"github.com/BigJk/project_gonzo/ui/style"
 	"github.com/BigJk/project_gonzo/util"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -15,7 +15,7 @@ var (
 )
 
 type Model struct {
-	menus.MenuBase
+	ui.MenuBase
 
 	parent tea.Model
 }
@@ -42,10 +42,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	title := style.TitleStyle.Render(menus.Title)
+	title := style.TitleStyle.Render(ui.Title)
 
 	version := versionStyle.Render("Version: 0.0.1 alpha")
-	about := aboutStyle.Height(lipgloss.Height(menus.About)).Width(util.Min(m.Size.Width, 65)).Render(menus.About)
+	about := aboutStyle.Height(lipgloss.Height(ui.About)).Width(util.Min(m.Size.Width, 65)).Render(ui.About)
 	back := backButtonStyle.Render("<- ESC")
 
 	return lipgloss.JoinVertical(lipgloss.Top, title, version, about, back)

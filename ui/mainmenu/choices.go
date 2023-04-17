@@ -1,7 +1,7 @@
 package mainmenu
 
 import (
-	"github.com/BigJk/project_gonzo/menus/style"
+	"github.com/BigJk/project_gonzo/ui/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

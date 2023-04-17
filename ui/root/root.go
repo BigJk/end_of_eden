@@ -1,7 +1,7 @@
 package root
 
 import (
-	"github.com/BigJk/project_gonzo/menus"
+	"github.com/BigJk/project_gonzo/ui"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
 )
@@ -36,7 +36,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.current, cmd = m.current.Update(msg)
 
-	if menu, ok := m.current.(menus.Menu); ok && !menu.HasSize() {
+	if menu, ok := m.current.(ui.Menu); ok && !menu.HasSize() {
 		return m, tea.Batch(cmd, func() tea.Msg {
 			return m.size
 		})

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/BigJk/project_gonzo/audio"
-	"github.com/BigJk/project_gonzo/menus/mainmenu"
-	"github.com/BigJk/project_gonzo/menus/root"
+	"github.com/BigJk/project_gonzo/ui/mainmenu"
+	"github.com/BigJk/project_gonzo/ui/root"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
 	"log"

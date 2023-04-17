@@ -3,8 +3,8 @@ package gameview
 import (
 	"fmt"
 	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/menus"
-	"github.com/BigJk/project_gonzo/menus/style"
+	"github.com/BigJk/project_gonzo/ui"
+	"github.com/BigJk/project_gonzo/ui/style"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -46,7 +46,7 @@ func (i choiceItem) FilterValue() string { return i.title }
 // MenuModel is responsible for showing information about the player, cards,
 // artifacts and the option to leave.
 type MenuModel struct {
-	menus.MenuBase
+	ui.MenuBase
 
 	parent    tea.Model
 	choices   []list.Item

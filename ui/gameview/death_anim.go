@@ -3,8 +3,8 @@ package gameview
 import (
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/menus/animation"
-	"github.com/BigJk/project_gonzo/menus/style"
+	"github.com/BigJk/project_gonzo/ui/animation"
+	"github.com/BigJk/project_gonzo/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"time"

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/menus"
-	"github.com/BigJk/project_gonzo/menus/gameover"
-	"github.com/BigJk/project_gonzo/menus/style"
+	"github.com/BigJk/project_gonzo/ui"
+	"github.com/BigJk/project_gonzo/ui/gameover"
+	"github.com/BigJk/project_gonzo/ui/style"
 	"github.com/BigJk/project_gonzo/util"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,7 +27,7 @@ const (
 )
 
 type Model struct {
-	menus.MenuBase
+	ui.MenuBase
 
 	parent              tea.Model
 	viewport            viewport.Model
