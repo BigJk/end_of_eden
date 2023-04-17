@@ -11,32 +11,19 @@ function cast_random(guid, target)
 end
 
 register_enemy(
-    "DOOR",
-    {
-        Name = "Door",
-        Description = "It's in your way...",
-        Look = "D",
-        Color = "#cccccc",
-        InitialHP = 10,
-        MaxHP = 10,
-        Callbacks = { }
-    }
-)
-
-register_enemy(
     "RUST_MITE",
     {
-        Name = "Rust Mite",
-        Description = "Loves to eat metal.",
-        Look = "M",
-        Color = "#e6e65a",
-        InitialHP = 16,
-        MaxHP = 16,
-        Callbacks = {
-            OnInit = function(ctx)
+        name = "Rust Mite",
+        description = "Loves to eat metal.",
+        look = "M",
+        color = "#e6e65a",
+        initial_hp = 16,
+        max_hp = 16,
+        callbacks = {
+            on_init = function(ctx)
                 give_card("BITE", ctx.guid)
             end,
-            OnTurn = function(ctx)
+            on_turn = function(ctx)
                 cast_random(ctx.guid, PLAYER_ID)
             end
         }

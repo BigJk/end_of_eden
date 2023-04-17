@@ -7,6 +7,7 @@ import (
 	"github.com/BigJk/project_gonzo/menus/root"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
+	"log"
 	"os"
 )
 
@@ -25,6 +26,10 @@ func main() {
 	// Init mouse zones
 	zone.NewGlobal()
 	zone.SetEnabled(true)
+
+	log.Println("=================================")
+	log.Println("= Started")
+	log.Println("=================================")
 
 	// Run game
 	p := tea.NewProgram(root.New(mainmenu.NewModel()), tea.WithAltScreen(), tea.WithMouseAllMotion())

@@ -1,12 +1,12 @@
 register_artifact(
     "DOUBLE_DAMAGE",
     {
-        Name = "Stone Of Gigantic Strength",
-        Description = "Double all damage dealt.",
-        Price = 1000,
-        Order = -10,
-        Callbacks = {
-            OnDamageCalc = function(ctx)
+        name = "Stone Of Gigantic Strength",
+        description = "Double all damage dealt.",
+        price = 1000,
+        order = -10,
+        callbacks = {
+            on_damage_calc = function(ctx)
                 if ctx.target == ctx.owner then
                     return ctx.damage * 2
                 end
@@ -19,12 +19,12 @@ register_artifact(
 register_artifact(
         "LESSER_DAMAGE_HEAL",
         {
-            Name = "Repulsion Stone",
-            Description = "For each damage taken heal for 2",
-            Price = 200,
-            Order = 0,
-            Callbacks = {
-                OnDamage = function(ctx)
+            name = "Repulsion Stone",
+            description = "For each damage taken heal for 2",
+            price = 200,
+            order = 0,
+            callbacks = {
+                on_damage = function(ctx)
                     if ctx.target == ctx.owner then
                         heal(ctx.owner, 2)
                     end
@@ -37,12 +37,12 @@ register_artifact(
 register_artifact(
         "RADIANT_SEED",
         {
-            Name = "Radiant Seed",
-            Description = "A small glowing seed.",
-            Price = 50,
-            Order = 0,
-            Callbacks = {
-                OnPickUp = function(ctx)
+            name = "Radiant Seed",
+            description = "A small glowing seed.",
+            price = 50,
+            order = 0,
+            callbacks = {
+                on_pick_up = function(ctx)
                     give_card("RADIANT_SEED", ctx.owner)
                     return nil
                 end,

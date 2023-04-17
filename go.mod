@@ -29,6 +29,7 @@ require (
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/faiface/beep v1.1.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/gobeam/stringy v0.0.6 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.0 // indirect
 	github.com/hajimehoshi/oto v0.7.1 // indirect

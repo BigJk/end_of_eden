@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"io/fs"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -55,6 +56,11 @@ func NewResourcesManager(state *lua.LState) *ResourcesManager {
 
 	// Load all local scripts
 	_ = filepath.Walk("./assets/scripts", func(path string, info fs.FileInfo, err error) error {
+		// Don't load libs
+		if strings.Contains(path, "scripts/libs") {
+			return nil
+		}
+
 		if err != nil {
 			return nil
 		}
@@ -78,12 +84,13 @@ func (man *ResourcesManager) luaRegisterArtifact(l *lua.LState) int {
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
-		// TODO: error handling
+		log.Println("Error while luaRegisterArtifact:", err)
 		return 0
 	}
 
 	// Set id after evaluating the table to avoid ID overwrite
 	def.ID = l.ToString(1)
+	log.Println("Registered artifact:", def.ID, def.Name)
 
 	man.Artifacts[def.ID] = &def
 	man.registered.RawGetString("artifact").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
@@ -96,12 +103,13 @@ func (man *ResourcesManager) luaRegisterCard(l *lua.LState) int {
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
-		// TODO: error handling
+		log.Println("Error while luaRegisterCard:", err)
 		return 0
 	}
 
 	// Set id after evaluating the table to avoid ID overwrite
 	def.ID = l.ToString(1)
+	log.Println("Registered card:", def.ID, def.Name)
 
 	man.Cards[def.ID] = &def
 	man.registered.RawGetString("card").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
@@ -114,12 +122,13 @@ func (man *ResourcesManager) luaRegisterEnemy(l *lua.LState) int {
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
-		// TODO: error handling
+		log.Println("Error while luaRegisterEnemy:", err)
 		return 0
 	}
 
 	// Set id after evaluating the table to avoid ID overwrite
 	def.ID = l.ToString(1)
+	log.Println("Registered enemy:", def.ID, def.Name)
 
 	man.Enemies[def.ID] = &def
 	man.registered.RawGetString("enemy").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
@@ -130,12 +139,13 @@ func (man *ResourcesManager) luaRegisterEvent(l *lua.LState) int {
 	def := Event{}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
-		// TODO: error handling
+		log.Println("Error while luaRegisterEvent:", err)
 		return 0
 	}
 
 	// Set id after evaluating the table to avoid ID overwrite
 	def.ID = l.ToString(1)
+	log.Println("Registered event:", def.ID, def.Name)
 
 	man.Events[def.ID] = &def
 	man.registered.RawGetString("event").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
@@ -148,12 +158,13 @@ func (man *ResourcesManager) luaRegisterStatusEffect(l *lua.LState) int {
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
-		// TODO: error handling
+		log.Println("Error while luaRegisterStatusEffect:", err)
 		return 0
 	}
 
 	// Set id after evaluating the table to avoid ID overwrite
 	def.ID = l.ToString(1)
+	log.Println("Registered status_effect:", def.ID, def.Name)
 
 	man.StatusEffects[def.ID] = &def
 	man.registered.RawGetString("status_effect").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
@@ -164,12 +175,13 @@ func (man *ResourcesManager) luaRegisterStoryTeller(l *lua.LState) int {
 	def := StoryTeller{}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
-		// TODO: error handling
+		log.Println("Error while luaRegisterStoryTeller:", err)
 		return 0
 	}
 
 	// Set id after evaluating the table to avoid ID overwrite
 	def.ID = l.ToString(1)
+	log.Println("Registered story_teller:", def.ID)
 
 	man.StoryTeller[def.ID] = &def
 	man.registered.RawGetString("story_teller").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))

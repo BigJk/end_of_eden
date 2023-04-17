@@ -1,17 +1,42 @@
 package game
 
 import (
+	"fmt"
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/luhelp"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
+	"io/fs"
 	"log"
+	"path/filepath"
+	"strings"
 )
 
 // SessionAdapter creates a lua vm that is bound to the session in the given Session.
 func SessionAdapter(session *Session) *lua.LState {
 	l := lua.NewState()
 	mapper := luhelp.NewMapper(l)
+
+	_ = filepath.Walk("./assets/scripts/libs", func(path string, info fs.FileInfo, err error) error {
+		if info != nil && info.IsDir() || !strings.HasSuffix(path, ".lua") {
+			return nil
+		}
+
+		name := strings.Split(filepath.Base(path), ".")[0]
+
+		mod, err := l.LoadFile(path)
+		if err != nil {
+			log.Println("Can't LoadFile module:", path)
+			return nil
+		}
+
+		log.Println("Loaded lib:", path, name)
+
+		preload := l.GetField(l.GetField(l.Get(lua.EnvironIndex), "package"), "preload")
+		l.SetField(preload, name, mod)
+
+		return nil
+	})
 
 	// Constants
 
@@ -44,35 +69,35 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("debug_log", l.NewFunction(func(state *lua.LState) int {
-		if state.GetTop() == 1 {
-			log.Println("[LUA] " + state.ToString(1))
-			return 0
+		dbg, ok := state.GetStack(1)
+		if ok {
+			_, _ = state.GetInfo("nSl", dbg, lua.LNil)
 		}
 
-		log.Printf("[LUA] "+state.ToString(1)+"\n", lo.Map(make([]any, state.GetTop()-1), func(_ any, index int) any {
-			val := state.Get(2 + index)
+		log.Printf("[LUA :: %d %s] %s \n", dbg.CurrentLine, dbg.Source, strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
+			val := state.Get(1 + index)
 
 			switch val.Type() {
 			case lua.LTString:
 				return lua.LVAsString(val)
 			case lua.LTNumber:
-				return float64(lua.LVAsNumber(val))
+				return fmt.Sprint(float64(lua.LVAsNumber(val)))
 			case lua.LTBool:
-				return lua.LVAsBool(val)
+				return fmt.Sprint(lua.LVAsBool(val))
 			case lua.LTTable:
 				var data map[string]interface{}
 				if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
 					return "Error: " + err.Error()
 				}
-				return data
+				return fmt.Sprint(data)
 			case lua.LTUserData:
-				return val.(*lua.LUserData).Value
+				return fmt.Sprint(val.(*lua.LUserData).Value)
 			case lua.LTNil:
 				return "nil"
 			}
 
 			return "<" + val.Type().String() + ">"
-		})...)
+		}), " "))
 
 		return 0
 	}))

@@ -2,6 +2,7 @@ package luhelp
 
 import (
 	"github.com/fatih/structs"
+	"github.com/gobeam/stringy"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"reflect"
@@ -53,7 +54,8 @@ func ToLua(val any) lua.LValue {
 		keys := valValue.MapKeys()
 		for i := range keys {
 			if keys[i].Kind() == reflect.String {
-				resultTable.RawSetString(keys[i].Interface().(string), ToLua(valValue.MapIndex(keys[i]).Interface()))
+				key := stringy.New(keys[i].Interface().(string)).SnakeCase().Get()
+				resultTable.RawSetString(key, ToLua(valValue.MapIndex(keys[i]).Interface()))
 			} else if keys[i].CanConvert(intType) {
 				resultTable.RawSetInt(keys[i].Convert(intType).Interface().(int), ToLua(valValue.MapIndex(keys[i]).Interface()))
 			}

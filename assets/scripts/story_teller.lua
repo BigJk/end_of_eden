@@ -1,15 +1,21 @@
+require("fun")()
+
+each(print, map(function(key, val)
+    return val.description
+end, registered.card))
+
 --
 -- Pre-Stage
 --
 
 register_story_teller("PRE_STAGE", {
-    Active = function(ctx)
+    active = function(ctx)
         if not had_event("FIRST_OUTSIDE") then
             return 1
         end
         return 0
     end,
-    Decide = function(ctx)
+    decide = function(ctx)
         local stage = get_stages_cleared()
 
         if stage > 3 then
@@ -30,13 +36,13 @@ register_story_teller("PRE_STAGE", {
 --
 
 register_story_teller("STAGE_1", {
-    Active = function(ctx)
+    active = function(ctx)
         if had_event("FIRST_OUTSIDE") then
             return 1
         end
         return 0
     end,
-    Decide = function(ctx)
+    decide = function(ctx)
         local stage = get_stages_cleared()
 
         if stage == 10 then
@@ -52,13 +58,13 @@ register_story_teller("STAGE_1", {
 --
 
 register_story_teller("STAGE_2", {
-    Active = function(ctx)
+    active = function(ctx)
         if had_event("FIRST_OUTSIDE") and get_stages_cleared() > 10 then
             return 2
         end
         return 0
     end,
-    Decide = function(ctx)
+    decide = function(ctx)
         local stage = get_stages_cleared()
 
         if stage == 20 then

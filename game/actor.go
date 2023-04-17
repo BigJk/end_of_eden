@@ -6,7 +6,7 @@ const PlayerActorID = "PLAYER"
 
 // Actor represents a player or enemy.
 type Actor struct {
-	GUID          string `luar:"guid"`
+	GUID          string `lua:"guid"`
 	TypeID        string
 	Name          string
 	Description   string
