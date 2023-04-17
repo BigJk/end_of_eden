@@ -45,17 +45,17 @@ type StateCheckpointMarker struct {
 	checkpoints []StateCheckpoint
 }
 
-// New returns the new states that happened between the marker and a new session.
-func (sm StateCheckpointMarker) New(session *Session) []StateCheckpoint {
+// Diff returns the new states that happened between the marker and a new session.
+func (sm StateCheckpointMarker) Diff(session *Session) []StateCheckpoint {
 	if len(sm.checkpoints) >= len(session.stateCheckpoints) {
 		return nil
 	}
 	return session.stateCheckpoints[len(sm.checkpoints):]
 }
 
-// NewEvent returns the new states that happened between the marker and a new session that contain a certain event.
-func (sm StateCheckpointMarker) NewEvent(session *Session, event StateEvent) []StateCheckpoint {
-	return lo.Filter(sm.New(session), func(item StateCheckpoint, index int) bool {
+// DiffEvent returns the new states that happened between the marker and a new session that contain a certain event.
+func (sm StateCheckpointMarker) DiffEvent(session *Session, event StateEvent) []StateCheckpoint {
+	return lo.Filter(sm.Diff(session), func(item StateCheckpoint, index int) bool {
 		if item.Events == nil {
 			return false
 		}

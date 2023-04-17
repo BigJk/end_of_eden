@@ -35,15 +35,17 @@ Although the game code doesn't contain any ui there is a mechanism that helps ui
 In case we want to see if the enemy turn resulted in damage to the player we could use checkpoints:
 
 ```go
-// Store state before operation
+// Store state checkpoint before operation
 before := session.MarkState()
 
 // Finish the player turn, which means that enemies are allowed to act
 session.FinishPlayerTurn()
 
 // Check if any damage was triggered
-damages := before.NewEvent(m.Session, game.StateEventDamage)
+damages := before.DiffEvent(m.Session, game.StateEventDamage)
 for i := range damages {
 	// Do something with the damage data -> queue animation, play audio
 }
 ```
+
+This also makes it really easy to keep track of everything that happened in a fight, so that a re-cap screen can be shown. We just need to store the state at the beginning of the fight and diff it when it ends. 

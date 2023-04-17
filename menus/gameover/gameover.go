@@ -48,7 +48,7 @@ func New(session *game.Session, start game.StateCheckpointMarker) Model {
 	}
 
 	// Collect stats
-	diff := start.New(session)
+	diff := start.Diff(session)
 	for i := range diff {
 		if val, ok := diff[i].Events[game.StateEventDamage]; ok {
 			dmg := val.(game.StateEventDamageData)

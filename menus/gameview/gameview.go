@@ -127,7 +127,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.Session.FinishPlayerTurn()
 
-				damage := before.NewEvent(m.Session, game.StateEventDamage)
+				damage := before.DiffEvent(m.Session, game.StateEventDamage)
 				if len(damage) > 0 {
 					audio.Play("dmg1")
 				}
@@ -311,7 +311,7 @@ func (m Model) tryCast() Model {
 	}
 
 	// Check if any death occurred in this operation, so we can trigger animations.
-	diff := before.NewEvent(m.Session, game.StateEventDeath)
+	diff := before.DiffEvent(m.Session, game.StateEventDeath)
 	m.deathAnimations = lo.Map(diff, func(item game.StateCheckpoint, index int) DeathAnimationModel {
 		death := item.Events[game.StateEventDeath].(game.StateEventDeathData)
 		actor := item.Session.GetActor(death.Target)
