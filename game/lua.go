@@ -1,8 +1,6 @@
 package game
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/luhelp"
 	"github.com/BigJk/project_gonzo/util"
@@ -41,30 +39,6 @@ func SessionAdapter(session *Session) *lua.LState {
 		return nil
 	})
 
-	toGoString := func(val lua.LValue) string {
-		switch val.Type() {
-		case lua.LTString:
-			return lua.LVAsString(val)
-		case lua.LTNumber:
-			return fmt.Sprint(float64(lua.LVAsNumber(val)))
-		case lua.LTBool:
-			return fmt.Sprint(lua.LVAsBool(val))
-		case lua.LTTable:
-			var data map[string]interface{}
-			if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
-				return "Error: " + err.Error()
-			}
-			pretty, _ := json.MarshalIndent(data, "", "\t")
-			return string(pretty)
-		case lua.LTUserData:
-			return fmt.Sprint(val.(*lua.LUserData).Value)
-		case lua.LTNil:
-			return "nil"
-		}
-
-		return "<" + val.Type().String() + ">"
-	}
-
 	// Constants
 
 	l.SetGlobal("PLAYER_ID", lua.LString(PlayerActorID))
@@ -74,52 +48,56 @@ func SessionAdapter(session *Session) *lua.LState {
 	l.SetGlobal("GAME_STATE_MERCHANT", lua.LString(GameStateMerchant))
 	l.SetGlobal("GAME_STATE_RANDOM", lua.LString(GameStateRandom))
 
+	l.SetGlobal("DECAY_ONE", lua.LString(DecayOne))
+	l.SetGlobal("DECAY_ALL", lua.LString(DecayAll))
+	l.SetGlobal("DECAY_NONE", lua.LString(DecayNone))
+
 	// Style
 
 	l.SetGlobal("text_bold", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString("\033[1m" + toGoString(state.Get(1)) + "\033[22m"))
+		state.Push(lua.LString("\033[1m" + luhelp.ToString(state.Get(1), mapper) + "\033[22m"))
 		return 1
 	}))
 
 	l.SetGlobal("text_italic", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString("\033[3m" + toGoString(state.Get(1)) + "\033[23m"))
+		state.Push(lua.LString("\033[3m" + luhelp.ToString(state.Get(1), mapper) + "\033[23m"))
 		return 1
 	}))
 
 	l.SetGlobal("text_underline", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString("\033[4m" + toGoString(state.Get(1)) + "\033[24m"))
+		state.Push(lua.LString("\033[4m" + luhelp.ToString(state.Get(1), mapper) + "\033[24m"))
 		return 1
 	}))
 
 	l.SetGlobal("text_color", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Foreground(lipgloss.Color(toGoString(state.Get(1)))).Render(toGoString(state.Get(2))))))
+		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Foreground(lipgloss.Color(luhelp.ToString(state.Get(1), mapper))).Render(luhelp.ToString(state.Get(2), mapper)))))
 		return 1
 	}))
 
 	l.SetGlobal("text_bg", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Background(lipgloss.Color(toGoString(state.Get(1)))).Render(toGoString(state.Get(2))))))
+		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Background(lipgloss.Color(luhelp.ToString(state.Get(1), mapper))).Render(luhelp.ToString(state.Get(2), mapper)))))
 		return 1
 	}))
 
 	// Misc
 
 	l.SetGlobal("log_i", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeInfo, toGoString(state.Get(1)))
+		session.Log(LogTypeInfo, luhelp.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
 	l.SetGlobal("log_w", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeWarning, toGoString(state.Get(1)))
+		session.Log(LogTypeWarning, luhelp.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
 	l.SetGlobal("log_d", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeDanger, toGoString(state.Get(1)))
+		session.Log(LogTypeDanger, luhelp.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
 	l.SetGlobal("log_s", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeSuccess, toGoString(state.Get(1)))
+		session.Log(LogTypeSuccess, luhelp.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
@@ -131,7 +109,7 @@ func SessionAdapter(session *Session) *lua.LState {
 
 		log.Printf("[LUA :: %d %s] %s \n", dbg.CurrentLine, dbg.Source, strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
 			val := state.Get(1 + index)
-			return toGoString(val)
+			return luhelp.ToString(val, mapper)
 		}), " "))
 
 		return 0
@@ -176,7 +154,7 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("get_fight", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LNumber(session.GetFightRound()))
+		state.Push(luhelp.ToLua(session.GetFight()))
 		return 1
 	}))
 
@@ -203,7 +181,6 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("get_opponent_by_index", l.NewFunction(func(state *lua.LState) int {
-		log.Println(int(state.ToNumber(2)) - 1)
 		state.Push(luhelp.ToLua(session.GetOpponentByIndex(state.ToString(1), int(state.ToNumber(2))-1)))
 		return 1
 	}))
@@ -243,12 +220,26 @@ func SessionAdapter(session *Session) *lua.LState {
 	// Artifacts
 
 	l.SetGlobal("give_status_effect", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString(session.GiveStatusEffect(state.ToString(1), state.ToString(2))))
+		if state.GetTop() == 2 {
+			state.Push(lua.LString(session.GiveStatusEffect(state.ToString(1), state.ToString(2), 1)))
+		} else {
+			state.Push(lua.LString(session.GiveStatusEffect(state.ToString(1), state.ToString(2), int(state.ToNumber(3)))))
+		}
 		return 1
 	}))
 
 	l.SetGlobal("remove_status_effect", l.NewFunction(func(state *lua.LState) int {
 		session.RemoveStatusEffect(state.ToString(1))
+		return 0
+	}))
+
+	l.SetGlobal("add_status_effect_stacks", l.NewFunction(func(state *lua.LState) int {
+		session.AddStatusEffectStacks(state.ToString(1), int(state.ToNumber(2)))
+		return 0
+	}))
+
+	l.SetGlobal("set_status_effect_stacks", l.NewFunction(func(state *lua.LState) int {
+		session.SetStatusEffectStacks(state.ToString(1), int(state.ToNumber(2)))
 		return 0
 	}))
 

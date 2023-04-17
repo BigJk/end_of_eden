@@ -3,6 +3,7 @@ package game
 import (
 	"errors"
 	"fmt"
+	"github.com/BigJk/project_gonzo/debug"
 	"github.com/BigJk/project_gonzo/util"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
@@ -53,6 +54,7 @@ type Session struct {
 	eventHistory  []string
 
 	stateCheckpoints []StateCheckpoint
+	closer           []func() error
 
 	Logs []LogEntry
 }
@@ -84,11 +86,24 @@ func NewSession(options ...func(s *Session)) *Session {
 	return session
 }
 
-func (s *Session) WithAlternativeStartEvent(id string) {
-	s.SetEvent(id)
+func WithAlternativeStartEvent(id string) func(s *Session) {
+	return func(s *Session) {
+		s.SetEvent(id)
+	}
+}
+
+func WithDebugEnabled(bind string) func(s *Session) {
+	return func(s *Session) {
+		s.closer = append(s.closer, debug.Expose(bind, s.luaState))
+	}
 }
 
 func (s *Session) Close() {
+	for i := range s.closer {
+		if err := s.closer[i](); err != nil {
+			log.Println("Close error:", err)
+		}
+	}
 	s.luaState.Close()
 }
 
@@ -210,18 +225,38 @@ func (s *Session) FinishPlayerTurn() {
 
 	// Turn over so we remove all dead status effects.
 	var removeStatus []string
-	for guid, instance := range s.instances {
-		switch instance := instance.(type) {
-		case StatusEffectInstance:
-			instance.RoundsLeft -= 1
-			s.instances[guid] = instance
 
-			if _, err := s.GetStatusEffect(guid).Callbacks[CallbackOnTurn].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner, "round", s.currentFight.Round)); err != nil {
+	instanceKeys := lo.Keys(s.instances)
+	for _, guid := range instanceKeys {
+		switch instance := s.instances[guid].(type) {
+		case StatusEffectInstance:
+			se := s.resources.StatusEffects[instance.TypeID]
+
+			// If it can decay we reduce rounds.
+			if se.Decay != DecayNone {
+				instance.RoundsLeft -= 1
+				s.instances[guid] = instance
+			}
+
+			if _, err := s.GetStatusEffect(guid).Callbacks[CallbackOnTurn].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner, "round", s.currentFight.Round, "stacks", instance.Stacks)); err != nil {
 				log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", instance.TypeID, err.Error())
 			}
 
-			if instance.RoundsLeft <= 0 {
-				removeStatus = append(removeStatus, guid)
+			switch se.Decay {
+			// Decay stacks by one and re-set rounds if stacks left.
+			case DecayOne:
+				if instance.Stacks <= 0 && instance.RoundsLeft <= 0 {
+					removeStatus = append(removeStatus, guid)
+				} else {
+					instance.Stacks -= 1
+					instance.RoundsLeft = se.Rounds
+					s.instances[guid] = instance
+				}
+			// Remove all.
+			case DecayAll:
+				if instance.RoundsLeft <= 0 {
+					removeStatus = append(removeStatus, guid)
+				}
 			}
 		}
 	}
@@ -437,7 +472,7 @@ func (s *Session) GetStatusEffect(guid string) *StatusEffect {
 	return nil
 }
 
-func (s *Session) GiveStatusEffect(typeId string, owner string) string {
+func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) string {
 	status := s.resources.StatusEffects[typeId]
 
 	// TODO: This should always be either 0 or 1 len, so the logic down below is a bit meh.
@@ -455,7 +490,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string) string {
 		// Increase stack and re-set rounds left
 		for i := range same {
 			instance := s.instances[same[i]].(StatusEffectInstance)
-			instance.Stacks += 1
+			instance.Stacks += stacks
 			instance.RoundsLeft = status.Rounds
 			s.instances[same[i]] = instance
 
@@ -472,7 +507,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string) string {
 		GUID:       NewGuid("STATUS"),
 		Owner:      owner,
 		RoundsLeft: status.Rounds,
-		Stacks:     1,
+		Stacks:     stacks,
 	}
 	s.instances[instance.GUID] = instance
 	s.actors[owner].StatusEffects.Add(instance.GUID)
@@ -492,6 +527,26 @@ func (s *Session) RemoveStatusEffect(guid string) {
 		actor.StatusEffects.Remove(instance.GUID)
 	}
 	delete(s.instances, guid)
+}
+
+func (s *Session) AddStatusEffectStacks(guid string, stacks int) {
+	instance := s.instances[guid].(StatusEffectInstance)
+	instance.Stacks += stacks
+	if instance.Stacks <= 0 {
+		s.RemoveStatusEffect(guid)
+	} else {
+		s.instances[guid] = instance
+	}
+}
+
+func (s *Session) SetStatusEffectStacks(guid string, stacks int) {
+	instance := s.instances[guid].(StatusEffectInstance)
+	instance.Stacks = stacks
+	if instance.Stacks <= 0 {
+		s.RemoveStatusEffect(guid)
+	} else {
+		s.instances[guid] = instance
+	}
 }
 
 //

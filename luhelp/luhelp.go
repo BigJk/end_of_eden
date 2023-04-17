@@ -1,9 +1,11 @@
 package luhelp
 
 import (
+	"fmt"
 	"github.com/fatih/structs"
 	"github.com/gobeam/stringy"
 	"github.com/samber/lo"
+	"github.com/sanity-io/litter"
 	lua "github.com/yuin/gopher-lua"
 	"reflect"
 )
@@ -111,4 +113,27 @@ func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
 		// Don't error for now
 		return nil, nil
 	}
+}
+
+func ToString(val lua.LValue, mapper *Mapper) string {
+	switch val.Type() {
+	case lua.LTString:
+		return lua.LVAsString(val)
+	case lua.LTNumber:
+		return fmt.Sprint(float64(lua.LVAsNumber(val)))
+	case lua.LTBool:
+		return fmt.Sprint(lua.LVAsBool(val))
+	case lua.LTTable:
+		var data map[string]interface{}
+		if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
+			return "Error: " + err.Error()
+		}
+		return litter.Sdump(data)
+	case lua.LTUserData:
+		return fmt.Sprint(val.(*lua.LUserData).Value)
+	case lua.LTNil:
+		return "nil"
+	}
+
+	return "<" + val.Type().String() + ">"
 }

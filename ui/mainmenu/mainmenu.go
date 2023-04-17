@@ -48,7 +48,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ChoiceContinue:
 	case ChoiceNewGame:
 		m.choices = m.choices.Clear()
-		return gameview.New(m, game.NewSession()), cmd
+		return gameview.New(m, game.NewSession(game.WithDebugEnabled("127.0.0.1:8272"))), cmd
 	case ChoiceAbout:
 		m.choices = m.choices.Clear()
 		return about.New(m), cmd

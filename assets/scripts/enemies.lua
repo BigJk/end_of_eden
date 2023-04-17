@@ -21,8 +21,11 @@ register_enemy(
         max_hp = 16,
         callbacks = {
             on_turn = function(ctx)
-                -- 1: Add Status
-                -- 2: Damage
+                if ctx.round % 3 == 0 then
+                    give_status_effect("RITUAL", ctx.guid)
+                else
+                    deal_damage(ctx.guid, PLAYER_ID, 6)
+                end
             end
         }
     }

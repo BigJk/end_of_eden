@@ -50,9 +50,12 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
                 give_card("MELEE_HIT", PLAYER_ID)
                 give_card("MELEE_HIT", PLAYER_ID)
                 give_card("MELEE_HIT", PLAYER_ID)
-                give_card("SLICE", PLAYER_ID)
-
-                give_artifact("RADIANT_SEED", PLAYER_ID)
+                give_card("RUPTURE", PLAYER_ID)
+                give_card("RUPTURE", PLAYER_ID)
+                give_card("BLOCK", PLAYER_ID)
+                give_card("BLOCK", PLAYER_ID)
+                give_card("BLOCK", PLAYER_ID)
+                give_card("BLOCK", PLAYER_ID)
         end,
         on_end = function()
                 return GAME_STATE_RANDOM

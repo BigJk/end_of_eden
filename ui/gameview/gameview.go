@@ -13,6 +13,7 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/samber/lo"
 	"strconv"
@@ -401,7 +402,16 @@ func (m Model) fightStatusBottom() string {
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(style.BaseWhite)).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Deck: %d", len(fight.Deck))),
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Used: %d", len(fight.Used))),
 			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Exhausted: %d", len(fight.Used)))),
-			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound)))),
+			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound))),
+			strings.Join(lo.Map(util.SortStringsStable(m.Session.GetPlayer().StatusEffects.ToSlice()), func(guid string, index int) string {
+				status := m.Session.GetStatusEffect(guid)
+
+				fg, _ := colorful.Hex(status.Foreground)
+				bg := fg.BlendRgb(colorful.LinearRgb(0, 0, 0), 0.7)
+
+				return fmt.Sprint(m.Session.GetInstance(guid).(game.StatusEffectInstance).Stacks) + lipgloss.NewStyle().Foreground(lipgloss.Color(status.Foreground)).Background(lipgloss.Color(bg.Hex())).Render(status.Look)
+			}), " "),
+		),
 		),
 		lipgloss.Place(40, 3, lipgloss.Right, lipgloss.Center, lipgloss.JoinHorizontal(
 			lipgloss.Center,
@@ -437,9 +447,13 @@ func (m Model) fightEnemyView() string {
 		enemyBoxes = append(enemyBoxes, zone.Mark(fmt.Sprintf("%s%d", ZoneEnemy, i), lipgloss.NewStyle().Foreground(style.BaseWhite).Margin(0, 2).
 			Render(lipgloss.JoinVertical(
 				lipgloss.Center,
-				strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
+				strings.Join(lo.Map(util.SortStringsStable(enemy.StatusEffects.ToSlice()), func(guid string, index int) string {
 					status := m.Session.GetStatusEffect(guid)
-					return fmt.Sprint(m.Session.GetInstance(guid).(game.StatusEffectInstance).Stacks) + lipgloss.NewStyle().Foreground(lipgloss.Color(status.Foreground)).Background(lipgloss.Color(status.Background)).Render(status.Look)
+
+					fg, _ := colorful.Hex(status.Foreground)
+					bg := fg.BlendRgb(colorful.LinearRgb(0, 0, 0), 0.7)
+
+					return fmt.Sprint(m.Session.GetInstance(guid).(game.StatusEffectInstance).Stacks) + lipgloss.NewStyle().Foreground(lipgloss.Color(status.Foreground)).Background(lipgloss.Color(bg.Hex())).Render(status.Look)
 				}), " ")+"\n",
 				face,
 				enemy.Name,
@@ -466,7 +480,10 @@ func (m Model) fightCardView() string {
 			pointText = cantCastStyle.Render(pointText)
 		}
 
-		cardStyle := cardStyle.Border(lipgloss.NormalBorder(), selected, false, false, false).BorderBackground(lipgloss.Color(card.Color)).Background(lipgloss.Color(card.Color)).BorderForeground(style.BaseWhite).Foreground(style.BaseWhite)
+		cardCol, _ := colorful.Hex(card.Color)
+		bgCol, _ := colorful.MakeColor(style.BaseGrayDarker)
+
+		cardStyle := cardStyle.Border(lipgloss.NormalBorder(), true, false, false, false).BorderBackground(lipgloss.Color(card.Color)).BorderForeground(lo.Ternary(selected, style.BaseGray, lipgloss.Color(card.Color))).Background(lipgloss.Color(cardCol.BlendRgb(bgCol, 0.6).Hex())).Foreground(style.BaseWhite)
 		if selected {
 			return cardStyle.Height(util.Min(m.fightCardViewHeight()-1, m.fightCardViewHeight()/2+5)).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), m.Session.GetCardState(guid)), 20))
 		}

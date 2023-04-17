@@ -1,13 +1,9 @@
-function dmg_style(dmg)
-    text_underline(text_bold("[" .. tostring(dmg) .. "]"))
-end
-
 register_card("MELEE_HIT",
     {
         name = "Melee Hit",
-        description = "Use your bare hands to deal 2 damage.",
+        description = "Use your bare hands to deal 5 (+3 for each upgrade) damage.",
         state = function(ctx)
-            return "Use your bare hands to deal " .. dmg_style(2 + ctx.level * 2) .. " damage."
+            return "Use your bare hands to deal " .. dmg_style(5 + ctx.level * 3) .. " damage."
         end,
         max_level = 1,
         color = "#2f3e46",
@@ -22,10 +18,10 @@ register_card("MELEE_HIT",
     }
 );
 
-register_card("SLICE",
+register_card("RUPTURE",
         {
-            name = "Slice",
-            description = "Try to inflict a wound on the enemy.",
+            name = "Rupture",
+            description = "Inflict your enemy with Vulnerable.",
             state = function(ctx)
                 return nil
             end,
@@ -42,10 +38,30 @@ register_card("SLICE",
         }
 );
 
+register_card("BLOCK",
+        {
+            name = "Block",
+            description = "Shield yourself and gain 5 block.",
+            state = function(ctx)
+                return "Shield yourself and gain " .. dmg_style(5 + ctx.level * 3) .. " block."
+            end,
+            max_level = 1,
+            color = "#cf532d",
+            need_target = false,
+            point_cost = 1,
+            callbacks = {
+                on_cast = function(ctx)
+                    give_status_effect("BLOCK", ctx.caster, 5 + ctx.level * 3)
+                    return nil
+                end,
+            }
+        }
+);
+
 register_card("RADIANT_SEED",
         {
             name = "Radiant Seed",
-            description = "Inflict 10 damage to all enemies, but also causes 5 damage to the caster.",
+            description = "Inflict 10 (+2 for each upgrade) damage to all enemies, but also causes 5 (-2 for each upgrade) damage to the caster.",
             state = function(ctx)
                 return "Inflict " .. dmg_style(10 + ctx.level * 2) .. " damage to all enemies, but also causes " .. dmg_style(5 - ctx.level * 2) .. " damage to the caster."
             end,

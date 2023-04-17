@@ -1,6 +1,7 @@
 package util
 
 import (
+	"sort"
 	"strings"
 )
 
@@ -32,4 +33,9 @@ func InsertString(s string, insert string, n int) string {
 
 func RemoveAnsiReset(s string) string {
 	return strings.Replace(s, "\x1b[0m", "", 1)
+}
+
+func SortStringsStable(s []string) []string {
+	sort.Strings(s)
+	return s
 }
