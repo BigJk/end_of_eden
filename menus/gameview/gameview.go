@@ -5,6 +5,7 @@ import (
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
 	"github.com/BigJk/project_gonzo/menus"
+	"github.com/BigJk/project_gonzo/menus/gameover"
 	"github.com/BigJk/project_gonzo/menus/style"
 	"github.com/BigJk/project_gonzo/util"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -39,6 +40,7 @@ type Model struct {
 	lastMouse tea.MouseMsg
 
 	Session *game.Session
+	Start   game.StateCheckpointMarker
 }
 
 func New(parent tea.Model, session *game.Session) Model {
@@ -47,6 +49,7 @@ func New(parent tea.Model, session *game.Session) Model {
 	return Model{
 		parent:  parent,
 		Session: session,
+		Start:   session.MarkState(),
 	}
 }
 
@@ -228,6 +231,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 
 		return m, tea.Batch(cmds...)
+	case game.GameStateGameOver:
+		return gameover.New(m.Session, m.Start), nil
 	}
 
 	return m, tea.Batch(cmds...)

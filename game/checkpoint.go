@@ -8,6 +8,7 @@ const (
 	StateEventDeath  = StateEvent("Death")
 	StateEventDamage = StateEvent("Damage")
 	StateEventHeal   = StateEvent("Heal")
+	StateEventMoney  = StateEvent("Money")
 )
 
 type StateEventDeathData struct {
@@ -23,6 +24,11 @@ type StateEventDamageData struct {
 type StateEventHealData struct {
 	Target string
 	Damage int
+}
+
+type StateEventMoneyData struct {
+	Target string
+	Money  int
 }
 
 // StateCheckpoint saves the state of a session at a certain point. This can be used

@@ -7,12 +7,14 @@ import (
 )
 
 type Model struct {
+	root    tea.Model
 	current tea.Model
 	size    tea.WindowSizeMsg
 }
 
 func New(root tea.Model) Model {
 	return Model{
+		root:    root,
 		current: root,
 	}
 }
@@ -38,6 +40,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmd, func() tea.Msg {
 			return m.size
 		})
+	}
+
+	if m.current == nil {
+		// Fall back to main menu
+		m.current = m.root
 	}
 
 	return m, cmd
