@@ -17,7 +17,7 @@ type StatusEffect struct {
 }
 
 type StatusEffectInstance struct {
-	GUID       string `luar:"guid"`
+	GUID       string
 	TypeID     string
 	Owner      string
 	Stacks     int

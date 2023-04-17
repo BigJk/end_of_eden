@@ -13,6 +13,6 @@ type Artifact struct {
 
 type ArtifactInstance struct {
 	TypeID string
-	GUID   string `luar:"guid"`
+	GUID   string
 	Owner  string
 }

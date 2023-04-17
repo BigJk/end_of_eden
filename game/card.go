@@ -17,6 +17,6 @@ type Card struct {
 // CardInstance represents a instance of a card owned by some actor.
 type CardInstance struct {
 	TypeID string
-	GUID   string `luar:"guid"`
+	GUID   string
 	Owner  string
 }
