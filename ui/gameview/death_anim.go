@@ -1,18 +1,22 @@
 package gameview
 
 import (
+	"fmt"
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
+	"github.com/BigJk/project_gonzo/ui"
 	"github.com/BigJk/project_gonzo/ui/animation"
 	"github.com/BigJk/project_gonzo/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"math/rand"
 	"time"
 )
 
-type DeathAnimationFrame time.Time
+type DeathAnimationFrame string
 
 type DeathAnimationModel struct {
+	id       string
 	width    int
 	height   int
 	target   game.Actor
@@ -24,6 +28,7 @@ type DeathAnimationModel struct {
 
 func NewDeathAnimationModel(width int, height int, target game.Actor, targetEnemy game.Enemy, death game.StateEventDeathData) DeathAnimationModel {
 	return DeathAnimationModel{
+		id:     fmt.Sprint(rand.Intn(100000)),
 		width:  width,
 		height: height,
 		target: target,
@@ -44,6 +49,8 @@ func (m DeathAnimationModel) Init() tea.Cmd {
 
 func (m DeathAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case ui.SizeMsg:
+		m = m.SetSize(msg.Width, msg.Height)
 	case tea.Key:
 		if m.progress > 0.1 && (msg.Type == tea.KeyEnter || msg.Type == tea.KeySpace) {
 			return nil, nil
@@ -53,6 +60,10 @@ func (m DeathAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return nil, nil
 		}
 	case DeathAnimationFrame:
+		if string(msg) != m.id {
+			return m, nil
+		}
+
 		if m.progress == 0 {
 			audio.Play("death_scream_1")
 		}
@@ -65,14 +76,14 @@ func (m DeathAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		return m, tea.Tick(time.Second/time.Duration(30), func(t time.Time) tea.Msg {
-			return DeathAnimationFrame(t)
+			return DeathAnimationFrame(m.id)
 		})
 	}
 
 	if m.started == false {
 		m.started = true
 		return m, tea.Tick(time.Second/time.Duration(30), func(t time.Time) tea.Msg {
-			return DeathAnimationFrame(t)
+			return DeathAnimationFrame(m.id)
 		})
 	}
 

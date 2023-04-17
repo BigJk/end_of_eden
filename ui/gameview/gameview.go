@@ -35,7 +35,7 @@ type Model struct {
 	selectedCard        int
 	selectedOpponent    int
 	inOpponentSelection bool
-	deathAnimations     []DeathAnimationModel
+	animations          []tea.Model
 
 	lastMouse tea.MouseMsg
 
@@ -127,9 +127,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.Session.FinishPlayerTurn()
 
-				damage := before.DiffEvent(m.Session, game.StateEventDamage)
-				if len(damage) > 0 {
-					audio.Play("dmg1")
+				damages := before.DiffEvent(m.Session, game.StateEventDamage)
+
+				if len(damages) > 0 {
+					hp := m.Session.GetPlayer().HP
+
+					var damageActors []game.Actor
+					var damageEnemies []game.Enemy
+					var damageData []game.StateEventDamageData
+
+					for i := range damages {
+						dmg := damages[i].Events[game.StateEventDamage].(game.StateEventDamageData)
+						src := damages[i].Session.GetActor(dmg.Source)
+
+						damageData = append(damageData, dmg)
+						damageEnemies = append(damageEnemies, damages[i].Session.GetEnemy(src.TypeID))
+						damageActors = append(damageActors, src)
+
+						hp += dmg.Damage
+					}
+
+					m.animations = append(m.animations, NewDamageAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, hp, damageActors, damageEnemies, damageData))
 				}
 			}
 		}
@@ -202,8 +220,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.Size = msg
 
-		for i := range m.deathAnimations {
-			m.deathAnimations[i].SetSize(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1)
+		for i := range m.animations {
+			m.animations[i], _ = m.animations[i].Update(ui.SizeMsg{Width: m.Size.Width, Height: m.fightEnemyViewHeight() + m.fightCardViewHeight() + 1})
 		}
 	}
 
@@ -211,13 +229,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Updating
 	//
 
-	if len(m.deathAnimations) > 0 {
-		d, cmd := m.deathAnimations[0].Update(msg)
+	if len(m.animations) > 0 {
+		d, cmd := m.animations[0].Update(msg)
 
 		if d == nil {
-			m.deathAnimations = lo.Drop(m.deathAnimations, 1)
+			m.animations = lo.Drop(m.animations, 1)
 		} else {
-			m.deathAnimations[0] = d.(DeathAnimationModel)
+			m.animations[0] = d
 		}
 
 		return m, cmd
@@ -244,11 +262,11 @@ func (m Model) View() string {
 	}
 
 	// Always finish death animations.
-	if len(m.deathAnimations) > 0 {
+	if len(m.animations) > 0 {
 		return lipgloss.JoinVertical(
 			lipgloss.Top,
 			m.fightStatusTop(),
-			m.deathAnimations[0].View(),
+			m.animations[0].View(),
 			m.fightStatusBottom(),
 		)
 	}
@@ -312,12 +330,12 @@ func (m Model) tryCast() Model {
 
 	// Check if any death occurred in this operation, so we can trigger animations.
 	diff := before.DiffEvent(m.Session, game.StateEventDeath)
-	m.deathAnimations = lo.Map(diff, func(item game.StateCheckpoint, index int) DeathAnimationModel {
+	m.animations = append(m.animations, lo.Map(diff, func(item game.StateCheckpoint, index int) tea.Model {
 		death := item.Events[game.StateEventDeath].(game.StateEventDeathData)
 		actor := item.Session.GetActor(death.Target)
 		enemy := m.Session.GetEnemy(actor.TypeID)
 		return NewDeathAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, actor, enemy, death)
-	})
+	})...)
 
 	return m
 }
@@ -450,9 +468,9 @@ func (m Model) fightCardView() string {
 
 		cardStyle := cardStyle.Border(lipgloss.NormalBorder(), selected, false, false, false).BorderBackground(lipgloss.Color(card.Color)).Background(lipgloss.Color(card.Color)).BorderForeground(style.BaseWhite).Foreground(style.BaseWhite)
 		if selected {
-			return cardStyle.Height(util.Min(m.fightCardViewHeight()-1, m.fightCardViewHeight()/2+5)).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), card.Description), 20))
+			return cardStyle.Height(util.Min(m.fightCardViewHeight()-1, m.fightCardViewHeight()/2+5)).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), m.Session.GetCardState(guid)), 20))
 		}
-		return cardStyle.Height(m.fightCardViewHeight() / 2).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), card.Description), 20))
+		return cardStyle.Height(m.fightCardViewHeight() / 2).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), m.Session.GetCardState(guid)), 20))
 	})
 
 	cardBoxes = lo.Map(cardBoxes, func(item string, i int) string {

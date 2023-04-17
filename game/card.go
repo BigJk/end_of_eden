@@ -7,8 +7,10 @@ type Card struct {
 	ID          string
 	Name        string
 	Description string
+	State       luhelp.OwnedCallback
 	Color       string
 	PointCost   int
+	MaxLevel    int
 	DoesExhaust bool
 	NeedTarget  bool
 	Callbacks   map[string]luhelp.OwnedCallback
@@ -18,5 +20,6 @@ type Card struct {
 type CardInstance struct {
 	TypeID string
 	GUID   string
+	Level  int
 	Owner  string
 }

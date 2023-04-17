@@ -589,7 +589,7 @@ func (s *Session) RemoveCard(guid string) {
 
 func (s *Session) CastCard(guid string, target string) bool {
 	if card, instance := s.GetCard(guid); card != nil {
-		res, err := card.Callbacks[CallbackOnCast].Call(CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target))
+		res, err := card.Callbacks[CallbackOnCast].Call(CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level))
 		if err != nil {
 			log.Printf("Error from Callback:CallbackOnCast type=%s %s\n", instance.TypeID, err.Error())
 		}
@@ -602,6 +602,27 @@ func (s *Session) CastCard(guid string, target string) bool {
 
 func (s *Session) GetCards(owner string) []string {
 	return s.actors[owner].Cards.ToSlice()
+}
+
+func (s *Session) GetCardState(guid string) string {
+	card, instance := s.GetCard(guid)
+	if card == nil {
+		return ""
+	}
+
+	if card.State == nil {
+		return card.Description
+	}
+
+	res, err := card.State.Call(CreateContext("type_id", card.ID, "guid", guid, "level", instance.Level, "owner", instance.Owner))
+	if err != nil {
+		log.Printf("Error from Callback:State type=%s %s\n", instance.TypeID, err.Error())
+	}
+
+	if res == nil {
+		return card.Description
+	}
+	return res.(string)
 }
 
 func (s *Session) PlayerCastHand(i int, target string) error {
@@ -732,6 +753,7 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 		if target != PlayerActorID && hpLeft == 0 {
 			s.PushState(map[StateEvent]any{
 				StateEventDeath: StateEventDeathData{
+					Source: source,
 					Target: target,
 					Damage: damage,
 				},
@@ -754,6 +776,7 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 		} else {
 			s.PushState(map[StateEvent]any{
 				StateEventDamage: StateEventDamageData{
+					Source: source,
 					Target: target,
 					Damage: damage,
 				},

@@ -1,9 +1,12 @@
 package game
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/luhelp"
+	"github.com/BigJk/project_gonzo/util"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"io/fs"
@@ -38,33 +41,85 @@ func SessionAdapter(session *Session) *lua.LState {
 		return nil
 	})
 
+	toGoString := func(val lua.LValue) string {
+		switch val.Type() {
+		case lua.LTString:
+			return lua.LVAsString(val)
+		case lua.LTNumber:
+			return fmt.Sprint(float64(lua.LVAsNumber(val)))
+		case lua.LTBool:
+			return fmt.Sprint(lua.LVAsBool(val))
+		case lua.LTTable:
+			var data map[string]interface{}
+			if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
+				return "Error: " + err.Error()
+			}
+			pretty, _ := json.MarshalIndent(data, "", "\t")
+			return string(pretty)
+		case lua.LTUserData:
+			return fmt.Sprint(val.(*lua.LUserData).Value)
+		case lua.LTNil:
+			return "nil"
+		}
+
+		return "<" + val.Type().String() + ">"
+	}
+
 	// Constants
 
 	l.SetGlobal("PLAYER_ID", lua.LString(PlayerActorID))
+
 	l.SetGlobal("GAME_STATE_FIGHT", lua.LString(GameStateFight))
 	l.SetGlobal("GAME_STATE_EVENT", lua.LString(GameStateEvent))
 	l.SetGlobal("GAME_STATE_MERCHANT", lua.LString(GameStateMerchant))
 	l.SetGlobal("GAME_STATE_RANDOM", lua.LString(GameStateRandom))
 
+	// Style
+
+	l.SetGlobal("text_bold", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString("\033[1m" + toGoString(state.Get(1)) + "\033[22m"))
+		return 1
+	}))
+
+	l.SetGlobal("text_italic", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString("\033[3m" + toGoString(state.Get(1)) + "\033[23m"))
+		return 1
+	}))
+
+	l.SetGlobal("text_underline", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString("\033[4m" + toGoString(state.Get(1)) + "\033[24m"))
+		return 1
+	}))
+
+	l.SetGlobal("text_color", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Foreground(lipgloss.Color(toGoString(state.Get(1)))).Render(toGoString(state.Get(2))))))
+		return 1
+	}))
+
+	l.SetGlobal("text_bg", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Background(lipgloss.Color(toGoString(state.Get(1)))).Render(toGoString(state.Get(2))))))
+		return 1
+	}))
+
 	// Misc
 
 	l.SetGlobal("log_i", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeInfo, state.ToString(1))
+		session.Log(LogTypeInfo, toGoString(state.Get(1)))
 		return 0
 	}))
 
 	l.SetGlobal("log_w", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeWarning, state.ToString(1))
+		session.Log(LogTypeWarning, toGoString(state.Get(1)))
 		return 0
 	}))
 
 	l.SetGlobal("log_d", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeDanger, state.ToString(1))
+		session.Log(LogTypeDanger, toGoString(state.Get(1)))
 		return 0
 	}))
 
 	l.SetGlobal("log_s", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeSuccess, state.ToString(1))
+		session.Log(LogTypeSuccess, toGoString(state.Get(1)))
 		return 0
 	}))
 
@@ -76,27 +131,7 @@ func SessionAdapter(session *Session) *lua.LState {
 
 		log.Printf("[LUA :: %d %s] %s \n", dbg.CurrentLine, dbg.Source, strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
 			val := state.Get(1 + index)
-
-			switch val.Type() {
-			case lua.LTString:
-				return lua.LVAsString(val)
-			case lua.LTNumber:
-				return fmt.Sprint(float64(lua.LVAsNumber(val)))
-			case lua.LTBool:
-				return fmt.Sprint(lua.LVAsBool(val))
-			case lua.LTTable:
-				var data map[string]interface{}
-				if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
-					return "Error: " + err.Error()
-				}
-				return fmt.Sprint(data)
-			case lua.LTUserData:
-				return fmt.Sprint(val.(*lua.LUserData).Value)
-			case lua.LTNil:
-				return "nil"
-			}
-
-			return "<" + val.Type().String() + ">"
+			return toGoString(val)
 		}), " "))
 
 		return 0

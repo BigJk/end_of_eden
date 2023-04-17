@@ -12,11 +12,13 @@ const (
 )
 
 type StateEventDeathData struct {
+	Source string
 	Target string
 	Damage int
 }
 
 type StateEventDamageData struct {
+	Source string
 	Target string
 	Damage int
 }

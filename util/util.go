@@ -1,5 +1,9 @@
 package util
 
+import (
+	"strings"
+)
+
 func Min(x, y int) int {
 	if x < y {
 		return x
@@ -24,4 +28,8 @@ func CopyMap[K, V comparable](m map[K]V) map[K]V {
 
 func InsertString(s string, insert string, n int) string {
 	return s[:n] + insert + s[n:]
+}
+
+func RemoveAnsiReset(s string) string {
+	return strings.Replace(s, "\x1b[0m", "", 1)
 }
