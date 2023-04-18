@@ -62,7 +62,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.choices = m.choices.Clear()
 		return gameview.New(m, m.zones, game.NewSession(
-			game.WithLogging(log.New(f, "SESSION", 0)),
+			game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
 			lo.Ternary(os.Getenv("PG_DEBUG") == "1", game.WithDebugEnabled("127.0.0.1:8272"), nil),
 		)), cmd
 	case ChoiceAbout:

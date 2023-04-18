@@ -72,16 +72,18 @@ func NewSession(options ...func(s *Session)) *Session {
 		stagesCleared: 0,
 	}
 
-	session.luaState = SessionAdapter(session)
-	session.resources = NewResourcesManager(session.luaState, session.log)
-	session.SetEvent("START")
-
 	for i := range options {
 		if options[i] == nil {
 			continue
 		}
 		options[i](session)
 	}
+
+	session.luaState = SessionAdapter(session)
+	session.resources = NewResourcesManager(session.luaState, session.log)
+	session.SetEvent("START")
+
+	session.log.Println("Session started!")
 
 	session.UpdatePlayer(func(actor *Actor) bool {
 		actor.HP = 80
@@ -90,12 +92,6 @@ func NewSession(options ...func(s *Session)) *Session {
 	})
 
 	return session
-}
-
-func WithAlternativeStartEvent(id string) func(s *Session) {
-	return func(s *Session) {
-		s.SetEvent(id)
-	}
 }
 
 func WithDebugEnabled(bind string) func(s *Session) {
@@ -107,7 +103,6 @@ func WithDebugEnabled(bind string) func(s *Session) {
 func WithLogging(logger *log.Logger) func(s *Session) {
 	return func(s *Session) {
 		s.log = logger
-		s.resources.log = logger
 	}
 }
 
