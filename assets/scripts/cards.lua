@@ -1,3 +1,7 @@
+function dmg_style(dmg)
+    return text_underline(text_bold("[" .. tostring(dmg) .. "]"))
+end
+
 register_card("MELEE_HIT",
     {
         name = "Melee Hit",
