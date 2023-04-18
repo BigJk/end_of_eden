@@ -1,20 +1,29 @@
 package audio
 
 import (
+	"io/fs"
+	"log"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
+
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/effects"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/beep/wav"
-	"io/fs"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 var sounds = map[string]*beep.Buffer{}
 
 func InitAudio() {
+	// TODO: Fix audio. Currently audio is resulting in a lot of noise.
+	if runtime.GOOS == "windows" {
+		log.Printf("Disable audio on windows!")
+		return
+	}
+
 	_ = filepath.Walk("./assets/audio", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return nil
@@ -66,6 +75,10 @@ func InitAudio() {
 }
 
 func Play(key string) {
+	if runtime.GOOS == "windows" {
+		return
+	}
+
 	if val, ok := sounds[key]; ok {
 		volume := &effects.Volume{
 			Streamer: val.Streamer(0, val.Len()),
