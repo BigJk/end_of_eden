@@ -29,6 +29,7 @@ type GameOverFrame time.Time
 type Model struct {
 	ui.MenuBase
 
+	zones     *zone.Manager
 	started   bool
 	progress  float64
 	lastMouse tea.MouseMsg
@@ -41,8 +42,9 @@ type Model struct {
 	allGold           int
 }
 
-func New(session *game.Session, start game.StateCheckpointMarker) Model {
+func New(zones *zone.Manager, session *game.Session, start game.StateCheckpointMarker) Model {
 	m := Model{
+		zones:   zones,
 		Session: session,
 		Start:   start,
 	}
@@ -79,7 +81,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		m.lastMouse = msg
 
-		if msg.Type == tea.MouseLeft && zone.Get(ZoneToMenu).InBounds(msg) {
+		if msg.Type == tea.MouseLeft && m.zones.Get(ZoneToMenu).InBounds(msg) {
 			m.Session.Close()
 			return nil, nil
 		}
@@ -129,7 +131,7 @@ func (m Model) View() string {
 						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Gold Collected ")), m.allGold,
 					),
 				),
-				zone.Mark(ZoneToMenu, style.HeaderStyle.Copy().Background(lo.Ternary(zone.Get(ZoneToMenu).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Render("Accept your fate...")),
+				m.zones.Mark(ZoneToMenu, style.HeaderStyle.Copy().Background(lo.Ternary(zone.Get(ZoneToMenu).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Render("Accept your fate...")),
 			),
 		),
 	)

@@ -16,9 +16,10 @@ import (
 )
 
 var sounds = map[string]*beep.Buffer{}
+var enabled = false
 
 func InitAudio() {
-	// TODO: Fix audio. Currently audio is resulting in a lot of noise.
+	// TODO: Fix audio. Currently, audio is resulting in a lot of noise.
 	if runtime.GOOS == "windows" {
 		log.Printf("Disable audio on windows!")
 		return
@@ -72,10 +73,12 @@ func InitAudio() {
 	if err := speaker.Init(24000, 100); err != nil {
 		panic(err)
 	}
+
+	enabled = true
 }
 
 func Play(key string) {
-	if runtime.GOOS == "windows" {
+	if !enabled || runtime.GOOS == "windows" {
 		return
 	}
 

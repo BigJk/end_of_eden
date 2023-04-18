@@ -7,13 +7,15 @@ import (
 )
 
 type Model struct {
+	zones   *zone.Manager
 	root    tea.Model
 	current tea.Model
 	size    tea.WindowSizeMsg
 }
 
-func New(root tea.Model) Model {
+func New(zones *zone.Manager, root tea.Model) Model {
 	return Model{
+		zones:   zones,
 		root:    root,
 		current: root,
 	}
@@ -51,5 +53,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return zone.Scan(m.current.View())
+	return m.zones.Scan(m.current.View())
 }

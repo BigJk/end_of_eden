@@ -8,6 +8,7 @@ import (
 	"github.com/BigJk/project_gonzo/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
 	"log"
 	"os"
@@ -18,12 +19,14 @@ import (
 type Model struct {
 	ui.MenuBase
 
+	zones   *zone.Manager
 	choices ChoicesModel
 }
 
-func NewModel() Model {
+func NewModel(zones *zone.Manager) Model {
 	model := Model{
-		choices: NewChoicesModel(),
+		zones:   zones,
+		choices: NewChoicesModel(zones),
 	}
 
 	return model
@@ -58,7 +61,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.choices = m.choices.Clear()
-		return gameview.New(m, game.NewSession(
+		return gameview.New(m, m.zones, game.NewSession(
 			game.WithLogging(log.New(f, "SESSION", 0)),
 			lo.Ternary(os.Getenv("PG_DEBUG") == "1", game.WithDebugEnabled("127.0.0.1:8272"), nil),
 		)), cmd

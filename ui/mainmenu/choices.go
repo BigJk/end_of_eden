@@ -20,27 +20,29 @@ const (
 )
 
 type choiceItem struct {
+	zones       *zone.Manager
 	title, desc string
 	key         Choice
 }
 
-func (i choiceItem) Title() string       { return zone.Mark("choice_"+string(i.key), i.title) }
-func (i choiceItem) Description() string { return zone.Mark("choice_desc_"+string(i.key), i.desc) }
+func (i choiceItem) Title() string       { return i.zones.Mark("choice_"+string(i.key), i.title) }
+func (i choiceItem) Description() string { return i.zones.Mark("choice_desc_"+string(i.key), i.desc) }
 func (i choiceItem) FilterValue() string { return i.title }
 
 type ChoicesModel struct {
+	zones    *zone.Manager
 	choices  []list.Item
 	list     list.Model
 	selected Choice
 }
 
-func NewChoicesModel() ChoicesModel {
+func NewChoicesModel(zones *zone.Manager) ChoicesModel {
 	choices := []list.Item{
-		choiceItem{"Continue", "Ready to continue dying?", ChoiceContinue},
-		choiceItem{"New Game", "Start a new try.", ChoiceNewGame},
-		choiceItem{"About", "Want to know more?", ChoiceAbout},
-		choiceItem{"Settings", "Other settings won't let you survive...", ChoiceSettings},
-		choiceItem{"Exit", "Got enough already?", ChoiceExit},
+		choiceItem{zones, "Continue", "Ready to continue dying?", ChoiceContinue},
+		choiceItem{zones, "New Game", "Start a new try.", ChoiceNewGame},
+		choiceItem{zones, "About", "Want to know more?", ChoiceAbout},
+		choiceItem{zones, "Settings", "Other settings won't let you survive...", ChoiceSettings},
+		choiceItem{zones, "Exit", "Got enough already?", ChoiceExit},
 	}
 
 	delegation := list.NewDefaultDelegate()
@@ -48,6 +50,7 @@ func NewChoicesModel() ChoicesModel {
 	delegation.Styles.SelectedDesc = delegation.Styles.SelectedDesc.Foreground(style.BaseRedDarker).BorderForeground(style.BaseRed)
 
 	model := ChoicesModel{
+		zones:    zones,
 		choices:  choices,
 		list:     list.New(choices, delegation, 0, 0),
 		selected: ChoiceWaiting,
@@ -91,7 +94,7 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
 			for i := range m.choices {
-				if zone.Get("choice_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) || zone.Get("choice_desc_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) {
+				if m.zones.Get("choice_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) || m.zones.Get("choice_desc_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) {
 					m.list.Select(i)
 					if msg.Type == tea.MouseLeft {
 						m.selected = m.choices[i].(choiceItem).key
@@ -109,5 +112,9 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ChoicesModel) View() string {
+	if m.zones == nil {
+		return ""
+	}
+
 	return style.ListStyle.Render(m.list.View())
 }

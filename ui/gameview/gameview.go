@@ -30,6 +30,7 @@ const (
 type Model struct {
 	ui.MenuBase
 
+	zones               *zone.Manager
 	parent              tea.Model
 	viewport            viewport.Model
 	selectedChoice      int
@@ -44,10 +45,11 @@ type Model struct {
 	Start   game.StateCheckpointMarker
 }
 
-func New(parent tea.Model, session *game.Session) Model {
+func New(parent tea.Model, zones *zone.Manager, session *game.Session) Model {
 	session.Log(game.LogTypeSuccess, "Game started! Good luck...")
 
 	return Model{
+		zones:   zones,
 		parent:  parent,
 		Session: session,
 		Start:   session.MarkState(),
@@ -121,7 +123,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.lastMouse = msg
 
 		if msg.Type == tea.MouseLeft {
-			if zone.Get(ZoneEndTurn).InBounds(msg) {
+			if m.zones.Get(ZoneEndTurn).InBounds(msg) {
 				audio.Play("button")
 
 				before := m.Session.MarkState()
@@ -158,7 +160,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case game.GameStateEvent:
 				if m.Session.GetEvent() != nil {
 					for i := 0; i < len(m.Session.GetEvent().Choices); i++ {
-						if choiceZone := zone.Get(fmt.Sprintf("%s%d", ZoneEventChoice, i)); choiceZone.InBounds(msg) {
+						if choiceZone := m.zones.Get(fmt.Sprintf("%s%d", ZoneEventChoice, i)); choiceZone.InBounds(msg) {
 							if msg.Type == tea.MouseLeft && m.selectedChoice == i {
 								audio.Play("button")
 
@@ -173,7 +175,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case game.GameStateFight:
 				if m.inOpponentSelection {
 					for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
-						if cardZone := zone.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)); cardZone.InBounds(msg) {
+						if cardZone := m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)); cardZone.InBounds(msg) {
 							if msg.Type == tea.MouseLeft && m.selectedOpponent == i {
 								m = m.tryCast()
 							} else {
@@ -184,7 +186,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					onCard := false
 					for i := 0; i < len(m.Session.GetFight().Hand); i++ {
-						if cardZone := zone.Get(fmt.Sprintf("%s%d", ZoneCard, i)); cardZone.InBounds(msg) {
+						if cardZone := m.zones.Get(fmt.Sprintf("%s%d", ZoneCard, i)); cardZone.InBounds(msg) {
 							onCard = true
 							if msg.Type == tea.MouseLeft && m.selectedCard == i {
 								m = m.tryCast()
@@ -251,7 +253,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, tea.Batch(cmds...)
 	case game.GameStateGameOver:
-		return gameover.New(m.Session, m.Start), nil
+		return gameover.New(m.zones, m.Session, m.Start), nil
 	}
 
 	return m, tea.Batch(cmds...)
@@ -415,7 +417,7 @@ func (m Model) fightStatusBottom() string {
 		),
 		lipgloss.Place(40, 3, lipgloss.Right, lipgloss.Center, lipgloss.JoinHorizontal(
 			lipgloss.Center,
-			zone.Mark(ZoneEndTurn, style.HeaderStyle.Copy().Background(lo.Ternary(zone.Get(ZoneEndTurn).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 4, 0, 0).Render("End Turn")),
+			m.zones.Mark(ZoneEndTurn, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneEndTurn).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 4, 0, 0).Render("End Turn")),
 			style.RedDarkerText.Render(`▀ █▌█▌▪
  ·██· 
 ▪▐█·█▌`))),
@@ -444,7 +446,7 @@ func (m Model) fightEnemyView() string {
 		enemyType := m.Session.GetEnemy(enemy.TypeID)
 
 		face := faceStyle.Copy().BorderForeground(lo.Ternary(m.inOpponentSelection && i == m.selectedOpponent, style.BaseWhite, style.BaseGrayDarker)).Foreground(lipgloss.Color(enemyType.Color)).Render(enemyType.Look)
-		enemyBoxes = append(enemyBoxes, zone.Mark(fmt.Sprintf("%s%d", ZoneEnemy, i), lipgloss.NewStyle().Foreground(style.BaseWhite).Margin(0, 2).
+		enemyBoxes = append(enemyBoxes, m.zones.Mark(fmt.Sprintf("%s%d", ZoneEnemy, i), lipgloss.NewStyle().Foreground(style.BaseWhite).Margin(0, 2).
 			Render(lipgloss.JoinVertical(
 				lipgloss.Center,
 				strings.Join(lo.Map(util.SortStringsStable(enemy.StatusEffects.ToSlice()), func(guid string, index int) string {
@@ -491,7 +493,7 @@ func (m Model) fightCardView() string {
 	})
 
 	cardBoxes = lo.Map(cardBoxes, func(item string, i int) string {
-		return zone.Mark(fmt.Sprintf("%s%d", ZoneCard, i), item)
+		return m.zones.Mark(fmt.Sprintf("%s%d", ZoneCard, i), item)
 	})
 
 	return lipgloss.Place(m.Size.Width, m.fightCardViewHeight(), lipgloss.Center, lipgloss.Bottom, lipgloss.JoinHorizontal(lipgloss.Bottom, cardBoxes...), lipgloss.WithWhitespaceChars(" "))
@@ -556,7 +558,7 @@ func (m Model) eventChoices() []string {
 	})
 
 	return lo.Map(choices, func(item string, index int) string {
-		return zone.Mark(fmt.Sprintf("%s%d", ZoneEventChoice, index), item)
+		return m.zones.Mark(fmt.Sprintf("%s%d", ZoneEventChoice, index), item)
 	})
 }
 
