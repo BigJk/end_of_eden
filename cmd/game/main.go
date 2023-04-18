@@ -19,7 +19,8 @@ func main() {
 	audio.InitAudio()
 
 	// Redirect log to file
-	f, err := tea.LogToFile("debug.log", "debug")
+	_ = os.Mkdir("./logs", 0777)
+	f, err := tea.LogToFile("./logs/global.log", "")
 	if err != nil {
 		fmt.Println("fatal:", err)
 		os.Exit(1)

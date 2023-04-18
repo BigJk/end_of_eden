@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/exp/slices"
+	"io"
 	"log"
 	"sort"
 	"time"
@@ -42,6 +43,7 @@ type FightState struct {
 
 // Session represents the state inside a game session.
 type Session struct {
+	log       *log.Logger
 	luaState  *lua.LState
 	resources *ResourcesManager
 
@@ -61,6 +63,7 @@ type Session struct {
 
 func NewSession(options ...func(s *Session)) *Session {
 	session := &Session{
+		log:   log.New(io.Discard, "", 0),
 		state: GameStateEvent,
 		actors: map[string]Actor{
 			PlayerActorID: NewActor(PlayerActorID),
@@ -70,18 +73,21 @@ func NewSession(options ...func(s *Session)) *Session {
 	}
 
 	session.luaState = SessionAdapter(session)
-	session.resources = NewResourcesManager(session.luaState)
+	session.resources = NewResourcesManager(session.luaState, session.log)
 	session.SetEvent("START")
+
+	for i := range options {
+		if options[i] == nil {
+			continue
+		}
+		options[i](session)
+	}
 
 	session.UpdatePlayer(func(actor *Actor) bool {
 		actor.HP = 80
 		actor.MaxHP = 80
 		return true
 	})
-
-	for i := range options {
-		options[i](session)
-	}
 
 	return session
 }
@@ -94,14 +100,21 @@ func WithAlternativeStartEvent(id string) func(s *Session) {
 
 func WithDebugEnabled(bind string) func(s *Session) {
 	return func(s *Session) {
-		s.closer = append(s.closer, debug.Expose(bind, s.luaState))
+		s.closer = append(s.closer, debug.Expose(bind, s.luaState, s.log))
+	}
+}
+
+func WithLogging(logger *log.Logger) func(s *Session) {
+	return func(s *Session) {
+		s.log = logger
+		s.resources.log = logger
 	}
 }
 
 func (s *Session) Close() {
 	for i := range s.closer {
 		if err := s.closer[i](); err != nil {
-			log.Println("Close error:", err)
+			s.log.Println("Close error:", err)
 		}
 	}
 	s.luaState.Close()
@@ -218,7 +231,7 @@ func (s *Session) FinishPlayerTurn() {
 
 		if enemy, ok := s.resources.Enemies[v.TypeID]; ok {
 			if _, err := enemy.Callbacks[CallbackOnTurn].Call(CreateContext("type_id", v.TypeID, "guid", k, "round", s.currentFight.Round)); err != nil {
-				log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", v.TypeID, err.Error())
+				s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", v.TypeID, err.Error())
 			}
 		}
 	}
@@ -239,7 +252,7 @@ func (s *Session) FinishPlayerTurn() {
 			}
 
 			if _, err := s.GetStatusEffect(guid).Callbacks[CallbackOnTurn].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner, "round", s.currentFight.Round, "stacks", instance.Stacks)); err != nil {
-				log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", instance.TypeID, err.Error())
+				s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", instance.TypeID, err.Error())
 			}
 
 			switch se.Decay {
@@ -353,7 +366,7 @@ func (s *Session) ActiveTeller() *StoryTeller {
 	teller := lo.Filter(lo.Values(s.resources.StoryTeller), func(teller *StoryTeller, index int) bool {
 		res, err := teller.Active(CreateContext("type_id", teller.ID))
 		if err != nil {
-			log.Printf("Error from Callback:Active type=%s %s\n", teller.ID, err.Error())
+			s.log.Printf("Error from Callback:Active type=%s %s\n", teller.ID, err.Error())
 			return false
 		}
 		if val, ok := res.(float64); ok {
@@ -363,7 +376,7 @@ func (s *Session) ActiveTeller() *StoryTeller {
 	})
 
 	if len(teller) == 0 {
-		log.Printf("No active teller found!")
+		s.log.Printf("No active teller found!")
 		return nil
 	}
 
@@ -381,20 +394,20 @@ func (s *Session) LetTellerDecide() {
 	active := s.ActiveTeller()
 
 	if active == nil {
-		log.Printf("No active teller found! Can't decide")
+		s.log.Printf("No active teller found! Can't decide")
 		return
 	}
 
 	res, err := active.Decide(CreateContext("type_id", active.ID))
 	if err != nil {
-		log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, err.Error())
+		s.log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, err.Error())
 		return
 	}
 
 	if val, ok := res.(string); ok {
 		s.SetGameState(GameState(val))
 	} else {
-		log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, "return wasn't a game state")
+		s.log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, "return wasn't a game state")
 	}
 }
 
@@ -495,7 +508,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 			s.instances[same[i]] = instance
 
 			if _, err := status.Callbacks[CallbackOnStatusStack].Call(CreateContext("type_id", typeId, "guid", same[i], "owner", owner, "stacks", instance.Stacks)); err != nil {
-				log.Printf("Error from Callback:CallbackOnStatusStack type=%s %s\n", instance.TypeID, err.Error())
+				s.log.Printf("Error from Callback:CallbackOnStatusStack type=%s %s\n", instance.TypeID, err.Error())
 			}
 
 			return instance.GUID
@@ -521,7 +534,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 func (s *Session) RemoveStatusEffect(guid string) {
 	instance := s.instances[guid].(StatusEffectInstance)
 	if _, err := s.resources.StatusEffects[instance.TypeID].Callbacks[CallbackOnStatusRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
-		log.Printf("Error from Callback:CallbackOnStatusRemove type=%s %s\n", instance.TypeID, err.Error())
+		s.log.Printf("Error from Callback:CallbackOnStatusRemove type=%s %s\n", instance.TypeID, err.Error())
 	}
 	if actor, ok := s.actors[instance.Owner]; ok {
 		actor.StatusEffects.Remove(instance.GUID)
@@ -592,7 +605,7 @@ func (s *Session) GiveArtifact(typeId string, owner string) string {
 
 	// Call OnPickUp callback for the new instance
 	if _, err := s.resources.Artifacts[typeId].Callbacks[CallbackOnPickUp].Call(CreateContext("type_id", typeId, "guid", instance.GUID, "owner", owner)); err != nil {
-		log.Printf("Error from Callback:CallbackOnPickUp type=%s %s\n", instance.TypeID, err.Error())
+		s.log.Printf("Error from Callback:CallbackOnPickUp type=%s %s\n", instance.TypeID, err.Error())
 	}
 
 	return instance.GUID
@@ -601,7 +614,7 @@ func (s *Session) GiveArtifact(typeId string, owner string) string {
 func (s *Session) RemoveArtifact(guid string) {
 	instance := s.instances[guid].(ArtifactInstance)
 	if _, err := s.resources.Artifacts[instance.TypeID].Callbacks[CallbackOnRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
-		log.Printf("Error from Callback:CallbackOnRemove type=%s %s\n", instance.TypeID, err.Error())
+		s.log.Printf("Error from Callback:CallbackOnRemove type=%s %s\n", instance.TypeID, err.Error())
 	}
 	s.actors[instance.Owner].Artifacts.Remove(instance.GUID)
 	delete(s.instances, guid)
@@ -646,7 +659,7 @@ func (s *Session) CastCard(guid string, target string) bool {
 	if card, instance := s.GetCard(guid); card != nil {
 		res, err := card.Callbacks[CallbackOnCast].Call(CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level))
 		if err != nil {
-			log.Printf("Error from Callback:CallbackOnCast type=%s %s\n", instance.TypeID, err.Error())
+			s.log.Printf("Error from Callback:CallbackOnCast type=%s %s\n", instance.TypeID, err.Error())
 		}
 		if val, ok := res.(bool); ok {
 			return val
@@ -671,7 +684,7 @@ func (s *Session) GetCardState(guid string) string {
 
 	res, err := card.State.Call(CreateContext("type_id", card.ID, "guid", guid, "level", instance.Level, "owner", instance.Owner))
 	if err != nil {
-		log.Printf("Error from Callback:State type=%s %s\n", instance.TypeID, err.Error())
+		s.log.Printf("Error from Callback:State type=%s %s\n", instance.TypeID, err.Error())
 	}
 
 	if res == nil {
@@ -746,7 +759,7 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 				func(instance ArtifactInstance, art *Artifact) {
 					res, err := art.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 					if err != nil {
-						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
 					} else if res != nil {
 						if newDamage, ok := res.(float64); ok {
 							damage = int(newDamage)
@@ -756,7 +769,7 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 				func(instance StatusEffectInstance, se *StatusEffect) {
 					res, err := se.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
 					if err != nil {
-						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
 					} else if res != nil {
 						if newDamage, ok := res.(float64); ok {
 							damage = int(newDamage)
@@ -788,13 +801,13 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 			func(instance ArtifactInstance, art *Artifact) {
 				_, err := art.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 				if err != nil {
-					log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+					s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
 				}
 			},
 			func(instance StatusEffectInstance, se *StatusEffect) {
 				_, err := se.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
 				if err != nil {
-					log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+					s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
 				}
 			},
 		)
@@ -870,7 +883,7 @@ func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 				func(instance ArtifactInstance, art *Artifact) {
 					res, err := art.Callbacks[CallbackOnHealCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "heal", heal))
 					if err != nil {
-						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
 					} else if res != nil {
 						if newHeal, ok := res.(float64); ok {
 							heal = int(newHeal)
@@ -880,7 +893,7 @@ func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 				func(instance StatusEffectInstance, se *StatusEffect) {
 					res, err := se.Callbacks[CallbackOnHealCalc].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "heal", heal))
 					if err != nil {
-						log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
 					} else if res != nil {
 						if newHeal, ok := res.(float64); ok {
 							heal = int(newHeal)
@@ -953,7 +966,7 @@ func (s *Session) AddActorFromEnemy(id string) string {
 		s.AddActor(actor)
 
 		if _, err := base.Callbacks[CallbackOnInit].Call(CreateContext("type_id", id, "guid", actor.GUID)); err != nil {
-			log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", actor.TypeID, err.Error())
+			s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", actor.TypeID, err.Error())
 		}
 
 		return actor.GUID
@@ -1063,12 +1076,12 @@ func (s *Session) TriggerOnPlayerTurn() {
 	}),
 		func(instance ArtifactInstance, artifact *Artifact) {
 			if _, err := artifact.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", artifact.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound())); err != nil {
-				log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
+				s.log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
 			}
 		},
 		func(instance StatusEffectInstance, statusEffect *StatusEffect) {
 			if _, err := statusEffect.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", statusEffect.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound(), "stacks", instance.Stacks)); err != nil {
-				log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
+				s.log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
 			}
 		},
 	)

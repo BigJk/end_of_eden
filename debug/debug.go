@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-func Expose(bind string, l *lua.LState) func() error {
+func Expose(bind string, l *lua.LState, log *log.Logger) func() error {
 	srv := &http.Server{Addr: bind}
 	mtx := sync.Mutex{}
 	m := melody.New()

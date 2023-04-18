@@ -8,7 +8,6 @@ import (
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"io/fs"
-	"log"
 	"path/filepath"
 	"strings"
 )
@@ -27,11 +26,11 @@ func SessionAdapter(session *Session) *lua.LState {
 
 		mod, err := l.LoadFile(path)
 		if err != nil {
-			log.Println("Can't LoadFile module:", path)
+			session.log.Println("Can't LoadFile module:", path)
 			return nil
 		}
 
-		log.Println("Loaded lib:", path, name)
+		session.log.Println("Loaded lib:", path, name)
 
 		preload := l.GetField(l.GetField(l.Get(lua.EnvironIndex), "package"), "preload")
 		l.SetField(preload, name, mod)
@@ -107,7 +106,7 @@ func SessionAdapter(session *Session) *lua.LState {
 			_, _ = state.GetInfo("nSl", dbg, lua.LNil)
 		}
 
-		log.Printf("[LUA :: %d %s] %s \n", dbg.CurrentLine, dbg.Source, strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
+		session.log.Printf("[LUA :: %d %s] %s \n", dbg.CurrentLine, dbg.Source, strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
 			val := state.Get(1 + index)
 			return luhelp.ToString(val, mapper)
 		}), " "))
@@ -282,7 +281,7 @@ func SessionAdapter(session *Session) *lua.LState {
 		switch state.Get(2).Type() {
 		case lua.LTTable:
 			if err := mapper.Map(state.Get(2).(*lua.LTable), &guids); err != nil {
-				log.Printf("Error in deal_damage_multi: %v\n", err)
+				session.log.Printf("Error in deal_damage_multi: %v\n", err)
 				return 0
 			}
 		case lua.LTUserData:
@@ -290,7 +289,7 @@ func SessionAdapter(session *Session) *lua.LState {
 				guids = val
 			}
 		default:
-			log.Printf("Error in deal_damage_multi: wrong type %v", state.Get(2).Type().String())
+			session.log.Printf("Error in deal_damage_multi: wrong type %v", state.Get(2).Type().String())
 			return 0
 		}
 
