@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/ui/mainmenu"
 	"github.com/BigJk/project_gonzo/ui/root"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
-	"log"
-	"os"
 )
+
+var prog *tea.Program
 
 func main() {
 	// Init audio
@@ -32,8 +35,8 @@ func main() {
 	log.Println("=================================")
 
 	// Run game
-	p := tea.NewProgram(root.New(mainmenu.NewModel()), tea.WithAltScreen(), tea.WithMouseAllMotion())
-	if _, err := p.Run(); err != nil {
+	prog = tea.NewProgram(root.New(mainmenu.NewModel()), tea.WithAltScreen(), tea.WithMouseAllMotion())
+	if _, err := prog.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
