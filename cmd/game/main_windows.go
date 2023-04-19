@@ -24,6 +24,9 @@ func init() {
 
 	windows.GetConsoleMode(stdout, &originalMode)
 	windows.SetConsoleMode(stdout, originalMode|windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+
+	/* Disable for now as microsoft/terminal works well with gonzo
+
 	winterm.SetConsoleWindowInfo(uintptr(stdout), true, winterm.SMALL_RECT{
 		Left:   0,
 		Top:    0,
@@ -31,6 +34,8 @@ func init() {
 		Bottom: initialSize.Y - 1,
 	})
 	winterm.SetConsoleScreenBufferSize(uintptr(stdout), initialSize)
+
+	*/
 
 	// Workaround to enable re-size behaviour.
 	go func() {
