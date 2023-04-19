@@ -44,6 +44,9 @@ func main() {
 	log.Println("= Started")
 	log.Println("=================================")
 
+	// Set window title
+	fmt.Println("\033]2;Project Gonzo\007")
+
 	// Setup game
 	var baseModel tea.Model
 	zones := zone.New()
@@ -60,14 +63,23 @@ func main() {
 		}
 
 		lo.ForEach(strings.Split(*testCards, ","), func(item string, index int) {
+			if len(item) == 0 {
+				return
+			}
 			session.GiveCard(item, game.PlayerActorID)
 		})
 
 		lo.ForEach(strings.Split(*testEnemies, ","), func(item string, index int) {
+			if len(item) == 0 {
+				return
+			}
 			session.AddActorFromEnemy(item)
 		})
 
 		lo.ForEach(strings.Split(*testArtifacts, ","), func(item string, index int) {
+			if len(item) == 0 {
+				return
+			}
 			session.GiveArtifact(item, game.PlayerActorID)
 		})
 
