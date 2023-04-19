@@ -23,6 +23,7 @@ func main() {
 	audioFlag := flag.Bool("audio", true, "disable audio")
 	testCards := flag.String("cards", "", "test cards")
 	testEnemies := flag.String("enemies", "", "test enemies")
+	testArtifacts := flag.String("artifacts", "", "test artifacts")
 	flag.Parse()
 
 	// Init audio
@@ -45,24 +46,29 @@ func main() {
 
 	// Setup game
 	var baseModel tea.Model
-
 	zones := zone.New()
 	baseModel = root.New(zones, mainmenu.NewModel(zones))
 
-	if len(*testCards) > 0 || len(*testEnemies) > 0 {
+	// If test flags are present we load up a session with the given cards, enemies and artifacts.
+	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 {
 		session := game.NewSession(game.WithLogging(log.Default()))
 		session.SetGameState(game.GameStateFight)
 		session.GetPlayer().Cards.Clear()
+
+		if len(*testEnemies) == 0 {
+			*testEnemies = "DUMMY,DUMMY,DUMMY"
+		}
 
 		lo.ForEach(strings.Split(*testCards, ","), func(item string, index int) {
 			session.GiveCard(item, game.PlayerActorID)
 		})
 
-		if len(*testEnemies) == 0 {
-			*testEnemies = "DUMMY,DUMMY,DUMMY"
-		}
 		lo.ForEach(strings.Split(*testEnemies, ","), func(item string, index int) {
 			session.AddActorFromEnemy(item)
+		})
+
+		lo.ForEach(strings.Split(*testArtifacts, ","), func(item string, index int) {
+			session.GiveArtifact(item, game.PlayerActorID)
 		})
 
 		session.SetupFight()
