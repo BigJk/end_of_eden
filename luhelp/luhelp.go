@@ -7,6 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/sanity-io/litter"
 	lua "github.com/yuin/gopher-lua"
+	"os"
 	"reflect"
 )
 
@@ -75,6 +76,8 @@ func ToLua(val any) lua.LValue {
 	}
 }
 
+var noProtect = os.Getenv("PG_NO_PROTECT") == "1"
+
 // BindToLua will create a OwnedCallback from a lua function and state.
 func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
 	return func(args ...any) (any, error) {
@@ -82,7 +85,7 @@ func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
 		if err := state.CallByParam(lua.P{
 			Fn:      value,
 			NRet:    1,
-			Protect: true,
+			Protect: !noProtect,
 		}, lo.Map(args, func(item any, index int) lua.LValue {
 			return ToLua(item)
 		})...); err != nil {
@@ -103,7 +106,16 @@ func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
 			return lua.LVAsBool(ret), nil
 		case lua.LTTable:
 			mapper := NewMapper(state)
-			var data map[string]any
+			maxn := value.(*lua.LTable).MaxN()
+			if maxn == 0 {
+				var data map[string]any
+				if err := mapper.Map(ret.(*lua.LTable), &data); err != nil {
+					return nil, err
+				}
+				return data, nil
+			}
+
+			data := make([]any, 0)
 			if err := mapper.Map(ret.(*lua.LTable), &data); err != nil {
 				return nil, err
 			}
@@ -124,11 +136,20 @@ func ToString(val lua.LValue, mapper *Mapper) string {
 	case lua.LTBool:
 		return fmt.Sprint(lua.LVAsBool(val))
 	case lua.LTTable:
-		var data map[string]interface{}
-		if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
+		maxn := val.(*lua.LTable).MaxN()
+		if maxn == 0 {
+			var data map[string]interface{}
+			if err := mapper.Map(val.(*lua.LTable), &data); err != nil {
+				return "Error: " + err.Error()
+			}
+			return litter.Sdump(data)
+		}
+
+		ret := make([]any, 0)
+		if err := mapper.Map(val.(*lua.LTable), &ret); err != nil {
 			return "Error: " + err.Error()
 		}
-		return litter.Sdump(data)
+		return litter.Sdump(ret)
 	case lua.LTUserData:
 		return fmt.Sprint(val.(*lua.LUserData).Value)
 	case lua.LTNil:

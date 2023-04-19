@@ -10,10 +10,24 @@ func TestLuHelp(t *testing.T) {
 	state := lua.NewState()
 	mapper := NewMapper(state)
 
-	t.Run("SliceMapper", func(t *testing.T) {
+	t.Run("Slice", func(t *testing.T) {
 		data := []string{"A", "B", "C"}
 
 		var passed []string
+		assert.NoError(t, mapper.Map(ToLua(data).(*lua.LTable), &passed))
+		assert.Equal(t, data, passed)
+	})
+
+	t.Run("StructSlice", func(t *testing.T) {
+		type testStruct struct {
+			Test []string `lua:"test"`
+		}
+
+		data := testStruct{
+			Test: []string{"A", "B", "C"},
+		}
+
+		var passed testStruct
 		assert.NoError(t, mapper.Map(ToLua(data).(*lua.LTable), &passed))
 		assert.Equal(t, data, passed)
 	})
@@ -30,10 +44,10 @@ func TestLuHelp(t *testing.T) {
 			Bar      string            `lua:"bar"`
 			Data     map[string]any    `lua:"data"`
 			Inner    testStructInner   `lua:"inner"`
-			InnerPtr *testStructInner  `lua:"innerPtr"`
-			NilPtr   *testStructInner  `lua:"nilPtr"`
+			InnerPtr *testStructInner  `lua:"inner_ptr"`
+			NilPtr   *testStructInner  `lua:"nil_ptr"`
 			Slice    []testStructInner `lua:"slice"`
-			StrSlice []string          `lua:"strSlice"`
+			StrSlice []string          `lua:"str_slice"`
 		}
 
 		data := testStruct{

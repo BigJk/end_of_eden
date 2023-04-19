@@ -81,7 +81,6 @@ func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 			DecodeHook:       opt.DecodeHook,
 			WeaklyTypedInput: true,
 			Result:           st,
-			TagName:          opt.TagName,
 			ErrorUnused:      opt.ErrorUnused,
 		}
 		decoder, err := mapstructure.NewDecoder(config)
@@ -92,12 +91,12 @@ func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 	case []any:
 		targetType := reflect.TypeOf(st).Elem()
 		if targetType.Kind() == reflect.Slice {
-			targetElemType := targetType.Elem()
-			fromLuaType := reflect.TypeOf(val).Elem()
+			//targetElemType := targetType.Elem()
+			//fromLuaType := reflect.TypeOf(val).Elem()
 
-			if fromLuaType.ConvertibleTo(targetElemType) {
+			/*if targetElemType.Kind() != fromLuaType.Kind() && !fromLuaType.ConvertibleTo(targetElemType) && !fromLuaType.AssignableTo(targetElemType) {
 				return errors.New("slice types don't match")
-			}
+			}*/
 
 			for i := range val {
 				reflect.ValueOf(st).Elem().Set(reflect.Append(reflect.ValueOf(st).Elem(), reflect.ValueOf(val[i])))
@@ -146,6 +145,7 @@ func toGoValue(lv lua.LValue, opt Option) any {
 			for i := 1; i <= maxn; i++ {
 				ret = append(ret, toGoValue(v.RawGetInt(i), opt))
 			}
+
 			return ret
 		}
 	default:
