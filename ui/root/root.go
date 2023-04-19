@@ -21,6 +21,11 @@ func New(zones *zone.Manager, root tea.Model) Model {
 	}
 }
 
+func (m Model) SetModel(model tea.Model) tea.Model {
+	m.current = model
+	return m
+}
+
 func (m Model) Init() tea.Cmd {
 	return nil
 }

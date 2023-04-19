@@ -1,4 +1,4 @@
-function dmg_style(dmg)
+function highlight(dmg)
     return text_underline(text_bold("[" .. tostring(dmg) .. "]"))
 end
 
@@ -7,7 +7,7 @@ register_card("MELEE_HIT",
         name = "Melee Hit",
         description = "Use your bare hands to deal 5 (+3 for each upgrade) damage.",
         state = function(ctx)
-            return "Use your bare hands to deal " .. dmg_style(5 + ctx.level * 3) .. " damage."
+            return "Use your bare hands to deal " .. highlight(5 + ctx.level * 3) .. " damage."
         end,
         max_level = 1,
         color = "#2f3e46",
@@ -25,7 +25,7 @@ register_card("MELEE_HIT",
 register_card("RUPTURE",
         {
             name = "Rupture",
-            description = "Inflict your enemy with Vulnerable.",
+            description = "Inflict your enemy with " .. highlight("Vulnerable") .. ".",
             state = function(ctx)
                 return nil
             end,
@@ -47,10 +47,10 @@ register_card("BLOCK",
             name = "Block",
             description = "Shield yourself and gain 5 block.",
             state = function(ctx)
-                return "Shield yourself and gain " .. dmg_style(5 + ctx.level * 3) .. " block."
+                return "Shield yourself and gain " .. highlight(5 + ctx.level * 3) .. " block."
             end,
             max_level = 1,
-            color = "#cf532d",
+            color = "#219ebc",
             need_target = false,
             point_cost = 1,
             callbacks = {
@@ -67,7 +67,7 @@ register_card("RADIANT_SEED",
             name = "Radiant Seed",
             description = "Inflict 10 (+2 for each upgrade) damage to all enemies, but also causes 5 (-2 for each upgrade) damage to the caster.",
             state = function(ctx)
-                return "Inflict " .. dmg_style(10 + ctx.level * 2) .. " damage to all enemies, but also causes " .. dmg_style(5 - ctx.level * 2) .. " damage to the caster."
+                return "Inflict " .. highlight(10 + ctx.level * 2) .. " damage to all enemies, but also causes " .. highlight(5 - ctx.level * 2) .. " damage to the caster."
             end,
             max_level = 1,
             color = "#82c93e",

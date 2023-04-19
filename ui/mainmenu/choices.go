@@ -16,6 +16,7 @@ const (
 	ChoiceNewGame  = Choice("NEW_GAME")
 	ChoiceAbout    = Choice("ABOUT")
 	ChoiceSettings = Choice("SETTINGS")
+	ChoiceMods     = Choice("MODS")
 	ChoiceExit     = Choice("EXIT")
 )
 
@@ -42,6 +43,7 @@ func NewChoicesModel(zones *zone.Manager) ChoicesModel {
 		choiceItem{zones, "New Game", "Start a new try.", ChoiceNewGame},
 		choiceItem{zones, "About", "Want to know more?", ChoiceAbout},
 		choiceItem{zones, "Settings", "Other settings won't let you survive...", ChoiceSettings},
+		choiceItem{zones, "Mods", "Make the game even more fun!", ChoiceMods},
 		choiceItem{zones, "Exit", "Got enough already?", ChoiceExit},
 	}
 
@@ -112,9 +114,5 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ChoicesModel) View() string {
-	if m.zones == nil {
-		return ""
-	}
-
 	return style.ListStyle.Render(m.list.View())
 }

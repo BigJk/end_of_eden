@@ -23,9 +23,13 @@ register_story_teller("PRE_STAGE", {
             return GAME_STATE_EVENT
         end
 
-        add_actor_by_enemy("RUST_MITE")
-        add_actor_by_enemy("RUST_MITE")
-        add_actor_by_enemy("RUST_MITE")
+        local d = math.random(2)
+
+        if d == 1 then
+            add_actor_by_enemy("RUST_MITE")
+        elseif d == 2 then
+            add_actor_by_enemy("CLEAN_BOT")
+        end
 
         return GAME_STATE_FIGHT
     end

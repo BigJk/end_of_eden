@@ -11,22 +11,66 @@ function cast_random(guid, target)
 end
 
 register_enemy(
+        "DUMMY",
+        {
+            name = "Dummy",
+            description = "End me...",
+            look = "DUM",
+            color = "#deeb6a",
+            initial_hp = 100,
+            max_hp = 100,
+            callbacks = {
+                on_turn = function(ctx)
+                    return nil
+                end
+            }
+        }
+)
+
+register_enemy(
     "RUST_MITE",
     {
         name = "Rust Mite",
         description = "Loves to eat metal.",
-        look = "M",
+        look = "/v\\",
         color = "#e6e65a",
         initial_hp = 16,
         max_hp = 16,
         callbacks = {
             on_turn = function(ctx)
-                if ctx.round % 3 == 0 then
+                if ctx.round % 4 == 0 then
                     give_status_effect("RITUAL", ctx.guid)
                 else
                     deal_damage(ctx.guid, PLAYER_ID, 6)
                 end
+
+                return nil
             end
         }
     }
+)
+
+register_enemy(
+        "CLEAN_BOT",
+        {
+            name = "Cleaning Bot",
+            description = "It never stopped cleaning...",
+            look = "BOT",
+            color = "#32a891",
+            initial_hp = 22,
+            max_hp = 22,
+            callbacks = {
+                on_turn = function(ctx)
+                    local self = get_actor(ctx.guid)
+
+                    if self.hp < 8 then
+                        give_status_effect("BLOCK", ctx.guid, 4)
+                    else
+                        deal_damage(ctx.guid, PLAYER_ID, 7)
+                    end
+
+                    return nil
+                end
+            }
+        }
 )
