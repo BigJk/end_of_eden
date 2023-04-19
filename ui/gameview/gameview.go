@@ -5,6 +5,7 @@ import (
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
 	"github.com/BigJk/project_gonzo/ui"
+	"github.com/BigJk/project_gonzo/ui/components"
 	"github.com/BigJk/project_gonzo/ui/gameover"
 	"github.com/BigJk/project_gonzo/ui/style"
 	"github.com/BigJk/project_gonzo/util"
@@ -468,28 +469,9 @@ func (m Model) fightEnemyView() string {
 }
 
 func (m Model) fightCardView() string {
-	cardStyle := lipgloss.NewStyle().Width(30).Padding(1, 2).Margin(0, 2)
-	cantCastStyle := lipgloss.NewStyle().Foreground(style.BaseRed)
-
 	fight := m.Session.GetFight()
-	var cardBoxes = lo.Map(m.Session.GetFight().Hand, func(guid string, index int) string {
-		card, _ := m.Session.GetCard(guid)
-		canCast := fight.CurrentPoints >= card.PointCost
-		selected := index == m.selectedCard
-
-		pointText := strings.Repeat("•", card.PointCost)
-		if !canCast {
-			pointText = cantCastStyle.Render(pointText)
-		}
-
-		cardCol, _ := colorful.Hex(card.Color)
-		bgCol, _ := colorful.MakeColor(style.BaseGrayDarker)
-
-		cardStyle := cardStyle.Border(lipgloss.NormalBorder(), true, false, false, false).BorderBackground(lipgloss.Color(card.Color)).BorderForeground(lo.Ternary(selected, style.BaseGray, lipgloss.Color(card.Color))).Background(lipgloss.Color(cardCol.BlendRgb(bgCol, 0.6).Hex())).Foreground(style.BaseWhite)
-		if selected {
-			return cardStyle.Height(util.Min(m.fightCardViewHeight()-1, m.fightCardViewHeight()/2+5)).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), m.Session.GetCardState(guid)), 20))
-		}
-		return cardStyle.Height(m.fightCardViewHeight() / 2).Render(wordwrap.String(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), m.Session.GetCardState(guid)), 20))
+	var cardBoxes = lo.Map(fight.Hand, func(guid string, index int) string {
+		return components.HalfCard(m.Session, guid, index == m.selectedCard, m.fightCardViewHeight()/2, m.fightCardViewHeight()-1, len(fight.Hand)*40 >= m.Size.Width)
 	})
 
 	cardBoxes = lo.Map(cardBoxes, func(item string, i int) string {

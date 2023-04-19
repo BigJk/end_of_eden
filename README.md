@@ -25,7 +25,7 @@ project_gonzo
 
 - You need golang ``>= 1.20`` installed
 - Build binary: ``cd ./cmd/game && go build``
-- Run without building binary: ``go run ./cmd/game/main.go``
+- Run without building binary: ``go run ./cmd/game/``
 - **Important:** The games working directory needs to be where the ``./assets`` folder is available!
 
 ## Lua

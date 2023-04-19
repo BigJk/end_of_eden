@@ -131,7 +131,7 @@ func (m Model) View() string {
 						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Gold Collected ")), m.allGold,
 					),
 				),
-				m.zones.Mark(ZoneToMenu, style.HeaderStyle.Copy().Background(lo.Ternary(zone.Get(ZoneToMenu).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Render("Accept your fate...")),
+				m.zones.Mark(ZoneToMenu, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneToMenu).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Render("Accept your fate...")),
 			),
 		),
 	)

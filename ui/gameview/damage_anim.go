@@ -172,7 +172,7 @@ func (m DamageAnimationModel) View() string {
 		lipgloss.JoinHorizontal(lipgloss.Center,
 			lipgloss.JoinVertical(lipgloss.Left, faceEnemies...),
 			middle,
-			lipgloss.NewStyle().Width(side).MaxWidth(side).Render(lipgloss.JoinHorizontal(lipgloss.Left, lo.Map(m.damages, func(dmg game.StateEventDamageData, i int) string {
+			lipgloss.NewStyle().Width(side-2).MaxWidth(side-2).Render(lipgloss.JoinHorizontal(lipgloss.Left, lo.Map(m.damages, func(dmg game.StateEventDamageData, i int) string {
 				if !m.reached[i] {
 					return ""
 				}
