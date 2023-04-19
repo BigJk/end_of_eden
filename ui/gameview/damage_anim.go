@@ -24,7 +24,7 @@ type DamageAnimationModel struct {
 	height int
 
 	sources        []game.Actor
-	sourcesEnemies []game.Enemy
+	sourcesEnemies []*game.Enemy
 	damages        []game.StateEventDamageData
 
 	started  bool
@@ -38,7 +38,7 @@ type DamageAnimationModel struct {
 	velx    []float64
 }
 
-func NewDamageAnimationModel(width int, height int, startHp int, sources []game.Actor, sourcesEnemies []game.Enemy, damages []game.StateEventDamageData) DamageAnimationModel {
+func NewDamageAnimationModel(width int, height int, startHp int, sources []game.Actor, sourcesEnemies []*game.Enemy, damages []game.StateEventDamageData) DamageAnimationModel {
 	return DamageAnimationModel{
 		id:             fmt.Sprint(rand.Intn(100000)),
 		width:          width,

@@ -1043,21 +1043,29 @@ func (s *Session) GetOpponentByIndex(viewpoint string, i int) Actor {
 	}
 }
 
+func (s *Session) GetOpponents(viewpoint string) []Actor {
+	return lo.Map(s.GetOpponentGUIDs(viewpoint), func(guid string, index int) Actor {
+		return s.actors[guid]
+	})
+}
+
 func (s *Session) GetOpponentGUIDs(viewpoint string) []string {
 	switch viewpoint {
 	// From the viewpoint of the player we can have multiple enemies.
 	case PlayerActorID:
-		return lo.Filter(lo.Keys(s.actors), func(guid string, index int) bool {
+		guids := lo.Filter(lo.Keys(s.actors), func(guid string, index int) bool {
 			return guid != PlayerActorID
 		})
+		sort.Strings(guids)
+		return guids
 	// From the viewpoint of an enemy we only have the player as enemy.
 	default:
 		return []string{PlayerActorID}
 	}
 }
 
-func (s *Session) GetEnemy(typeId string) Enemy {
-	return *s.resources.Enemies[typeId]
+func (s *Session) GetEnemy(typeId string) *Enemy {
+	return s.resources.Enemies[typeId]
 }
 
 //

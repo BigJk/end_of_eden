@@ -20,13 +20,13 @@ type DeathAnimationModel struct {
 	width    int
 	height   int
 	target   game.Actor
-	enemy    game.Enemy
+	enemy    *game.Enemy
 	death    game.StateEventDeathData
 	progress float64
 	started  bool
 }
 
-func NewDeathAnimationModel(width int, height int, target game.Actor, targetEnemy game.Enemy, death game.StateEventDeathData) DeathAnimationModel {
+func NewDeathAnimationModel(width int, height int, target game.Actor, targetEnemy *game.Enemy, death game.StateEventDeathData) DeathAnimationModel {
 	return DeathAnimationModel{
 		id:     fmt.Sprint(rand.Intn(100000)),
 		width:  width,

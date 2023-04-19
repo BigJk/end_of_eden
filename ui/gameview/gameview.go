@@ -14,7 +14,6 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
-	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/samber/lo"
 	"strconv"
@@ -137,7 +136,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					hp := m.Session.GetPlayer().HP
 
 					var damageActors []game.Actor
-					var damageEnemies []game.Enemy
+					var damageEnemies []*game.Enemy
 					var damageData []game.StateEventDamageData
 
 					for i := range damages {
@@ -406,14 +405,7 @@ func (m Model) fightStatusBottom() string {
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Used: %d", len(fight.Used))),
 			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Exhausted: %d", len(fight.Used)))),
 			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound))),
-			strings.Join(lo.Map(util.SortStringsStable(m.Session.GetPlayer().StatusEffects.ToSlice()), func(guid string, index int) string {
-				status := m.Session.GetStatusEffect(guid)
-
-				fg, _ := colorful.Hex(status.Foreground)
-				bg := fg.BlendRgb(colorful.LinearRgb(0, 0, 0), 0.7)
-
-				return fmt.Sprint(m.Session.GetInstance(guid).(game.StatusEffectInstance).Stacks) + lipgloss.NewStyle().Foreground(lipgloss.Color(status.Foreground)).Background(lipgloss.Color(bg.Hex())).Render(status.Look)
-			}), " "),
+			components.StatusEffects(m.Session, m.Session.GetPlayer()),
 		),
 		),
 		lipgloss.Place(40, 3, lipgloss.Right, lipgloss.Center, lipgloss.JoinHorizontal(
@@ -436,34 +428,13 @@ func (m Model) fightCardViewHeight() int {
 var faceStyle = lipgloss.NewStyle().Border(lipgloss.OuterHalfBlockBorder()).Padding(0, 1).Margin(0, 0, 1, 0).BorderForeground(style.BaseGrayDarker).Foreground(style.BaseRed)
 
 func (m Model) fightEnemyView() string {
-	var enemyBoxes []string
+	enemyBoxes := lo.Map(m.Session.GetOpponents(game.PlayerActorID), func(actor game.Actor, i int) string {
+		return components.Actor(m.Session, actor, m.Session.GetEnemy(actor.TypeID), true, true, m.inOpponentSelection && i == m.selectedOpponent)
+	})
 
-	c := m.Session.GetOpponentCount(game.PlayerActorID)
-	for i := 0; i < c; i++ {
-		enemy := m.Session.GetOpponentByIndex(game.PlayerActorID, i)
-		if enemy.IsNone() {
-			continue
-		}
-		enemyType := m.Session.GetEnemy(enemy.TypeID)
-
-		face := faceStyle.Copy().BorderForeground(lo.Ternary(m.inOpponentSelection && i == m.selectedOpponent, style.BaseWhite, style.BaseGrayDarker)).Foreground(lipgloss.Color(enemyType.Color)).Render(enemyType.Look)
-		enemyBoxes = append(enemyBoxes, m.zones.Mark(fmt.Sprintf("%s%d", ZoneEnemy, i), lipgloss.NewStyle().Foreground(style.BaseWhite).Margin(0, 2).
-			Render(lipgloss.JoinVertical(
-				lipgloss.Center,
-				strings.Join(lo.Map(util.SortStringsStable(enemy.StatusEffects.ToSlice()), func(guid string, index int) string {
-					status := m.Session.GetStatusEffect(guid)
-
-					fg, _ := colorful.Hex(status.Foreground)
-					bg := fg.BlendRgb(colorful.LinearRgb(0, 0, 0), 0.7)
-
-					return fmt.Sprint(m.Session.GetInstance(guid).(game.StatusEffectInstance).Stacks) + lipgloss.NewStyle().Foreground(lipgloss.Color(status.Foreground)).Background(lipgloss.Color(bg.Hex())).Render(status.Look)
-				}), " ")+"\n",
-				face,
-				enemy.Name,
-				fmt.Sprintf("%d / %d", enemy.HP, enemy.MaxHP),
-			)),
-		))
-	}
+	enemyBoxes = lo.Map(enemyBoxes, func(item string, i int) string {
+		return m.zones.Mark(fmt.Sprintf("%s%d", ZoneEnemy, i), item)
+	})
 
 	return lipgloss.Place(m.Size.Width, m.fightEnemyViewHeight(), lipgloss.Center, lipgloss.Center, lipgloss.JoinHorizontal(lipgloss.Center, enemyBoxes...), lipgloss.WithWhitespaceChars(" "))
 }
