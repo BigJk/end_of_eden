@@ -481,6 +481,11 @@ func (s *Session) GetStatusEffect(guid string) *StatusEffect {
 }
 
 func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) string {
+	if len(owner) == 0 {
+		s.log.Println("Error: trying to give status effect without owner!")
+		return ""
+	}
+
 	status := s.resources.StatusEffects[typeId]
 
 	// TODO: This should always be either 0 or 1 len, so the logic down below is a bit meh.
@@ -745,12 +750,15 @@ func (s *Session) PlayerDrawCard(amount int) {
 
 func (s *Session) DealDamage(source string, target string, damage int, flat bool) int {
 	if val, ok := s.actors[target]; ok {
+		guids := lo.Flatten([][]string{
+			s.GetActor(source).Artifacts.ToSlice(),
+			s.GetActor(target).Artifacts.ToSlice(),
+			s.GetActor(target).StatusEffects.ToSlice(),
+			s.GetActor(source).StatusEffects.ToSlice(),
+		})
+
 		if !flat {
-			s.TraverseArtifactsStatus(lo.Flatten([][]string{
-				s.GetActor(source).Artifacts.ToSlice(),
-				s.GetActor(target).StatusEffects.ToSlice(),
-				s.GetActor(source).StatusEffects.ToSlice(),
-			}),
+			s.TraverseArtifactsStatus(guids,
 				func(instance ArtifactInstance, art *Artifact) {
 					res, err := art.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 					if err != nil {
@@ -788,11 +796,7 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 		}
 
 		// Trigger OnDamage callbacks
-		s.TraverseArtifactsStatus(lo.Flatten([][]string{
-			s.GetActor(source).Artifacts.ToSlice(),
-			s.GetActor(target).StatusEffects.ToSlice(),
-			s.GetActor(source).StatusEffects.ToSlice(),
-		}),
+		s.TraverseArtifactsStatus(guids,
 			func(instance ArtifactInstance, art *Artifact) {
 				_, err := art.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 				if err != nil {
@@ -834,6 +838,20 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 				}
 				return true
 			})
+			s.TraverseArtifactsStatus(guids,
+				func(instance ArtifactInstance, art *Artifact) {
+					_, err := art.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
+					if err != nil {
+						s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+					}
+				},
+				func(instance StatusEffectInstance, se *StatusEffect) {
+					_, err := se.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
+					if err != nil {
+						s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+					}
+				},
+			)
 			s.RemoveActor(target)
 			s.FinishFight()
 		} else {
@@ -848,7 +866,6 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 				actor.HP = hpLeft
 				return true
 			})
-
 			if target == PlayerActorID {
 				if s.GetPlayer().HP == 0 {
 					s.SetGameState(GameStateGameOver)
@@ -1066,6 +1083,17 @@ func (s *Session) GetOpponentGUIDs(viewpoint string) []string {
 
 func (s *Session) GetEnemy(typeId string) *Enemy {
 	return s.resources.Enemies[typeId]
+}
+
+//
+// Gold
+//
+
+func (s *Session) GivePlayerGold(amount int) {
+	s.UpdatePlayer(func(actor *Actor) bool {
+		actor.Gold += amount
+		return true
+	})
 }
 
 //

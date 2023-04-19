@@ -15,6 +15,7 @@ const (
 	CallbackOnStatusStack  = "OnStatusStack"
 	CallbackOnStatusRemove = "OnStatusRemove"
 	CallbackOnRemove       = "OnRemove"
+	CallbackOnActorDie     = "OnActorDie"
 )
 
 type Context map[string]any

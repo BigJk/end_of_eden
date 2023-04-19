@@ -38,6 +38,10 @@ func SessionAdapter(session *Session) *lua.LState {
 		return nil
 	})
 
+	// Require fun by default
+
+	_ = l.DoString("require(\"fun\")()")
+
 	// Constants
 
 	l.SetGlobal("PLAYER_ID", lua.LString(PlayerActorID))
@@ -97,6 +101,15 @@ func SessionAdapter(session *Session) *lua.LState {
 
 	l.SetGlobal("log_s", l.NewFunction(func(state *lua.LState) int {
 		session.Log(LogTypeSuccess, luhelp.ToString(state.Get(1), mapper))
+		return 0
+	}))
+
+	l.SetGlobal("debug_value", l.NewFunction(func(state *lua.LState) int {
+		val := lo.Map(make([]lua.LValue, state.GetTop()), func(_ lua.LValue, index int) lua.LValue {
+			val := state.Get(1 + index)
+			return val
+		})
+		session.log.Println(val)
 		return 0
 	}))
 
@@ -314,6 +327,11 @@ func SessionAdapter(session *Session) *lua.LState {
 
 	l.SetGlobal("player_draw_card", l.NewFunction(func(state *lua.LState) int {
 		session.PlayerDrawCard(int(state.ToNumber(1)))
+		return 0
+	}))
+
+	l.SetGlobal("give_player_gold", l.NewFunction(func(state *lua.LState) int {
+		session.GivePlayerGold(int(state.ToNumber(1)))
 		return 0
 	}))
 
