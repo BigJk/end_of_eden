@@ -356,26 +356,15 @@ func (m Model) tryFinishEvent() Model {
 //
 
 func (m Model) fightStatusTop() string {
-	outerStyle := lipgloss.NewStyle().
-		Width(m.Size.Width).
-		Foreground(style.BaseWhite).
-		Border(lipgloss.BlockBorder(), false, false, true, false).
-		BorderForeground(style.BaseRedDarker)
-
 	fight := m.Session.GetFight()
 	player := m.Session.GetPlayer()
 
-	return outerStyle.Render(lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		lipgloss.NewStyle().Foreground(style.BaseRedDarker).Render(`▐█ ▀ ▪▪     •█▌▐█▪▀·.█▌▪     
-▄█ ▀█▄ ▄█▀▄ ▐█▐▐▌▄█▀▀▀• ▄█▀▄ 
-▐█▄▪▐█▐█▌.▐▌██▐█▌█▌▪▄█▀▐█▌.▐▌`),
-		lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Gold: %d", player.Gold)),
-		lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("HP: %d / %d", player.HP, player.MaxHP)),
-		lipgloss.NewStyle().Bold(true).Foreground(style.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Stage", m.Session.GetStagesCleared()+1)),
-		lipgloss.NewStyle().Bold(true).Foreground(style.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Round", fight.Round+1)),
-		lipgloss.NewStyle().Italic(true).Foreground(style.BaseGray).Padding(0, 4, 0, 0).Render("\""+fight.Description+"\""),
-	))
+	return components.Header(m.Size.Width, []components.HeaderValue{
+		components.NewHeaderValue(fmt.Sprintf("Gold: %d", player.Gold), lipgloss.Color("#FFFF00")),
+		components.NewHeaderValue(fmt.Sprintf("HP: %d / %d", player.HP, player.MaxHP), style.BaseRed),
+		components.NewHeaderValue(fmt.Sprintf("%d. Stage", m.Session.GetStagesCleared()+1), style.BaseWhite),
+		components.NewHeaderValue(fmt.Sprintf("%d. Round", fight.Round+1), style.BaseWhite),
+	}, fight.Description)
 }
 
 func (m Model) fightDivider() string {

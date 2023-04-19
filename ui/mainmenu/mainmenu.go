@@ -69,6 +69,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.choices = m.choices.Clear()
 		return about.New(m), cmd
 	case ChoiceSettings:
+	case ChoiceExit:
+		return m, tea.Quit
 	}
 
 	return m, cmd
