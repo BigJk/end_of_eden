@@ -1,5 +1,3 @@
-require("fun")()
-
 each(print, map(function(key, val)
     return val.description
 end, registered.card))

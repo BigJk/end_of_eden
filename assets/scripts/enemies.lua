@@ -36,6 +36,7 @@ register_enemy(
         color = "#e6e65a",
         initial_hp = 16,
         max_hp = 16,
+        gold = 10,
         callbacks = {
             on_turn = function(ctx)
                 if ctx.round % 4 == 0 then
@@ -59,6 +60,7 @@ register_enemy(
             color = "#32a891",
             initial_hp = 22,
             max_hp = 22,
+            gold = 15,
             callbacks = {
                 on_turn = function(ctx)
                     local self = get_actor(ctx.guid)
