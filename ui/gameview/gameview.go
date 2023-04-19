@@ -141,6 +141,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					for i := range damages {
 						dmg := damages[i].Events[game.StateEventDamage].(game.StateEventDamageData)
+						if dmg.Source == game.PlayerActorID {
+							continue
+						}
+
 						src := damages[i].Session.GetActor(dmg.Source)
 
 						damageData = append(damageData, dmg)
