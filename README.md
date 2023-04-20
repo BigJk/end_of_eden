@@ -33,6 +33,7 @@ project_gonzo
 Lua is used to define artifacts, cards, enemies and everything else that is dynamic in the game. This makes project_gonzo easily extendable. **Modding support coming soon!**
 
 - The lua code tries to conform to the [luarocks style guide](https://github.com/luarocks/lua-style-guide).
-- Tthe [luafun](https://github.com/luafun/luafun) functional library is available by default (e.g. ``require("fun")()``) to provide functions like ``map``, ``filter``, etc. which are very helpful. Check the [luafun docs](https://luafun.github.io/index.html) for more information.
+- The [luafun](https://github.com/luafun/luafun) functional library is available by default to provide functions like ``map``, ``filter``, etc. which are very helpful. Check the [luafun docs](https://luafun.github.io/index.html) for more information.
 - See ``./assets/scripts`` for the scripts of the base game.
+- See [Lua Documentation](./LUA_DOCS.md
 
