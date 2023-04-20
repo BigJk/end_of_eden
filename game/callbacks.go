@@ -3,19 +3,20 @@ package game
 import "log"
 
 const (
-	CallbackOnDamage       = "OnDamage"
-	CallbackOnDamageCalc   = "OnDamageCalc"
-	CallbackOnHealCalc     = "OnHealCalc"
-	CallbackOnCast         = "OnCast"
-	CallbackOnInit         = "OnInit"
-	CallbackOnPickUp       = "OnPickUp"
-	CallbackOnTurn         = "OnTurn"
-	CallbackOnPlayerTurn   = "OnPlayerTurn"
-	CallbackOnStatusAdd    = "OnStatusAdd"
-	CallbackOnStatusStack  = "OnStatusStack"
-	CallbackOnStatusRemove = "OnStatusRemove"
-	CallbackOnRemove       = "OnRemove"
-	CallbackOnActorDie     = "OnActorDie"
+	CallbackOnDamage        = "OnDamage"
+	CallbackOnDamageCalc    = "OnDamageCalc"
+	CallbackOnHealCalc      = "OnHealCalc"
+	CallbackOnCast          = "OnCast"
+	CallbackOnInit          = "OnInit"
+	CallbackOnPickUp        = "OnPickUp"
+	CallbackOnTurn          = "OnTurn"
+	CallbackOnPlayerTurn    = "OnPlayerTurn"
+	CallbackOnStatusAdd     = "OnStatusAdd"
+	CallbackOnStatusStack   = "OnStatusStack"
+	CallbackOnStatusRemove  = "OnStatusRemove"
+	CallbackOnRemove        = "OnRemove"
+	CallbackOnActorDie      = "OnActorDie"
+	CallbackOnMerchantEnter = "OnMerchantEnter"
 )
 
 type Context map[string]any

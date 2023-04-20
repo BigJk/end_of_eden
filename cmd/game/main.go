@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/BigJk/project_gonzo/game"
+	"github.com/BigJk/project_gonzo/gen/faces"
 	"github.com/BigJk/project_gonzo/ui/gameview"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
@@ -29,6 +30,11 @@ func main() {
 	// Init audio
 	if *audioFlag {
 		audio.InitAudio()
+	}
+
+	// Init face generator
+	if err := faces.InitGlobal("./assets/gen/faces"); err != nil {
+		panic(err)
 	}
 
 	// Redirect log to file

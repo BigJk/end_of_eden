@@ -13,6 +13,7 @@ type Card struct {
 	MaxLevel    int
 	DoesExhaust bool
 	NeedTarget  bool
+	Price       int
 	Callbacks   map[string]luhelp.OwnedCallback
 }
 

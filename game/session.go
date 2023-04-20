@@ -41,6 +41,11 @@ type FightState struct {
 	Exhausted     []string
 }
 
+type MerchantState struct {
+	Cards     []string
+	Artifacts []string
+}
+
 // Session represents the state inside a game session.
 type Session struct {
 	log       *log.Logger
@@ -53,6 +58,7 @@ type Session struct {
 	stagesCleared int
 	currentEvent  *Event
 	currentFight  FightState
+	merchant      MerchantState
 	eventHistory  []string
 
 	stateCheckpoints []StateCheckpoint
@@ -179,6 +185,8 @@ func (s *Session) SetGameState(state GameState) {
 		s.SetupFight()
 	case GameStateRandom:
 		s.LetTellerDecide()
+	case GameStateMerchant:
+		s.SetupMerchant()
 	}
 }
 
@@ -351,6 +359,44 @@ func (s *Session) HadEvent(id string) bool {
 
 func (s *Session) GetEventHistory() []string {
 	return s.eventHistory
+}
+
+//
+// Merchant
+//
+
+func (s *Session) SetupMerchant() {
+	s.merchant.Artifacts = nil
+	s.merchant.Cards = nil
+
+	for i := 0; i < 3; i++ {
+		s.AddMerchantArtifact()
+		s.AddMerchantCard()
+	}
+}
+
+func (s *Session) GetMerchantGoldMax() int {
+	return 150 + s.stagesCleared*30
+}
+
+func (s *Session) AddMerchantArtifact() {
+	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
+		return item.Price >= 0 && item.Price < s.GetMerchantGoldMax()
+	})
+
+	if len(possible) > 0 {
+		s.merchant.Artifacts = append(s.merchant.Artifacts, lo.Shuffle(possible)[0].ID)
+	}
+}
+
+func (s *Session) AddMerchantCard() {
+	possible := lo.Filter(lo.Values(s.resources.Cards), func(item *Card, index int) bool {
+		return item.Price >= 0 && item.Price < s.GetMerchantGoldMax()
+	})
+
+	if len(possible) > 0 {
+		s.merchant.Cards = append(s.merchant.Cards, lo.Shuffle(possible)[0].ID)
+	}
 }
 
 //

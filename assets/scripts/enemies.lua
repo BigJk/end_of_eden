@@ -56,7 +56,9 @@ register_enemy(
     {
         name = "Cleaning Bot",
         description = "It never stopped cleaning...",
-        look = "BOT",
+        look = [[ \_/
+(* *)
+ )#(]],
         color = "#32a891",
         initial_hp = 22,
         max_hp = 22,

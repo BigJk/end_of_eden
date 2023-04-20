@@ -13,6 +13,7 @@ register_card("KILL",
         color = "#2f3e46",
         need_target = true,
         point_cost = 0,
+        price = -1,
         callbacks = {
             on_cast = function(ctx)
                 deal_damage(ctx.caster, ctx.target, 1000, true)
@@ -33,6 +34,7 @@ register_card("MELEE_HIT",
         color = "#2f3e46",
         need_target = true,
         point_cost = 1,
+        price = 30,
         callbacks = {
             on_cast = function(ctx)
                 deal_damage(ctx.caster, ctx.target, 5 + ctx.level * 3)
@@ -53,6 +55,7 @@ register_card("RUPTURE",
         color = "#cf532d",
         need_target = true,
         point_cost = 1,
+        price = 30,
         callbacks = {
             on_cast = function(ctx)
                 give_status_effect("VULNERABLE", ctx.target)
@@ -73,6 +76,7 @@ register_card("BLOCK",
         color = "#219ebc",
         need_target = false,
         point_cost = 1,
+        price = 40,
         callbacks = {
             on_cast = function(ctx)
                 give_status_effect("BLOCK", ctx.caster, 5 + ctx.level * 3)
@@ -103,6 +107,7 @@ register_card("BLOCK_SPIKES",
         color = "#895cd6",
         need_target = true,
         point_cost = 1,
+        price = 100,
         callbacks = {
             on_cast = function(ctx)
                 -- Fetch all BLOCK instances of caster
@@ -142,6 +147,7 @@ register_card("RADIANT_SEED",
         color = "#82c93e",
         need_target = false,
         point_cost = 2,
+        price = 120,
         callbacks = {
             on_cast = function(ctx)
                 -- Deal damage to caster without any modifiers applying
