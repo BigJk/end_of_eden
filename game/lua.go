@@ -229,7 +229,12 @@ func SessionAdapter(session *Session) *lua.LState {
 		return 0
 	}))
 
-	// Artifacts
+	l.SetGlobal("get_random_artifact_type", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString(session.GetRandomArtifactType(int(state.ToNumber(1)))))
+		return 1
+	}))
+
+	// Status Effects
 
 	l.SetGlobal("give_status_effect", l.NewFunction(func(state *lua.LState) int {
 		if state.GetTop() == 2 {

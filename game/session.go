@@ -580,6 +580,16 @@ func (s *Session) GetArtifactOrder(guid string) int {
 	return 0
 }
 
+func (s *Session) GetRandomArtifactType(maxPrice int) string {
+	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
+		return item.Price < maxPrice
+	})
+	if len(possible) == 0 {
+		return ""
+	}
+	return lo.Shuffle(possible)[0].ID
+}
+
 func (s *Session) GetArtifact(guid string) *Artifact {
 	artInstance, ok := s.instances[guid]
 	if !ok {
