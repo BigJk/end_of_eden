@@ -9,6 +9,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 	"os"
 	"reflect"
+	"strings"
 )
 
 const LuaTag = "lua"
@@ -33,11 +34,10 @@ func baseToLua(val any) lua.LValue {
 
 var intType = reflect.TypeOf(int(0))
 
-func ToLua(val any) lua.LValue {
+func ToLua(state *lua.LState, val any) lua.LValue {
 	if val == nil {
 		return lua.LNil
 	}
-
 	valType := reflect.TypeOf(val)
 
 	switch valType.Kind() {
@@ -46,29 +46,30 @@ func ToLua(val any) lua.LValue {
 		if valValue.IsNil() {
 			return lua.LNil
 		}
-		return ToLua(valValue.Elem().Interface())
+		return ToLua(state, valValue.Elem().Interface())
 	case reflect.Struct:
 		s := structs.New(val)
 		s.TagName = LuaTag
-		return ToLua(s.Map())
+		return ToLua(state, s.Map())
 	case reflect.Map:
-		resultTable := &lua.LTable{}
+		resultTable := state.NewTable()
 		valValue := reflect.ValueOf(val)
 		keys := valValue.MapKeys()
 		for i := range keys {
 			if keys[i].Kind() == reflect.String {
-				key := stringy.New(keys[i].Interface().(string)).SnakeCase().Get()
-				resultTable.RawSetString(key, ToLua(valValue.MapIndex(keys[i]).Interface()))
+				key := strings.ToLower(stringy.New(keys[i].Interface().(string)).SnakeCase().Get())
+				luaVal := ToLua(state, valValue.MapIndex(keys[i]).Interface())
+				resultTable.RawSetString(key, luaVal)
 			} else if keys[i].CanConvert(intType) {
-				resultTable.RawSetInt(keys[i].Convert(intType).Interface().(int), ToLua(valValue.MapIndex(keys[i]).Interface()))
+				resultTable.RawSetInt(keys[i].Convert(intType).Interface().(int), ToLua(state, valValue.MapIndex(keys[i]).Interface()))
 			}
 		}
 		return resultTable
 	case reflect.Slice:
-		resultTable := &lua.LTable{}
+		resultTable := state.NewTable()
 		valValue := reflect.ValueOf(val)
 		for i := 0; i < valValue.Len(); i++ {
-			resultTable.Append(ToLua(valValue.Index(i).Interface()))
+			resultTable.Append(ToLua(state, valValue.Index(i).Interface()))
 		}
 		return resultTable
 	default:
@@ -87,7 +88,7 @@ func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
 			NRet:    1,
 			Protect: !noProtect,
 		}, lo.Map(args, func(item any, index int) lua.LValue {
-			return ToLua(item)
+			return ToLua(state, item)
 		})...); err != nil {
 			return nil, err
 		}

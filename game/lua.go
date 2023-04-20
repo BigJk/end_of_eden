@@ -166,34 +166,34 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("get_fight", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.GetFight()))
+		state.Push(luhelp.ToLua(state, session.GetFight()))
 		return 1
 	}))
 
 	l.SetGlobal("get_event_history", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.GetEventHistory()))
+		state.Push(luhelp.ToLua(state, session.GetEventHistory()))
 		return 1
 	}))
 
 	l.SetGlobal("had_event", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.HadEvent(state.ToString(1))))
+		state.Push(luhelp.ToLua(state, session.HadEvent(state.ToString(1))))
 		return 1
 	}))
 
 	// Actor Operations
 
 	l.SetGlobal("get_player", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.GetPlayer()))
+		state.Push(luhelp.ToLua(state, session.GetPlayer()))
 		return 1
 	}))
 
 	l.SetGlobal("get_actor", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.GetActor(state.ToString(1))))
+		state.Push(luhelp.ToLua(state, session.GetActor(state.ToString(1))))
 		return 1
 	}))
 
 	l.SetGlobal("get_opponent_by_index", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.GetOpponentByIndex(state.ToString(1), int(state.ToNumber(2))-1)))
+		state.Push(luhelp.ToLua(state, session.GetOpponentByIndex(state.ToString(1), int(state.ToNumber(2))-1)))
 		return 1
 	}))
 
@@ -203,7 +203,7 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("get_opponent_guids", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.GetOpponentGUIDs(state.ToString(1))))
+		state.Push(luhelp.ToLua(state, session.GetOpponentGUIDs(state.ToString(1))))
 		return 1
 	}))
 
@@ -278,7 +278,7 @@ func SessionAdapter(session *Session) *lua.LState {
 	}))
 
 	l.SetGlobal("get_cards", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(session.GetCards(state.ToString(1))))
+		state.Push(luhelp.ToLua(state, session.GetCards(state.ToString(1))))
 		return 1
 	}))
 
@@ -312,9 +312,9 @@ func SessionAdapter(session *Session) *lua.LState {
 		}
 
 		if state.GetTop() == 3 {
-			state.Push(luhelp.ToLua(session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), false)))
+			state.Push(luhelp.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), false)))
 		} else {
-			state.Push(luhelp.ToLua(session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), bool(state.ToBool(4)))))
+			state.Push(luhelp.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), bool(state.ToBool(4)))))
 		}
 		return 1
 	}))
