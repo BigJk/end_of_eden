@@ -85,9 +85,19 @@ register_card("BLOCK",
 register_card("BLOCK_SPIKES",
     {
         name = "Block Spikes",
-        description = "Transform your block in damage.",
+        description = "Transforms block to damage.",
         state = function(ctx)
-            return nil
+            -- Fetch all BLOCK instances of owner
+            local blocks = fun.iter(pairs(get_actor_status_effects(ctx.owner)))
+                              :map(get_status_effect_instance)
+                              :filter(function(val) return val.type_id == "BLOCK" end)
+                              :totable()
+
+            -- Sum stacks to get damage
+            local damage = fun.iter(pairs(blocks))
+                              :reduce(function(acc, val) return acc + val.stacks end, 0)
+
+            return "Transforms block to " .. highlight(damage) .. " damage."
         end,
         max_level = 0,
         color = "#895cd6",
@@ -95,21 +105,24 @@ register_card("BLOCK_SPIKES",
         point_cost = 1,
         callbacks = {
             on_cast = function(ctx)
-                local blocks = {}
-                local damage = 0
-                for i, guid in pairs(get_actor_status_effects(ctx.caster)) do
-                    print(i, guid)
-                    if get_status_effect(guid).id == "BLOCK" then
-                        blocks[i] = guid
-                        damage = damage + get_status_effect_instance(guid).stacks
-                        remove_status_effect(guid)
-                    end
-                end
+                -- Fetch all BLOCK instances of caster
+                local blocks = fun.iter(pairs(get_actor_status_effects(ctx.caster)))
+                        :map(get_status_effect_instance)
+                        :filter(function(val) return val.type_id == "BLOCK" end)
+                        :totable()
+
+                -- Sum stacks to get damage
+                local damage = fun.iter(pairs(blocks))
+                        :reduce(function(acc, val) return acc + val.stacks end, 0)
 
                 if damage == 0 then
                     return "No block status effect present!"
                 end
 
+                -- Remove BLOCKs
+                fun.iter(pairs(blocks)):for_each(function(val) remove_status_effect(val.guid) end)
+
+                -- Deal Damage
                 deal_damage(ctx.caster, ctx.target, damage)
 
                 return nil

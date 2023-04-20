@@ -40,7 +40,10 @@ func SessionAdapter(session *Session) *lua.LState {
 
 	// Require fun by default
 
-	_ = l.DoString("require(\"fun\")()")
+	_ = l.DoString(`
+require("fun")()
+fun = require "fun"
+`)
 
 	// Constants
 
