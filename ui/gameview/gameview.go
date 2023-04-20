@@ -93,7 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.inOpponentSelection {
 				m.inOpponentSelection = false
 			} else {
-				return NewMenuModel(m, m.Session), nil
+				return NewMenuModel(m, m.zones, m.Session), nil
 			}
 		case tea.KeyTab:
 			switch m.Session.GetGameState() {

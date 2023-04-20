@@ -608,18 +608,24 @@ func (s *Session) GetRandomArtifactType(maxPrice int) string {
 	return lo.Shuffle(possible)[0].ID
 }
 
-func (s *Session) GetArtifact(guid string) *Artifact {
+func (s *Session) GetArtifacts(owner string) []string {
+	guids := s.actors[owner].Artifacts.ToSlice()
+	sort.Strings(guids)
+	return guids
+}
+
+func (s *Session) GetArtifact(guid string) (*Artifact, ArtifactInstance) {
 	artInstance, ok := s.instances[guid]
 	if !ok {
-		return nil
+		return nil, ArtifactInstance{}
 	}
 	switch artInstance := artInstance.(type) {
 	case ArtifactInstance:
 		if art, ok := s.resources.Artifacts[artInstance.TypeID]; ok {
-			return art
+			return art, artInstance
 		}
 	}
-	return nil
+	return nil, ArtifactInstance{}
 }
 
 func (s *Session) GiveArtifact(typeId string, owner string) string {
@@ -697,7 +703,9 @@ func (s *Session) CastCard(guid string, target string) bool {
 }
 
 func (s *Session) GetCards(owner string) []string {
-	return s.actors[owner].Cards.ToSlice()
+	guids := s.actors[owner].Cards.ToSlice()
+	sort.Strings(guids)
+	return guids
 }
 
 func (s *Session) GetCardState(guid string) string {
