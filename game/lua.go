@@ -212,6 +212,11 @@ func SessionAdapter(session *Session) *lua.LState {
 		return 0
 	}))
 
+	l.SetGlobal("actor_add_max_hp", l.NewFunction(func(state *lua.LState) int {
+		session.ActorAddMaxHP(state.ToString(1), int(state.ToNumber(2)))
+		return 0
+	}))
+
 	l.SetGlobal("add_actor_by_enemy", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(session.AddActorFromEnemy(state.ToString(1))))
 		return 1
@@ -258,6 +263,21 @@ func SessionAdapter(session *Session) *lua.LState {
 	l.SetGlobal("set_status_effect_stacks", l.NewFunction(func(state *lua.LState) int {
 		session.SetStatusEffectStacks(state.ToString(1), int(state.ToNumber(2)))
 		return 0
+	}))
+
+	l.SetGlobal("get_actor_status_effects", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp.ToLua(state, session.GetActorStatusEffects(state.ToString(1))))
+		return 1
+	}))
+
+	l.SetGlobal("get_status_effect", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp.ToLua(state, session.GetStatusEffect(state.ToString(1))))
+		return 1
+	}))
+
+	l.SetGlobal("get_status_effect_instance", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp.ToLua(state, session.GetStatusEffectInstance(state.ToString(1))))
+		return 1
 	}))
 
 	// Cards

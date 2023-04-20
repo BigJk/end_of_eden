@@ -3,6 +3,8 @@ package game
 import (
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
+	"io"
+	"log"
 	"testing"
 )
 
@@ -11,18 +13,18 @@ var TestArtifactLua = `
 register_artifact(
     "TEST_ARTIFACT",
     {
-        Name = "Test Artifact",
-        Description = "This is a cool description",
-        Price = 1337,
-        Order = -10,
-        Callbacks = {
-            OnPickUp = function(type, guid, owner)
+        name = "Test Artifact",
+        description = "This is a cool description",
+        price = 1337,
+        order = -10,
+        callbacks = {
+            on_pick_up = function(ctx)
                 -- hello world
-                return type
+                return ctx
             end,
-            OnCombatEnd = function(type, guid, owner)
+            on_player_turn = function(ctx)
                 -- hello world
-                return type
+                return ctx
             end
         }
     }
@@ -33,7 +35,7 @@ register_artifact(
 
 func TestArtifact(t *testing.T) {
 	s := lua.NewState()
-	man := NewResourcesManager(s)
+	man := NewResourcesManager(s, log.New(io.Discard, "", 0))
 
 	// Evaluate lua
 	if !assert.NoError(t, s.DoString(TestArtifactLua)) {
@@ -50,7 +52,7 @@ func TestArtifact(t *testing.T) {
 	assert.Equal(t, -10, art.Order)
 
 	// Check if callback can be called without error
-	res, err := art.Callbacks["OnCombatEnd"]("1", "2", "3")
+	res, err := art.Callbacks["OnPlayerTurn"]("1", "2", "3")
 	assert.NoError(t, err)
 	assert.Equal(t, "1", res)
 }

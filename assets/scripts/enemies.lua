@@ -11,20 +11,20 @@ function cast_random(guid, target)
 end
 
 register_enemy(
-        "DUMMY",
-        {
-            name = "Dummy",
-            description = "End me...",
-            look = "DUM",
-            color = "#deeb6a",
-            initial_hp = 100,
-            max_hp = 100,
-            callbacks = {
-                on_turn = function(ctx)
-                    return nil
-                end
-            }
+    "DUMMY",
+    {
+        name = "Dummy",
+        description = "End me...",
+        look = "DUM",
+        color = "#deeb6a",
+        initial_hp = 100,
+        max_hp = 100,
+        callbacks = {
+            on_turn = function(ctx)
+                return nil
+            end
         }
+    }
 )
 
 register_enemy(
@@ -52,27 +52,32 @@ register_enemy(
 )
 
 register_enemy(
-        "CLEAN_BOT",
-        {
-            name = "Cleaning Bot",
-            description = "It never stopped cleaning...",
-            look = "BOT",
-            color = "#32a891",
-            initial_hp = 22,
-            max_hp = 22,
-            gold = 15,
-            callbacks = {
-                on_turn = function(ctx)
-                    local self = get_actor(ctx.guid)
+    "CLEAN_BOT",
+    {
+        name = "Cleaning Bot",
+        description = "It never stopped cleaning...",
+        look = "BOT",
+        color = "#32a891",
+        initial_hp = 22,
+        max_hp = 22,
+        gold = 15,
+        callbacks = {
+            on_player_turn = function(ctx)
+                local self = get_actor(ctx.guid)
 
-                    if self.hp < 8 then
-                        give_status_effect("BLOCK", ctx.guid, 4)
-                    else
-                        deal_damage(ctx.guid, PLAYER_ID, 7)
-                    end
-
-                    return nil
+                if self.hp <= 8 then
+                    give_status_effect("BLOCK", ctx.guid, 4)
                 end
-            }
+            end,
+            on_turn = function(ctx)
+                local self = get_actor(ctx.guid)
+
+                if self.hp > 8 then
+                    deal_damage(ctx.guid, PLAYER_ID, 7)
+                end
+
+                return nil
+            end
         }
+    }
 )

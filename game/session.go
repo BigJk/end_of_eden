@@ -418,7 +418,7 @@ func (s *Session) TraverseArtifactsStatus(guids []string, artifact func(instance
 	sort.SliceStable(guids, func(i, j int) bool {
 		oa := util.Max(s.GetArtifactOrder(guids[i]), s.GetStatusEffectOrder(guids[i]))
 		ob := util.Max(s.GetArtifactOrder(guids[j]), s.GetStatusEffectOrder(guids[j]))
-		return oa < ob
+		return oa > ob
 	})
 
 	for _, id := range guids {
@@ -453,6 +453,11 @@ func (s *Session) TraverseArtifactsStatus(guids []string, artifact func(instance
 //
 
 func (s *Session) GetStatusEffectOrder(guid string) int {
+	// Try as type id
+	if e, ok := s.resources.StatusEffects[guid]; ok {
+		return e.Order
+	}
+
 	instance, ok := s.instances[guid]
 	if !ok {
 		return 0
@@ -467,6 +472,11 @@ func (s *Session) GetStatusEffectOrder(guid string) int {
 }
 
 func (s *Session) GetStatusEffect(guid string) *StatusEffect {
+	// Try as type id
+	if e, ok := s.resources.StatusEffects[guid]; ok {
+		return e
+	}
+
 	instance, ok := s.instances[guid]
 	if !ok {
 		return nil
@@ -478,6 +488,10 @@ func (s *Session) GetStatusEffect(guid string) *StatusEffect {
 		}
 	}
 	return nil
+}
+
+func (s *Session) GetStatusEffectInstance(guid string) StatusEffectInstance {
+	return s.instances[guid].(StatusEffectInstance)
 }
 
 func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) string {
@@ -540,6 +554,10 @@ func (s *Session) RemoveStatusEffect(guid string) {
 		actor.StatusEffects.Remove(instance.GUID)
 	}
 	delete(s.instances, guid)
+}
+
+func (s *Session) GetActorStatusEffects(guid string) []string {
+	return s.actors[guid].StatusEffects.ToSlice()
 }
 
 func (s *Session) AddStatusEffectStacks(guid string, stacks int) {
@@ -969,6 +987,13 @@ func (s *Session) UpdateActor(id string, update func(actor *Actor) bool) {
 	}
 }
 
+func (s *Session) ActorAddMaxHP(id string, val int) {
+	s.UpdateActor(id, func(actor *Actor) bool {
+		actor.MaxHP += val
+		return true
+	})
+}
+
 func (s *Session) AddActor(actor Actor) {
 	s.actors[actor.GUID] = actor
 }
@@ -1126,6 +1151,14 @@ func (s *Session) TriggerOnPlayerTurn() {
 			}
 		},
 	)
+
+	lo.ForEach(s.GetOpponents(PlayerActorID), func(actor Actor, index int) {
+		if enemy := s.GetEnemy(actor.TypeID); enemy != nil {
+			if _, err := enemy.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", enemy.ID, "guid", actor.GUID, "round", s.GetFightRound())); err != nil {
+				s.log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", enemy.ID, err.Error())
+			}
+		}
+	})
 }
 
 //

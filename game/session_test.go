@@ -1,13 +1,16 @@
 package game
 
 import (
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
+	"io"
+	"log"
 	"testing"
 )
 
 func TestSessionLua(t *testing.T) {
-	session := NewSession()
+	session := NewSession(WithLogging(log.New(io.Discard, "", 0)))
 
 	// Add one enemy
 	enemyGuid := NewGuid()
@@ -28,8 +31,8 @@ func TestSessionLua(t *testing.T) {
 		})
 
 		if err := session.luaState.DoString(`
-player_name = get_player().Name
-player_gold = get_player().Gold
+player_name = get_player().name
+player_gold = get_player().gold
 `); err != nil {
 			t.Fatal(err)
 		}
@@ -44,29 +47,29 @@ player_gold = get_player().Gold
 	t.Run("OnDamageCalc", func(t *testing.T) {
 		if err := session.luaState.DoString(`
 register_artifact(
-    "DOUBLE_DAMAGE",
+    "DEBUG_DOUBLE_DAMAGE",
     {
-        Name = "Stone Of Gigantic Strength",
-        Description = "Double all damage dealt.",
-        Price = 1000,
-        Order = -10,
-        Callbacks = {
-            OnDamageCalc = function(type, guid, source, target, damage)
-                return damage * 2
+        name = "Stone Of Gigantic Strength",
+        description = "Double all damage dealt.",
+        price = 1000,
+        order = 100,
+        callbacks = {
+            on_damage_calc = function(ctx)
+                return ctx.damage * 2
             end,
         }
     }
 );
 
 register_artifact(
-    "MINUS",
+    "DEBUG_MINUS",
     {
-        Name = "Minus",
-        Description = "",
-        Order = 0,
-        Callbacks = {
-            OnDamageCalc = function(type, guid, source, target, damage)
-                return damage - 5
+        name = "Minus",
+        description = "",
+        order = 0,
+        callbacks = {
+            on_damage_calc = function(ctx)
+                return ctx.damage - 5
             end,
         }
     }
@@ -75,15 +78,17 @@ register_artifact(
 			t.Fatal(err)
 		}
 
-		enemyActor.HP = 100
-		enemyActor.MaxHP = 100
+		session.UpdateActor(enemyGuid, func(actor *Actor) bool {
+			actor.HP = 100
+			actor.MaxHP = 100
+			return true
+		})
 
-		session.GiveArtifact("DOUBLE_DAMAGE", PlayerActorID)
-		session.GiveArtifact("MINUS", PlayerActorID)
-
+		session.GiveArtifact("DEBUG_DOUBLE_DAMAGE", PlayerActorID)
+		session.GiveArtifact("DEBUG_MINUS", PlayerActorID)
 		session.DealDamage(PlayerActorID, enemyGuid, 20, false)
 
-		assert.Equal(t, 100-(20*2-5), enemyActor.HP)
+		assert.Equal(t, 100-(20*2-5), session.GetActor(enemyGuid).HP)
 	})
 
 	//
@@ -91,14 +96,14 @@ register_artifact(
 	//
 	t.Run("OnCast", func(t *testing.T) {
 		if err := session.luaState.DoString(`
-register_card("MELEE_HIT",
+register_card("DEBUG_MELEE_HIT",
     {
-        Name = "Melee Hit",
-        Description = "Use your bare hands to deal 10 damage",
-        Color = "#cccccc",
-        Callbacks = {
-            OnCast = function(type, guid, caster, target)
-                deal_damage(caster, target, 10)
+        name = "Melee Hit",
+        description = "Use your bare hands to deal 10 damage",
+        color = "#cccccc",
+        callbacks = {
+            on_cast = function(ctx)
+                deal_damage(ctx.caster, ctx.target, 10)
                 return nil
             end,
         }
@@ -108,13 +113,16 @@ register_card("MELEE_HIT",
 			t.Fatal(err)
 		}
 
-		enemyActor.HP = 100
-		enemyActor.MaxHP = 100
+		session.UpdateActor(enemyGuid, func(actor *Actor) bool {
+			actor.HP = 100
+			actor.MaxHP = 100
+			return true
+		})
 
-		cardGuid := session.GiveCard("MELEE_HIT", PlayerActorID)
+		cardGuid := session.GiveCard("DEBUG_MELEE_HIT", PlayerActorID)
 		session.CastCard(cardGuid, enemyGuid)
 
-		assert.Equal(t, 100-(10*2-5), enemyActor.HP)
+		assert.Equal(t, 100-(10*2-5), session.GetActor(enemyGuid).HP)
 	})
 
 	//
@@ -122,21 +130,21 @@ register_card("MELEE_HIT",
 	//
 
 	t.Run("EnemyCast", func(t *testing.T) {
-		enemyType := "MUTATED_HAMSTER"
+		enemyType := "DEBUG_ENEMY"
 
 		if err := session.luaState.DoString(`
 register_enemy(
-    "MUTATED_HAMSTER",
+    "DEBUG_ENEMY",
     {
-        Name = "Mutated Hamster",
-        Description = "Small but furious...",
-        InitialHP = 20,
-        Callbacks = {
-            OnInit = function(type, guid)
-                give_card("MELEE_HIT", guid)
+        name = "Mutated Hamster",
+        description = "Small but furious...",
+        initial_hp = 20,
+        callbacks = {
+            on_init = function(ctx)
+                give_card("DEBUG_MELEE_HIT", ctx.guid)
             end,
-            OnTurn = function(type, guid)
-                local cards = get_cards(guid)
+            on_turn = function(ctx)
+                local cards = get_cards(ctx.guid)
                 cast_card(cards[1], PLAYER_ID)
             end
         }
@@ -152,16 +160,23 @@ register_enemy(
 			return true
 		})
 
+		// Remove old artifacts
+		lo.ForEach(session.GetPlayer().Artifacts.ToSlice(), func(item string, index int) {
+			session.RemoveArtifact(item)
+		})
+
 		enemyGuid := session.AddActorFromEnemy(enemyType)
-		_, err := session.resources.Enemies[enemyType].Callbacks["OnInit"](enemyType, enemyGuid)
+		_, err := session.resources.Enemies[enemyType].Callbacks[CallbackOnInit](CreateContext("type_id", enemyType, "guid", enemyGuid))
 		assert.NoError(t, err)
 
-		_, err = session.resources.Enemies[enemyType].Callbacks["OnTurn"](enemyType, enemyGuid)
+		assert.Equal(t, 50, session.GetPlayer().HP)
+
+		_, err = session.resources.Enemies[enemyType].Callbacks[CallbackOnTurn](CreateContext("type_id", enemyType, "guid", enemyGuid))
 		assert.NoError(t, err)
 
 		assert.Equal(t, 50-10, session.GetPlayer().HP)
 
-		_, err = session.resources.Enemies[enemyType].Callbacks["OnTurn"](enemyType, enemyGuid)
+		_, err = session.resources.Enemies[enemyType].Callbacks[CallbackOnTurn](CreateContext("type_id", enemyType, "guid", enemyGuid))
 		assert.NoError(t, err)
 
 		assert.Equal(t, 50-20, session.GetPlayer().HP)
