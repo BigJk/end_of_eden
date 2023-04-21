@@ -19,6 +19,25 @@ project_gonzo
 - Collect Artifacts that give you new cards or various passive effects
 - Clash with strange beings and try to survive as long as possible
 
+# How to play
+
+- You can play project_gonzo in
+  - Console: ``project_gonzo``
+  - Browser: ``project_gonzo_browser``
+  - Over SSH: ``project_gonzo_ssh``
+
+## Console
+
+A modern console is required to support all the features like full mouse control. Just start the  ``project_gonzo(.exe)`` executable in your terminal.
+
+### Tested Terminals
+
+- osx: 
+  - **item2:** no problems
+- windows: 
+  - **[terminal](https://github.com/microsoft/terminal):** no problems
+  - **cmd:** no mouse motion support, mouse clicks and everything else works
+
 # Tech
 
 ## Building
@@ -35,5 +54,5 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 - The lua code tries to conform to the [luarocks style guide](https://github.com/luarocks/lua-style-guide).
 - The [luafun](https://github.com/luafun/luafun) functional library is available by default to provide functions like ``map``, ``filter``, etc. which are very helpful. Check the [luafun docs](https://luafun.github.io/index.html) for more information.
 - See ``./assets/scripts`` for the scripts of the base game.
-- See [Lua Documentation](./LUA_DOCS.md
+- See [Lua Documentation](./LUA_DOCS.md)
 
