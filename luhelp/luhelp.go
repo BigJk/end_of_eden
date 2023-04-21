@@ -15,19 +15,19 @@ import (
 const LuaTag = "lua"
 
 func baseToLua(val any) lua.LValue {
-	switch val.(type) {
+	switch val := val.(type) {
 	case float64:
-		return lua.LNumber(val.(float64))
+		return lua.LNumber(val)
 	case float32:
-		return lua.LNumber(val.(float32))
+		return lua.LNumber(val)
 	case int:
-		return lua.LNumber(val.(int))
+		return lua.LNumber(val)
 	case int64:
-		return lua.LNumber(val.(int64))
+		return lua.LNumber(val)
 	case string:
-		return lua.LString(val.(string))
+		return lua.LString(val)
 	case bool:
-		return lua.LBool(val.(bool))
+		return lua.LBool(val)
 	}
 	return lua.LNil
 }

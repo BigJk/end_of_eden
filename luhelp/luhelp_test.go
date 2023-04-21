@@ -14,7 +14,7 @@ func TestLuHelp(t *testing.T) {
 		data := []string{"A", "B", "C"}
 
 		var passed []string
-		assert.NoError(t, mapper.Map(ToLua(data).(*lua.LTable), &passed))
+		assert.NoError(t, mapper.Map(ToLua(state, data).(*lua.LTable), &passed))
 		assert.Equal(t, data, passed)
 	})
 
@@ -28,7 +28,7 @@ func TestLuHelp(t *testing.T) {
 		}
 
 		var passed testStruct
-		assert.NoError(t, mapper.Map(ToLua(data).(*lua.LTable), &passed))
+		assert.NoError(t, mapper.Map(ToLua(state, data).(*lua.LTable), &passed))
 		assert.Equal(t, data, passed)
 	})
 
@@ -83,7 +83,7 @@ func TestLuHelp(t *testing.T) {
 		}
 
 		var passed testStruct
-		luaVal := ToLua(data)
+		luaVal := ToLua(state, data)
 		assert.NoError(t, mapper.Map(luaVal.(*lua.LTable), &passed))
 		assert.Equal(t, data, passed)
 	})

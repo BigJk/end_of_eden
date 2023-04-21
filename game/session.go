@@ -209,7 +209,7 @@ func (s *Session) GetEvent() *Event {
 	if s.currentEvent == nil {
 		return nil
 	}
-	return &*s.currentEvent
+	return s.currentEvent
 }
 
 func (s *Session) SetupFight() {
@@ -638,6 +638,10 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 		return instance.TypeID == typeId
 	})
 
+	if len(same) > 1 {
+		log.Println("Error: status effect duplicate!")
+	}
+
 	// If it can't stack we delete all existing instances
 	if !status.CanStack {
 		for i := range same {
@@ -645,18 +649,16 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 		}
 	} else if len(same) > 0 {
 		// Increase stack and re-set rounds left
-		for i := range same {
-			instance := s.instances[same[i]].(StatusEffectInstance)
-			instance.Stacks += stacks
-			instance.RoundsLeft = status.Rounds
-			s.instances[same[i]] = instance
+		instance := s.instances[same[0]].(StatusEffectInstance)
+		instance.Stacks += stacks
+		instance.RoundsLeft = status.Rounds
+		s.instances[same[0]] = instance
 
-			if _, err := status.Callbacks[CallbackOnStatusStack].Call(CreateContext("type_id", typeId, "guid", same[i], "owner", owner, "stacks", instance.Stacks)); err != nil {
-				s.log.Printf("Error from Callback:CallbackOnStatusStack type=%s %s\n", instance.TypeID, err.Error())
-			}
-
-			return instance.GUID
+		if _, err := status.Callbacks[CallbackOnStatusStack].Call(CreateContext("type_id", typeId, "guid", same[0], "owner", owner, "stacks", instance.Stacks)); err != nil {
+			s.log.Printf("Error from Callback:CallbackOnStatusStack type=%s %s\n", instance.TypeID, err.Error())
 		}
+
+		return instance.GUID
 	}
 
 	instance := StatusEffectInstance{

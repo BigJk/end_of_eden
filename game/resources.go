@@ -11,7 +11,7 @@ import (
 )
 
 // ResourcesManager can load Artifacts, Cards, Events, Enemy and StoryTeller data from lua.
-// The manager will walk the ./scripts directory and evaluate all found .lua files
+// The manager will walk the ./scripts directory and evaluate all found .lua files.
 type ResourcesManager struct {
 	Artifacts     map[string]*Artifact
 	Cards         map[string]*Card

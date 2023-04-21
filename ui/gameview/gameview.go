@@ -62,9 +62,9 @@ func New(parent tea.Model, zones *zone.Manager, session *game.Session) Model {
 		Start:   session.MarkState(),
 
 		merchantSellTable: table.New(table.WithStyles(tableStyle), table.WithColumns([]table.Column{
-			{"Type", 10},
-			{"Name", 10},
-			{"Price", 10},
+			{Title: "Type", Width: 10},
+			{Title: "Name", Width: 10},
+			{Title: "Price", Width: 10},
 		})),
 	}
 }
@@ -448,8 +448,8 @@ func (m Model) fightStatusBottom() string {
 			lipgloss.Center,
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(style.BaseWhite)).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Deck: %d", len(fight.Deck))),
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Used: %d", len(fight.Used))),
-			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Exhausted: %d", len(fight.Exhausted)))),
-			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound))),
+			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Exhausted: %d", len(fight.Exhausted))),
+			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound)),
 			components.StatusEffects(m.Session, m.Session.GetPlayer()),
 		),
 		),
@@ -559,9 +559,9 @@ func (m Model) merchantView() string {
 	// Wares
 
 	m.merchantSellTable.SetColumns([]table.Column{
-		{"Type", 15},
-		{"Name", m.Size.Width - faceSectionWidth - 40 - 15 - 10},
-		{"Price", 10},
+		{Title: "Type", Width: 15},
+		{Title: "Name", Width: m.Size.Width - faceSectionWidth - 40 - 15 - 10},
+		{Title: "Price", Width: 10},
 	})
 	m.merchantSellTable.SetWidth(m.Size.Width - faceSectionWidth - 40)
 	m.merchantSellTable.SetHeight(util.Min(m.Size.Height-4-10, len(m.merchantSellTable.Rows())+1))

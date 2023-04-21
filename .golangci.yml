@@ -1,0 +1,7 @@
+linters:
+  enable:
+    - godot
+    - misspell
+linters-settings:
+  staticcheck:
+    checks: ["all", "-SA1019"]

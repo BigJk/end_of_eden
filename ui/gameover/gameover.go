@@ -102,7 +102,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	if m.started == false {
+	if !m.started {
 		m.started = true
 		return m, tea.Tick(time.Second/time.Duration(30), func(t time.Time) tea.Msg {
 			return GameOverFrame(t)

@@ -113,7 +113,7 @@ var camelRegex = regexp.MustCompile(`_([a-z])`)
 
 // ToUpperCamelCase is an Option.NameFunc that converts strings from snake case to upper camel case.
 func toUpperCamelCase(s string) string {
-	return strings.ToUpper(string(s[0])) + camelRegex.ReplaceAllStringFunc(s[1:len(s)], func(s string) string { return strings.ToUpper(s[1:len(s)]) })
+	return strings.ToUpper(string(s[0])) + camelRegex.ReplaceAllStringFunc(s[1:], func(s string) string { return strings.ToUpper(s[1:]) })
 }
 
 // ToGoValue converts the given LValue to a Go object.

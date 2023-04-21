@@ -18,7 +18,7 @@ func SessionAdapter(session *Session) *lua.LState {
 	l := lua.NewState()
 	mapper := luhelp.NewMapper(l)
 
-	_ = filepath.Walk("./assets/scripts/libs", func(path string, info fs.FileInfo, err error) error {
+	_ = filepath.Walk("./assets/scripts/libs", func(path string, info fs.FileInfo, _ error) error {
 		if info != nil && info.IsDir() || !strings.HasSuffix(path, ".lua") {
 			return nil
 		}
