@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/BigJk/project_gonzo/audio"
+	"github.com/BigJk/project_gonzo/gen/faces"
 	"github.com/BigJk/project_gonzo/luhelp"
 	"github.com/BigJk/project_gonzo/util"
 	"github.com/charmbracelet/lipgloss"
@@ -361,6 +362,17 @@ fun = require "fun"
 	l.SetGlobal("give_player_gold", l.NewFunction(func(state *lua.LState) int {
 		session.GivePlayerGold(int(state.ToNumber(1)))
 		return 0
+	}))
+
+	// Random
+
+	l.SetGlobal("gen_face", l.NewFunction(func(state *lua.LState) int {
+		if state.GetTop() == 1 {
+			state.Push(lua.LString(faces.Global.Gen(int(state.ToNumber(1)))))
+		} else {
+			state.Push(lua.LString(faces.Global.GenRand()))
+		}
+		return 1
 	}))
 
 	return l

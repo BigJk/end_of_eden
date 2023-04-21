@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/BigJk/project_gonzo/game"
+	"github.com/BigJk/project_gonzo/gen"
 	"github.com/BigJk/project_gonzo/gen/faces"
 	"github.com/BigJk/project_gonzo/ui/gameview"
 	zone "github.com/lrstanley/bubblezone"
@@ -25,6 +26,7 @@ func main() {
 	testCards := flag.String("cards", "", "test cards")
 	testEnemies := flag.String("enemies", "", "test enemies")
 	testArtifacts := flag.String("artifacts", "", "test artifacts")
+	testGameState := flag.String("game_state", "", "test game state")
 	flag.Parse()
 
 	// Init audio
@@ -36,6 +38,9 @@ func main() {
 	if err := faces.InitGlobal("./assets/gen/faces"); err != nil {
 		panic(err)
 	}
+
+	// Init other gens
+	gen.InitGen()
 
 	// Redirect log to file
 	_ = os.Mkdir("./logs", 0777)
@@ -59,7 +64,7 @@ func main() {
 	baseModel = root.New(zones, mainmenu.NewModel(zones))
 
 	// If test flags are present we load up a session with the given cards, enemies and artifacts.
-	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 {
+	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 || len(*testGameState) > 0 {
 		session := game.NewSession(game.WithLogging(log.Default()))
 		session.SetGameState(game.GameStateFight)
 		session.GetPlayer().Cards.Clear()
@@ -90,6 +95,11 @@ func main() {
 		})
 
 		session.SetupFight()
+
+		if len(*testGameState) > 0 {
+			session.SetGameState(game.GameState(*testGameState))
+		}
+
 		baseModel = baseModel.(root.Model).SetModel(gameview.New(baseModel, zones, session))
 	}
 

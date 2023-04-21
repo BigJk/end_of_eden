@@ -9,6 +9,9 @@ import (
 	"github.com/BigJk/project_gonzo/ui/gameover"
 	"github.com/BigJk/project_gonzo/ui/style"
 	"github.com/BigJk/project_gonzo/util"
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
@@ -21,10 +24,12 @@ import (
 )
 
 const (
-	ZoneCard        = "card_"
-	ZoneEnemy       = "enemy_"
-	ZoneEventChoice = "event_choice_"
-	ZoneEndTurn     = "end_turn"
+	ZoneCard          = "card_"
+	ZoneEnemy         = "enemy_"
+	ZoneEventChoice   = "event_choice_"
+	ZoneEndTurn       = "end_turn"
+	ZoneBuyItem       = "buy_item"
+	ZoneLeaveMerchant = "leave_merchant"
 )
 
 type Model struct {
@@ -41,6 +46,8 @@ type Model struct {
 
 	lastMouse tea.MouseMsg
 
+	merchantSellTable table.Model
+
 	Session *game.Session
 	Start   game.StateCheckpointMarker
 }
@@ -53,6 +60,12 @@ func New(parent tea.Model, zones *zone.Manager, session *game.Session) Model {
 		parent:  parent,
 		Session: session,
 		Start:   session.MarkState(),
+
+		merchantSellTable: table.New(table.WithStyles(tableStyle), table.WithColumns([]table.Column{
+			{"Type", 10},
+			{"Name", 10},
+			{"Price", 10},
+		})),
 	}
 }
 
@@ -88,8 +101,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				m = m.tryCast()
+			// Buy selected item
+			case game.GameStateMerchant:
+				m.merchantBuy()
 			}
 		case tea.KeyEscape:
+			// Switch to menu
 			if m.inOpponentSelection {
 				m.inOpponentSelection = false
 			} else {
@@ -112,6 +129,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 				}
 			}
+		case tea.KeySpace:
+			switch m.Session.GetGameState() {
+			// End turn
+			case game.GameStateFight:
+				m.Session.FinishPlayerTurn()
+			}
 		case tea.KeyLeft:
 		case tea.KeyRight:
 			// TODO: right / left movement
@@ -123,38 +146,48 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.lastMouse = msg
 
 		if msg.Type == tea.MouseLeft {
-			if m.zones.Get(ZoneEndTurn).InBounds(msg) {
-				audio.Play("button")
+			switch m.Session.GetGameState() {
+			case game.GameStateEvent:
+			case game.GameStateFight:
+				if m.zones.Get(ZoneEndTurn).InBounds(msg) {
+					audio.Play("button")
 
-				before := m.Session.MarkState()
+					before := m.Session.MarkState()
 
-				m.Session.FinishPlayerTurn()
+					m.Session.FinishPlayerTurn()
 
-				damages := before.DiffEvent(m.Session, game.StateEventDamage)
+					damages := before.DiffEvent(m.Session, game.StateEventDamage)
 
-				if len(damages) > 0 {
-					hp := m.Session.GetPlayer().HP
+					if len(damages) > 0 {
+						hp := m.Session.GetPlayer().HP
 
-					var damageActors []game.Actor
-					var damageEnemies []*game.Enemy
-					var damageData []game.StateEventDamageData
+						var damageActors []game.Actor
+						var damageEnemies []*game.Enemy
+						var damageData []game.StateEventDamageData
 
-					for i := range damages {
-						dmg := damages[i].Events[game.StateEventDamage].(game.StateEventDamageData)
-						if dmg.Source == game.PlayerActorID {
-							continue
+						for i := range damages {
+							dmg := damages[i].Events[game.StateEventDamage].(game.StateEventDamageData)
+							if dmg.Source == game.PlayerActorID {
+								continue
+							}
+
+							src := damages[i].Session.GetActor(dmg.Source)
+
+							damageData = append(damageData, dmg)
+							damageEnemies = append(damageEnemies, damages[i].Session.GetEnemy(src.TypeID))
+							damageActors = append(damageActors, src)
+
+							hp += dmg.Damage
 						}
 
-						src := damages[i].Session.GetActor(dmg.Source)
-
-						damageData = append(damageData, dmg)
-						damageEnemies = append(damageEnemies, damages[i].Session.GetEnemy(src.TypeID))
-						damageActors = append(damageActors, src)
-
-						hp += dmg.Damage
+						m.animations = append(m.animations, NewDamageAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, hp, damageActors, damageEnemies, damageData))
 					}
-
-					m.animations = append(m.animations, NewDamageAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, hp, damageActors, damageEnemies, damageData))
+				}
+			case game.GameStateMerchant:
+				if m.zones.Get(ZoneBuyItem).InBounds(msg) {
+					m.merchantBuy()
+				} else if m.zones.Get(ZoneLeaveMerchant).InBounds(msg) {
+					m.Session.LeaveMerchant()
 				}
 			}
 		}
@@ -251,11 +284,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.Session.GetGameState() {
 	case game.GameStateFight:
 	case game.GameStateMerchant:
+		merchant := m.Session.GetMerchant()
+
+		m.merchantSellTable.SetRows(lo.Flatten([][]table.Row{
+			lo.Map(merchant.Artifacts, func(guid string, index int) table.Row {
+				artifact, _ := m.Session.GetArtifact(guid)
+				return table.Row{"Artifact", artifact.Name, fmt.Sprintf("%d$", artifact.Price)}
+			}),
+			lo.Map(merchant.Cards, func(guid string, index int) table.Row {
+				card, _ := m.Session.GetCard(guid)
+				return table.Row{"Card", card.Name, fmt.Sprintf("%d$", card.Price)}
+			}),
+		}))
+
+		m.merchantSellTable.Focus()
+		m.merchantSellTable, cmd = m.merchantSellTable.Update(msg)
+		cmds = append(cmds, cmd)
 	case game.GameStateEvent:
 		m.viewport, cmd = m.viewport.Update(msg)
 		cmds = append(cmds, cmd)
-
-		return m, tea.Batch(cmds...)
 	case game.GameStateGameOver:
 		return gameover.New(m.zones, m.Session, m.Start), nil
 	}
@@ -289,6 +336,11 @@ func (m Model) View() string {
 			m.fightStatusBottom(),
 		)
 	case game.GameStateMerchant:
+		return lipgloss.JoinVertical(
+			lipgloss.Top,
+			m.fightStatusTop(),
+			m.merchantView(),
+		)
 	case game.GameStateEvent:
 		return lipgloss.Place(
 			m.Size.Width,
@@ -300,7 +352,7 @@ func (m Model) View() string {
 		)
 	}
 
-	return ""
+	return fmt.Sprintf("Unknown State: %s", m.Session.GetGameState())
 }
 
 //
@@ -443,6 +495,115 @@ func (m Model) fightCardView() string {
 	})
 
 	return lipgloss.Place(m.Size.Width, m.fightCardViewHeight(), lipgloss.Center, lipgloss.Bottom, lipgloss.JoinHorizontal(lipgloss.Bottom, cardBoxes...), lipgloss.WithWhitespaceChars(" "))
+}
+
+//
+// Merchant View
+//
+
+func (m Model) merchantGetSelected() any {
+	merchant := m.Session.GetMerchant()
+	items := lo.Flatten([][]any{
+		lo.Map(merchant.Artifacts, func(guid string, index int) any {
+			artifact, _ := m.Session.GetArtifact(guid)
+			return artifact
+		}),
+		lo.Map(merchant.Cards, func(guid string, index int) any {
+			card, _ := m.Session.GetCard(guid)
+			return card
+		}),
+	})
+
+	if len(items) < m.merchantSellTable.Cursor() {
+		return nil
+	}
+
+	return items[m.merchantSellTable.Cursor()]
+}
+
+func (m Model) merchantBuy() {
+	item := m.merchantGetSelected()
+
+	switch item := item.(type) {
+	case *game.Artifact:
+		if m.Session.PlayerBuyArtifact(item.ID) {
+			m.merchantSellTable.SetCursor(util.Max(0, m.merchantSellTable.Cursor()-1))
+		}
+	case *game.Card:
+		if m.Session.PlayerBuyCard(item.ID) {
+			m.merchantSellTable.SetCursor(util.Max(0, m.merchantSellTable.Cursor()-1))
+		}
+	}
+}
+
+func (m Model) merchantView() string {
+	// Face
+	merchant := m.Session.GetMerchant()
+	merchantWidth := util.Max(lipgloss.Width(merchant.Face), 30)
+
+	faceSection := lipgloss.JoinVertical(
+		lipgloss.Top,
+		lipgloss.NewStyle().Margin(0, 2, 0, 2).Padding(1).Border(lipgloss.InnerHalfBlockBorder()).BorderForeground(style.BaseGray).Render(
+			lipgloss.Place(merchantWidth, lipgloss.Height(merchant.Face), lipgloss.Center, lipgloss.Center, lipgloss.NewStyle().Bold(true).Foreground(style.BaseGray).Render(merchant.Face)),
+		),
+		lipgloss.NewStyle().
+			Margin(1, 2, 2, 2).
+			Padding(0, 2).
+			Bold(true).Italic(true).
+			Border(lipgloss.NormalBorder(), false, false, false, true).BorderForeground(style.BaseGray).
+			Width(merchantWidth).Render(merchant.Text),
+		style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneLeaveMerchant).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2).Render(m.zones.Mark(ZoneLeaveMerchant, "Leave Merchant")),
+	)
+	faceSectionWidth := lipgloss.Width(faceSection)
+
+	// Wares
+
+	m.merchantSellTable.SetColumns([]table.Column{
+		{"Type", 15},
+		{"Name", m.Size.Width - faceSectionWidth - 40 - 15 - 10},
+		{"Price", 10},
+	})
+	m.merchantSellTable.SetWidth(m.Size.Width - faceSectionWidth - 40)
+	m.merchantSellTable.SetHeight(util.Min(m.Size.Height-4-10, len(m.merchantSellTable.Rows())+1))
+
+	canBuy := false
+	selectedItem := m.merchantGetSelected()
+	var selectedItemLook string
+	switch item := selectedItem.(type) {
+	case *game.Artifact:
+		selectedItemLook = components.ArtifactCard(m.Session, item.ID, 20, 20)
+		canBuy = m.Session.GetPlayer().Gold >= item.Price
+	case *game.Card:
+		selectedItemLook = components.HalfCard(m.Session, item.ID, false, 20, 20, false)
+		canBuy = m.Session.GetPlayer().Gold >= item.Price
+	}
+
+	help := help.New()
+	help.Width = m.Size.Width - faceSectionWidth - 40 - 15 - 10
+	helpText := help.ShortHelpView([]key.Binding{
+		key.NewBinding(key.WithKeys("up"), key.WithHelp("↑", "move up")),
+		key.NewBinding(key.WithKeys("down"), key.WithHelp("↓", "move down")),
+		key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "buy")),
+	})
+
+	shopSection := lipgloss.JoinVertical(
+		lipgloss.Left,
+		lipgloss.JoinHorizontal(lipgloss.Left,
+			lipgloss.JoinVertical(lipgloss.Top, m.merchantSellTable.View(), helpText),
+			lipgloss.JoinVertical(lipgloss.Top,
+				selectedItemLook,
+				style.HeaderStyle.Copy().Background(
+					lo.Ternary(canBuy, lo.Ternary(m.zones.Get(ZoneBuyItem).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker), style.BaseGrayDarker),
+				).Margin(1, 2).Render(m.zones.Mark(ZoneBuyItem, "Buy Item")),
+			),
+		),
+	)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Top,
+		style.HeaderStyle.Render("Merchant Wares"),
+		lipgloss.JoinHorizontal(lipgloss.Left, faceSection, shopSection),
+	)
 }
 
 //

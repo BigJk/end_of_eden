@@ -4,12 +4,15 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BigJk/project_gonzo/debug"
+	"github.com/BigJk/project_gonzo/gen"
+	"github.com/BigJk/project_gonzo/gen/faces"
 	"github.com/BigJk/project_gonzo/util"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/exp/slices"
 	"io"
 	"log"
+	"math/rand"
 	"sort"
 	"time"
 )
@@ -42,6 +45,8 @@ type FightState struct {
 }
 
 type MerchantState struct {
+	Face      string
+	Text      string
 	Cards     []string
 	Artifacts []string
 }
@@ -94,6 +99,7 @@ func NewSession(options ...func(s *Session)) *Session {
 	session.UpdatePlayer(func(actor *Actor) bool {
 		actor.HP = 80
 		actor.MaxHP = 80
+		actor.Gold = 50 + rand.Intn(50)
 		return true
 	})
 
@@ -368,11 +374,21 @@ func (s *Session) GetEventHistory() []string {
 func (s *Session) SetupMerchant() {
 	s.merchant.Artifacts = nil
 	s.merchant.Cards = nil
+	s.merchant.Face = faces.Global.GenRand()
+	s.merchant.Text = gen.GetRandom("merchant_lines")
 
 	for i := 0; i < 3; i++ {
 		s.AddMerchantArtifact()
 		s.AddMerchantCard()
 	}
+}
+
+func (s *Session) LeaveMerchant() {
+	s.SetGameState(GameStateRandom)
+}
+
+func (s *Session) GetMerchant() MerchantState {
+	return s.merchant
 }
 
 func (s *Session) GetMerchantGoldMax() int {
@@ -397,6 +413,74 @@ func (s *Session) AddMerchantCard() {
 	if len(possible) > 0 {
 		s.merchant.Cards = append(s.merchant.Cards, lo.Shuffle(possible)[0].ID)
 	}
+}
+
+func (s *Session) PlayerBuyCard(t string) bool {
+	if !lo.Contains(s.merchant.Cards, t) {
+		return false
+	}
+
+	card, _ := s.GetCard(t)
+
+	if s.GetPlayer().Gold < card.Price {
+		return false
+	}
+
+	s.UpdatePlayer(func(actor *Actor) bool {
+		actor.Gold -= card.Price
+		return true
+	})
+
+	firstFound := false
+	s.merchant.Cards = lo.Filter(s.merchant.Cards, func(item string, index int) bool {
+		if firstFound {
+			return true
+		}
+
+		isType := item == t
+		if isType {
+			firstFound = true
+			return false
+		}
+
+		return true
+	})
+	s.GiveCard(card.ID, PlayerActorID)
+	return true
+}
+
+func (s *Session) PlayerBuyArtifact(t string) bool {
+	if !lo.Contains(s.merchant.Artifacts, t) {
+		return false
+	}
+
+	art, _ := s.GetArtifact(t)
+
+	if s.GetPlayer().Gold < art.Price {
+		return false
+	}
+
+	s.UpdatePlayer(func(actor *Actor) bool {
+		actor.Gold -= art.Price
+		return true
+	})
+
+	firstFound := false
+	s.merchant.Artifacts = lo.Filter(s.merchant.Artifacts, func(item string, index int) bool {
+		if firstFound {
+			return true
+		}
+
+		isType := item == t
+		if isType {
+			firstFound = true
+			return false
+		}
+
+		return true
+	})
+	s.GiveArtifact(art.ID, PlayerActorID)
+	return true
 }
 
 //
@@ -661,6 +745,11 @@ func (s *Session) GetArtifacts(owner string) []string {
 }
 
 func (s *Session) GetArtifact(guid string) (*Artifact, ArtifactInstance) {
+	// check if guid is actually typeId
+	if val, ok := s.resources.Artifacts[guid]; ok {
+		return val, ArtifactInstance{}
+	}
+
 	artInstance, ok := s.instances[guid]
 	if !ok {
 		return nil, ArtifactInstance{}
@@ -704,18 +793,23 @@ func (s *Session) RemoveArtifact(guid string) {
 // Card Functions
 //
 
-func (s *Session) GetCard(guid string) (*Card, *CardInstance) {
+func (s *Session) GetCard(guid string) (*Card, CardInstance) {
+	// check if guid is actually typeId
+	if val, ok := s.resources.Cards[guid]; ok {
+		return val, CardInstance{}
+	}
+
 	cardInstance, ok := s.instances[guid]
 	if !ok {
-		return nil, nil
+		return nil, CardInstance{}
 	}
 	switch cardInstance := cardInstance.(type) {
 	case CardInstance:
 		if card, ok := s.resources.Cards[cardInstance.TypeID]; ok {
-			return card, &cardInstance
+			return card, cardInstance
 		}
 	}
-	return nil, nil
+	return nil, CardInstance{}
 }
 
 func (s *Session) GiveCard(typeId string, owner string) string {
