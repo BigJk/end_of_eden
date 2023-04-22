@@ -186,8 +186,8 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEscape:
-			if m.listFocus {
-				m.listFocus = false
+			if !m.listFocus {
+				m.listFocus = true
 			} else {
 				return m.parent, nil
 			}

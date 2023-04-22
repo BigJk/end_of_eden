@@ -160,7 +160,10 @@ func (s *Session) LoadSavedState(save SavedState) {
 	s.currentFight = save.CurrentFight
 	s.merchant = save.Merchant
 	s.eventHistory = save.EventHistory
-	s.stateCheckpoints = save.StateCheckpoints
+	s.stateCheckpoints = lo.Map(save.StateCheckpoints, func(item StateCheckpoint, index int) StateCheckpoint {
+		item.Session = s
+		return item
+	})
 }
 
 func (s *Session) GobEncode() ([]byte, error) {
@@ -198,8 +201,6 @@ func (s *Session) PushState(events map[StateEvent]any) {
 		return actor.Clone()
 	})
 	savedState.instances = util.CopyMap(savedState.instances)
-	savedState.resources = nil
-	savedState.log = nil
 
 	s.stateCheckpoints = append(s.stateCheckpoints, StateCheckpoint{
 		Session: &savedState,
@@ -240,8 +241,6 @@ func (s *Session) GetGameState() GameState {
 }
 
 func (s *Session) SetGameState(state GameState) {
-	s.state = state
-
 	// Save after each fight
 	if s.state == GameStateFight {
 		save, err := s.GobEncode()
@@ -253,6 +252,8 @@ func (s *Session) SetGameState(state GameState) {
 			}
 		}
 	}
+
+	s.state = state
 
 	switch s.state {
 	case GameStateFight:
@@ -280,13 +281,17 @@ func (s *Session) GetEvent() *Event {
 	return s.resources.Events[s.currentEvent]
 }
 
-func (s *Session) SetupFight() {
+func (s *Session) CleanUpFight() {
 	s.currentFight.CurrentPoints = PointsPerRound
 	s.currentFight.Deck = lo.Shuffle(s.GetPlayer().Cards.ToSlice())
 	s.currentFight.Hand = []string{}
 	s.currentFight.Exhausted = []string{}
+	s.currentFight.Used = []string{}
 	s.currentFight.Round = 0
+}
 
+func (s *Session) SetupFight() {
+	s.CleanUpFight()
 	s.PlayerDrawCard(DrawSize)
 	s.TriggerOnPlayerTurn()
 }
@@ -355,6 +360,10 @@ func (s *Session) FinishPlayerTurn() {
 		s.RemoveStatusEffect(removeStatus[i])
 	}
 
+	if s.FinishFight() {
+		return
+	}
+
 	// Advance to new Round
 	s.currentFight.CurrentPoints = PointsPerRound
 	s.currentFight.Round += 1
@@ -369,6 +378,7 @@ func (s *Session) FinishFight() bool {
 	if s.GetOpponentCount(PlayerActorID) == 0 {
 		s.currentFight.Description = ""
 		s.stagesCleared += 1
+		s.CleanUpFight()
 
 		// If an event is already set we switch to it
 		if len(s.currentEvent) > 0 {
@@ -979,11 +989,14 @@ func (s *Session) PlayerCastHand(i int, target string) error {
 	})
 
 	// Cast and exhaust if needed.
-	if s.CastCard(cardId, target) {
+	exhaust := s.CastCard(cardId, target)
+	if exhaust {
 		s.currentFight.Exhausted = append(s.currentFight.Exhausted, cardId)
 	} else {
 		s.currentFight.Used = append(s.currentFight.Used, cardId)
 	}
+
+	s.FinishFight()
 
 	return nil
 }
@@ -1115,7 +1128,6 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 				},
 			)
 			s.RemoveActor(target)
-			s.FinishFight()
 		} else {
 			s.PushState(map[StateEvent]any{
 				StateEventDamage: StateEventDamageData{
