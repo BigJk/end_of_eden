@@ -53,6 +53,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.choices.selected {
 	case ChoiceContinue:
+		if saved, err := os.ReadFile("./session.save"); err == nil {
+			f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+			if err != nil {
+				panic(err)
+			}
+
+			session := game.NewSession(
+				game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
+				lo.Ternary(os.Getenv("PG_DEBUG") == "1", game.WithDebugEnabled("127.0.0.1:8272"), nil),
+			)
+
+			err = session.GobDecode(saved)
+			if err != nil {
+				log.Println("Error loading save:", err)
+			} else {
+				m.choices = m.choices.Clear()
+				return gameview.New(m, m.zones, session), cmd
+			}
+		}
+
 	case ChoiceNewGame:
 		_ = os.Mkdir("./logs", 0777)
 		f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)

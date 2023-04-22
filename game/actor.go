@@ -17,9 +17,9 @@ type Actor struct {
 	HP            int
 	MaxHP         int
 	Gold          int
-	Artifacts     StringSet
-	Cards         StringSet
-	StatusEffects StringSet
+	Artifacts     *StringSet
+	Cards         *StringSet
+	StatusEffects *StringSet
 }
 
 func (a Actor) IsNone() bool {

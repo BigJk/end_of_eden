@@ -15,6 +15,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"os"
 	"sort"
 	"time"
 )
@@ -241,6 +242,18 @@ func (s *Session) GetGameState() GameState {
 func (s *Session) SetGameState(state GameState) {
 	s.state = state
 
+	// Save after each fight
+	if s.state == GameStateFight {
+		save, err := s.GobEncode()
+		if err != nil {
+			s.log.Println("Error saving file:", save)
+		} else {
+			if err := os.WriteFile("./session.save", save, 0666); err != nil {
+				s.log.Println("Error saving file:", save)
+			}
+		}
+	}
+
 	switch s.state {
 	case GameStateFight:
 		s.SetupFight()
@@ -254,6 +267,7 @@ func (s *Session) SetGameState(state GameState) {
 func (s *Session) SetEvent(id string) {
 	s.currentEvent = ""
 	if _, ok := s.resources.Events[id]; ok {
+		s.currentEvent = id
 		s.eventHistory = append(s.eventHistory, id)
 		_, _ = s.resources.Events[id].OnEnter.Call(CreateContext("type_id", id))
 	}
