@@ -1,6 +1,8 @@
 package game
 
 import (
+	"bytes"
+	"encoding/gob"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
@@ -180,5 +182,69 @@ register_enemy(
 		assert.NoError(t, err)
 
 		assert.Equal(t, 50-20, session.GetPlayer().HP)
+	})
+}
+
+func TestSessionSave(t *testing.T) {
+	sessionIn := NewSession()
+
+	sessionIn.eventHistory = []string{"1", "2", "3", "4"}
+	sessionIn.stagesCleared = 50
+	sessionIn.SetupMerchant()
+
+	sessionIn.PushState(map[StateEvent]any{
+		StateEventMoney: StateEventMoneyData{
+			Target: "123",
+			Money:  12337,
+		},
+	})
+
+	sessionIn.AddActor(NewActor("New 1"))
+
+	sessionIn.PushState(map[StateEvent]any{
+		StateEventDamage: StateEventDamageData{
+			Source: "A",
+			Target: "B",
+			Damage: 251,
+		},
+	})
+
+	sessionIn.PushState(map[StateEvent]any{
+		StateEventDeath: StateEventDeathData{
+			Source: "AC",
+			Target: "BA",
+			Damage: 1337,
+		},
+	})
+
+	sessionIn.AddActor(NewActor("New 2"))
+
+	sessionIn.PushState(map[StateEvent]any{
+		StateEventDeath: StateEventDeathData{
+			Source: "A",
+			Target: "BS",
+			Damage: 815,
+		},
+	})
+
+	buf := &bytes.Buffer{}
+	enc := gob.NewEncoder(buf)
+	if !assert.NoError(t, enc.Encode(sessionIn)) {
+		return
+	}
+
+	sessionNew := NewSession()
+	dec := gob.NewDecoder(buf)
+	if !assert.NoError(t, dec.Decode(sessionNew)) {
+		return
+	}
+
+	assert.Equal(t, sessionIn.eventHistory, sessionNew.eventHistory)
+	assert.Equal(t, sessionIn.stagesCleared, sessionNew.stagesCleared)
+	assert.Equal(t, sessionIn.merchant, sessionNew.merchant)
+
+	lo.ForEach(sessionIn.stateCheckpoints, func(item StateCheckpoint, i int) {
+		assert.Equal(t, item.Events, sessionNew.stateCheckpoints[i].Events)
+		assert.Equal(t, item.Session.actors, sessionNew.stateCheckpoints[i].Session.actors)
 	})
 }

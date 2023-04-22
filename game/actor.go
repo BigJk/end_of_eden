@@ -1,6 +1,10 @@
 package game
 
-import mapset "github.com/deckarep/golang-set/v2"
+import "encoding/gob"
+
+func init() {
+	gob.Register(Actor{})
+}
 
 const PlayerActorID = "PLAYER"
 
@@ -13,13 +17,26 @@ type Actor struct {
 	HP            int
 	MaxHP         int
 	Gold          int
-	Artifacts     mapset.Set[string]
-	Cards         mapset.Set[string]
-	StatusEffects mapset.Set[string]
+	Artifacts     StringSet
+	Cards         StringSet
+	StatusEffects StringSet
 }
 
 func (a Actor) IsNone() bool {
 	return len(a.GUID) == 0
+}
+
+func (a Actor) Sanitize() Actor {
+	if a.Artifacts == nil {
+		a.Artifacts = NewStringSet()
+	}
+	if a.Cards == nil {
+		a.Cards = NewStringSet()
+	}
+	if a.StatusEffects == nil {
+		a.StatusEffects = NewStringSet()
+	}
+	return a
 }
 
 func (a Actor) Clone() Actor {
@@ -33,8 +50,8 @@ func (a Actor) Clone() Actor {
 func NewActor(ID string) Actor {
 	return Actor{
 		GUID:          ID,
-		Artifacts:     mapset.NewThreadUnsafeSet[string](),
-		Cards:         mapset.NewThreadUnsafeSet[string](),
-		StatusEffects: mapset.NewThreadUnsafeSet[string](),
+		Artifacts:     NewStringSet(),
+		Cards:         NewStringSet(),
+		StatusEffects: NewStringSet(),
 	}
 }

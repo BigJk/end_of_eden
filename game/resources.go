@@ -55,6 +55,8 @@ func NewResourcesManager(state *lua.LState, logger *log.Logger) *ResourcesManage
 	man.luaState.SetGlobal("register_status_effect", man.luaState.NewFunction(man.luaRegisterStatusEffect))
 	man.luaState.SetGlobal("register_story_teller", man.luaState.NewFunction(man.luaRegisterStoryTeller))
 
+	man.luaState.SetGlobal("delete_event", man.luaState.NewFunction(man.luaDeleteEvent))
+
 	// Load all local scripts
 	_ = filepath.Walk("./assets/scripts", func(path string, info fs.FileInfo, err error) error {
 		// Don't load libs
@@ -186,5 +188,11 @@ func (man *ResourcesManager) luaRegisterStoryTeller(l *lua.LState) int {
 
 	man.StoryTeller[def.ID] = &def
 	man.registered.RawGetString("story_teller").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
+	return 0
+}
+
+func (man *ResourcesManager) luaDeleteEvent(l *lua.LState) int {
+	delete(man.Events, l.ToString(1))
+	man.registered.RawGetString("event").(*lua.LTable).RawSetString(l.ToString(1), lua.LNil)
 	return 0
 }

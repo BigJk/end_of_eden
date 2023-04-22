@@ -1,6 +1,13 @@
 package game
 
-import "github.com/BigJk/project_gonzo/luhelp"
+import (
+	"encoding/gob"
+	"github.com/BigJk/project_gonzo/luhelp"
+)
+
+func init() {
+	gob.Register(StatusEffectInstance{})
+}
 
 type DecayBehaviour string
 

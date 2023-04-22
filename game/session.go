@@ -1,6 +1,8 @@
 package game
 
 import (
+	"bytes"
+	"encoding/gob"
 	"errors"
 	"fmt"
 	"github.com/BigJk/project_gonzo/debug"
@@ -16,6 +18,11 @@ import (
 	"sort"
 	"time"
 )
+
+func init() {
+	gob.Register(FightState{})
+	gob.Register(MerchantState{})
+}
 
 type GameState string
 
@@ -61,7 +68,7 @@ type Session struct {
 	actors        map[string]Actor
 	instances     map[string]any
 	stagesCleared int
-	currentEvent  *Event
+	currentEvent  string
 	currentFight  FightState
 	merchant      MerchantState
 	eventHistory  []string
@@ -127,6 +134,52 @@ func (s *Session) Close() {
 	s.luaState.Close()
 }
 
+func (s *Session) ToSavedState() SavedState {
+	return SavedState{
+		State:            s.state,
+		Actors:           s.actors,
+		Instances:        s.instances,
+		StagesCleared:    s.stagesCleared,
+		CurrentEvent:     s.currentEvent,
+		CurrentFight:     s.currentFight,
+		Merchant:         s.merchant,
+		EventHistory:     s.eventHistory,
+		StateCheckpoints: s.stateCheckpoints,
+	}
+}
+
+func (s *Session) LoadSavedState(save SavedState) {
+	s.state = save.State
+	s.actors = lo.MapValues(save.Actors, func(item Actor, key string) Actor {
+		return item.Sanitize()
+	})
+	s.instances = save.Instances
+	s.stagesCleared = save.StagesCleared
+	s.currentEvent = save.CurrentEvent
+	s.currentFight = save.CurrentFight
+	s.merchant = save.Merchant
+	s.eventHistory = save.EventHistory
+	s.stateCheckpoints = save.StateCheckpoints
+}
+
+func (s *Session) GobEncode() ([]byte, error) {
+	buf := &bytes.Buffer{}
+	enc := gob.NewEncoder(buf)
+	err := enc.Encode(s.ToSavedState())
+	return buf.Bytes(), err
+}
+
+func (s *Session) GobDecode(data []byte) error {
+	buf := bytes.NewBuffer(data)
+	dec := gob.NewDecoder(buf)
+	var saved SavedState
+	if err := dec.Decode(&saved); err != nil {
+		return err
+	}
+	s.LoadSavedState(saved)
+	return nil
+}
+
 //
 // Checkpoints
 //
@@ -144,6 +197,8 @@ func (s *Session) PushState(events map[StateEvent]any) {
 		return actor.Clone()
 	})
 	savedState.instances = util.CopyMap(savedState.instances)
+	savedState.resources = nil
+	savedState.log = nil
 
 	s.stateCheckpoints = append(s.stateCheckpoints, StateCheckpoint{
 		Session: &savedState,
@@ -197,19 +252,18 @@ func (s *Session) SetGameState(state GameState) {
 }
 
 func (s *Session) SetEvent(id string) {
-	s.currentEvent = s.resources.Events[id]
-
-	if s.currentEvent != nil {
+	s.currentEvent = ""
+	if _, ok := s.resources.Events[id]; ok {
 		s.eventHistory = append(s.eventHistory, id)
 		_, _ = s.resources.Events[id].OnEnter.Call(CreateContext("type_id", id))
 	}
 }
 
 func (s *Session) GetEvent() *Event {
-	if s.currentEvent == nil {
+	if len(s.currentEvent) == 0 {
 		return nil
 	}
-	return s.currentEvent
+	return s.resources.Events[s.currentEvent]
 }
 
 func (s *Session) SetupFight() {
@@ -303,7 +357,7 @@ func (s *Session) FinishFight() bool {
 		s.stagesCleared += 1
 
 		// If an event is already set we switch to it
-		if s.currentEvent != nil {
+		if len(s.currentEvent) > 0 {
 			s.SetGameState(GameStateEvent)
 		} else if s.stagesCleared%10 == 0 {
 			s.SetEvent("CHOICE")
@@ -315,14 +369,14 @@ func (s *Session) FinishFight() bool {
 }
 
 func (s *Session) FinishEvent(choice int) {
-	if s.currentEvent == nil || s.state != GameStateEvent {
+	if len(s.currentEvent) == 0 || s.state != GameStateEvent {
 		return
 	}
 
 	s.RemoveNonPlayer()
 
-	event := s.currentEvent
-	s.currentEvent = nil
+	event := s.resources.Events[s.currentEvent]
+	s.currentEvent = ""
 
 	// If choice was selected and valid we try to use the next game state from the choice.
 	if choice >= 0 && choice < len(event.Choices) {
@@ -395,23 +449,39 @@ func (s *Session) GetMerchantGoldMax() int {
 	return 150 + s.stagesCleared*30
 }
 
-func (s *Session) AddMerchantArtifact() {
+func (s *Session) GetRandomArtifact(maxGold int) string {
 	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
-		return item.Price >= 0 && item.Price < s.GetMerchantGoldMax()
+		return item.Price >= 0 && item.Price < maxGold
 	})
 
 	if len(possible) > 0 {
-		s.merchant.Artifacts = append(s.merchant.Artifacts, lo.Shuffle(possible)[0].ID)
+		return lo.Shuffle(possible)[0].ID
+	}
+
+	return ""
+}
+
+func (s *Session) GetRandomCard(maxGold int) string {
+	possible := lo.Filter(lo.Values(s.resources.Cards), func(item *Card, index int) bool {
+		return item.Price >= 0 && item.Price < maxGold
+	})
+
+	if len(possible) > 0 {
+		return lo.Shuffle(possible)[0].ID
+	}
+
+	return ""
+}
+
+func (s *Session) AddMerchantArtifact() {
+	if val := s.GetRandomArtifact(s.GetMerchantGoldMax()); len(val) > 0 {
+		s.merchant.Artifacts = append(s.merchant.Artifacts, val)
 	}
 }
 
 func (s *Session) AddMerchantCard() {
-	possible := lo.Filter(lo.Values(s.resources.Cards), func(item *Card, index int) bool {
-		return item.Price >= 0 && item.Price < s.GetMerchantGoldMax()
-	})
-
-	if len(possible) > 0 {
-		s.merchant.Cards = append(s.merchant.Cards, lo.Shuffle(possible)[0].ID)
+	if val := s.GetRandomCard(s.GetMerchantGoldMax()); len(val) > 0 {
+		s.merchant.Cards = append(s.merchant.Cards, val)
 	}
 }
 

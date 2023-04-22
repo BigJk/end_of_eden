@@ -59,6 +59,13 @@ fun = require "fun"
 	l.SetGlobal("DECAY_ALL", lua.LString(DecayAll))
 	l.SetGlobal("DECAY_NONE", lua.LString(DecayNone))
 
+	// Utility
+
+	l.SetGlobal("guid", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString(NewGuid("LUA")))
+		return 1
+	}))
+
 	// Style
 
 	l.SetGlobal("text_bold", l.NewFunction(func(state *lua.LState) int {
@@ -243,6 +250,18 @@ fun = require "fun"
 		return 1
 	}))
 
+	l.SetGlobal("get_artifact", l.NewFunction(func(state *lua.LState) int {
+		art, _ := session.GetArtifact(state.ToString(1))
+		state.Push(luhelp.ToLua(state, art))
+		return 1
+	}))
+
+	l.SetGlobal("get_artifact_instance", l.NewFunction(func(state *lua.LState) int {
+		_, instance := session.GetArtifact(state.ToString(1))
+		state.Push(luhelp.ToLua(state, instance))
+		return 1
+	}))
+
 	// Status Effects
 
 	l.SetGlobal("give_status_effect", l.NewFunction(func(state *lua.LState) int {
@@ -306,6 +325,18 @@ fun = require "fun"
 		return 1
 	}))
 
+	l.SetGlobal("get_card", l.NewFunction(func(state *lua.LState) int {
+		card, _ := session.GetCard(state.ToString(1))
+		state.Push(luhelp.ToLua(state, card))
+		return 1
+	}))
+
+	l.SetGlobal("get_card_instance", l.NewFunction(func(state *lua.LState) int {
+		_, instance := session.GetCard(state.ToString(1))
+		state.Push(luhelp.ToLua(state, instance))
+		return 1
+	}))
+
 	// Damage & Heal
 
 	l.SetGlobal("deal_damage", l.NewFunction(func(state *lua.LState) int {
@@ -364,6 +395,28 @@ fun = require "fun"
 		return 0
 	}))
 
+	// Merchant
+
+	l.SetGlobal("get_merchant", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp.ToLua(state, session.GetMerchant()))
+		return 1
+	}))
+
+	l.SetGlobal("add_merchant_card", l.NewFunction(func(state *lua.LState) int {
+		session.AddMerchantCard()
+		return 0
+	}))
+
+	l.SetGlobal("add_merchant_artifact", l.NewFunction(func(state *lua.LState) int {
+		session.AddMerchantArtifact()
+		return 0
+	}))
+
+	l.SetGlobal("get_merchant_gold_max", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LNumber(session.GetMerchantGoldMax()))
+		return 1
+	}))
+
 	// Random
 
 	l.SetGlobal("gen_face", l.NewFunction(func(state *lua.LState) int {
@@ -372,6 +425,16 @@ fun = require "fun"
 		} else {
 			state.Push(lua.LString(faces.Global.GenRand()))
 		}
+		return 1
+	}))
+
+	l.SetGlobal("random_card", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString(session.GetRandomCard(int(state.ToNumber(1)))))
+		return 1
+	}))
+
+	l.SetGlobal("random_artifact", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString(session.GetRandomArtifact(int(state.ToNumber(1)))))
 		return 1
 	}))
 

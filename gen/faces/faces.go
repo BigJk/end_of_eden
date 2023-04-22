@@ -48,6 +48,9 @@ func (gen *FaceGenerator) Gen(id int) string {
 }
 
 func (gen *FaceGenerator) GenRand() string {
+	if gen == nil || gen.data == nil || len(gen.data) == 0 {
+		return ""
+	}
 	return gen.Gen(lo.Shuffle(lo.Keys(gen.data))[0])
 }
 

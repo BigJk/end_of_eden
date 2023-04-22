@@ -1,6 +1,18 @@
 package game
 
-import "github.com/samber/lo"
+import (
+	"encoding/gob"
+	"github.com/samber/lo"
+)
+
+func init() {
+	gob.Register(StateEventDeathData{})
+	gob.Register(StateEventDamageData{})
+	gob.Register(StateEventHealData{})
+	gob.Register(StateEventMoneyData{})
+	gob.Register(StateCheckpoint{})
+	gob.Register(StateCheckpointMarker{})
+}
 
 type StateEvent string
 

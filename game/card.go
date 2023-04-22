@@ -1,6 +1,13 @@
 package game
 
-import "github.com/BigJk/project_gonzo/luhelp"
+import (
+	"encoding/gob"
+	"github.com/BigJk/project_gonzo/luhelp"
+)
+
+func init() {
+	gob.Register(CardInstance{})
+}
 
 // Card represents a playable card definition.
 type Card struct {
@@ -17,7 +24,7 @@ type Card struct {
 	Callbacks   map[string]luhelp.OwnedCallback
 }
 
-// CardInstance represents a instance of a card owned by some actor.
+// CardInstance represents an instance of a card owned by some actor.
 type CardInstance struct {
 	TypeID string
 	GUID   string

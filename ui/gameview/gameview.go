@@ -671,6 +671,6 @@ func (m Model) eventChoices() []string {
 
 func (m Model) eventChoiceHeight() int {
 	return lo.SumBy(m.eventChoices(), func(item string) int {
-		return lipgloss.Height(item)
-	}) + 1
+		return lipgloss.Height(item) + 5
+	})
 }

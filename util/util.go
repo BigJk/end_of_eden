@@ -19,7 +19,7 @@ func Max(x, y int) int {
 	return y
 }
 
-func CopyMap[K, V comparable](m map[K]V) map[K]V {
+func CopyMap[K comparable, V any](m map[K]V) map[K]V {
 	result := make(map[K]V)
 	for k, v := range m {
 		result[k] = v

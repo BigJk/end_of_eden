@@ -91,13 +91,6 @@ func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 	case []any:
 		targetType := reflect.TypeOf(st).Elem()
 		if targetType.Kind() == reflect.Slice {
-			//targetElemType := targetType.Elem()
-			//fromLuaType := reflect.TypeOf(val).Elem()
-
-			/*if targetElemType.Kind() != fromLuaType.Kind() && !fromLuaType.ConvertibleTo(targetElemType) && !fromLuaType.AssignableTo(targetElemType) {
-				return errors.New("slice types don't match")
-			}*/
-
 			for i := range val {
 				reflect.ValueOf(st).Elem().Set(reflect.Append(reflect.ValueOf(st).Elem(), reflect.ValueOf(val[i])))
 			}
