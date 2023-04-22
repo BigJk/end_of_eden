@@ -133,7 +133,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.Session.GetGameState() {
 			// End turn
 			case game.GameStateFight:
-				m.Session.FinishPlayerTurn()
+				m = m.finishTurn()
 			}
 		case tea.KeyLeft:
 		case tea.KeyRight:
@@ -150,38 +150,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case game.GameStateEvent:
 			case game.GameStateFight:
 				if m.zones.Get(ZoneEndTurn).InBounds(msg) {
-					audio.Play("button")
-
-					before := m.Session.MarkState()
-
-					m.Session.FinishPlayerTurn()
-
-					damages := before.DiffEvent(m.Session, game.StateEventDamage)
-
-					if len(damages) > 0 {
-						hp := m.Session.GetPlayer().HP
-
-						var damageActors []game.Actor
-						var damageEnemies []*game.Enemy
-						var damageData []game.StateEventDamageData
-
-						for i := range damages {
-							dmg := damages[i].Events[game.StateEventDamage].(game.StateEventDamageData)
-							if dmg.Source == game.PlayerActorID {
-								continue
-							}
-
-							src := damages[i].Session.GetActor(dmg.Source)
-
-							damageData = append(damageData, dmg)
-							damageEnemies = append(damageEnemies, damages[i].Session.GetEnemy(src.TypeID))
-							damageActors = append(damageActors, src)
-
-							hp += dmg.Damage
-						}
-
-						m.animations = append(m.animations, NewDamageAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, hp, damageActors, damageEnemies, damageData))
-					}
+					m = m.finishTurn()
 				}
 			case game.GameStateMerchant:
 				if m.zones.Get(ZoneBuyItem).InBounds(msg) {
@@ -358,6 +327,41 @@ func (m Model) View() string {
 //
 // Actions
 //
+
+func (m Model) finishTurn() Model {
+	audio.Play("button")
+
+	before := m.Session.MarkState()
+	m.Session.FinishPlayerTurn()
+	damages := before.DiffEvent(m.Session, game.StateEventDamage)
+
+	if len(damages) > 0 {
+		hp := m.Session.GetPlayer().HP
+
+		var damageActors []game.Actor
+		var damageEnemies []*game.Enemy
+		var damageData []game.StateEventDamageData
+
+		for i := range damages {
+			dmg := damages[i].Events[game.StateEventDamage].(game.StateEventDamageData)
+			if dmg.Source == game.PlayerActorID {
+				continue
+			}
+
+			src := damages[i].Session.GetActor(dmg.Source)
+
+			damageData = append(damageData, dmg)
+			damageEnemies = append(damageEnemies, damages[i].Session.GetEnemy(src.TypeID))
+			damageActors = append(damageActors, src)
+
+			hp += dmg.Damage
+		}
+
+		m.animations = append(m.animations, NewDamageAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, hp, damageActors, damageEnemies, damageData))
+	}
+
+	return m
+}
 
 func (m Model) tryCast() Model {
 	before := m.Session.MarkState()

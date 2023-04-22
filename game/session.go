@@ -241,18 +241,6 @@ func (s *Session) GetGameState() GameState {
 }
 
 func (s *Session) SetGameState(state GameState) {
-	// Save after each fight
-	if s.state == GameStateFight {
-		save, err := s.GobEncode()
-		if err != nil {
-			s.log.Println("Error saving file:", save)
-		} else {
-			if err := os.WriteFile("./session.save", save, 0666); err != nil {
-				s.log.Println("Error saving file:", save)
-			}
-		}
-	}
-
 	s.state = state
 
 	switch s.state {
@@ -291,9 +279,22 @@ func (s *Session) CleanUpFight() {
 }
 
 func (s *Session) SetupFight() {
+	s.RemoveAllStatusEffects()
 	s.CleanUpFight()
 	s.PlayerDrawCard(DrawSize)
 	s.TriggerOnPlayerTurn()
+
+	// Save after each fight
+	{
+		save, err := s.GobEncode()
+		if err != nil {
+			s.log.Println("Error saving file:", save)
+		} else {
+			if err := os.WriteFile("./session.save", save, 0666); err != nil {
+				s.log.Println("Error saving file:", save)
+			}
+		}
+	}
 }
 
 func (s *Session) GetFight() FightState {
@@ -379,6 +380,7 @@ func (s *Session) FinishFight() bool {
 		s.currentFight.Description = ""
 		s.stagesCleared += 1
 		s.CleanUpFight()
+		s.RemoveAllStatusEffects()
 
 		// If an event is already set we switch to it
 		if len(s.currentEvent) > 0 {
@@ -716,6 +718,19 @@ func (s *Session) GetStatusEffect(guid string) *StatusEffect {
 
 func (s *Session) GetStatusEffectInstance(guid string) StatusEffectInstance {
 	return s.instances[guid].(StatusEffectInstance)
+}
+
+func (s *Session) RemoveAllStatusEffects() {
+	var clean []string
+	for guid, v := range s.instances {
+		if _, ok := v.(StatusEffectInstance); ok {
+			clean = append(clean, guid)
+		}
+	}
+
+	for i := range clean {
+		delete(s.instances, clean[i])
+	}
 }
 
 func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) string {
