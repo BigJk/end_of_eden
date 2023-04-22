@@ -1,3 +1,7 @@
+--
+-- Base Events
+--
+
 register_event(
     "START",
     {
@@ -71,7 +75,12 @@ As you near the end of the tunnel, you feel a surge of excitement mixed with fea
 Finally, you emerge into the open air, blinking in the bright sunlight. The landscape that stretches out before you is both familiar and alien, a mix of twisted and mutated plant life, towering rock formations, and ruined remnants of the old world.
 
 You take a deep breath of the fresh air, feeling the warmth of the sun on your face. You know that the journey ahead will be long and perilous, but you're determined to explore this new world and uncover its secrets. **The adventure has only just begun.**]],
-                choices = {},
+                choices = {
+                        {
+                                description = "Go...",
+                                callback = function() return nil end
+                        }
+                },
                 on_end = function()
                         return GAME_STATE_RANDOM
                 end,
