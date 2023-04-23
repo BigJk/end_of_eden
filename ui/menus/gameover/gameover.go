@@ -2,11 +2,11 @@ package gameover
 
 import (
 	"fmt"
-	"github.com/BigJk/project_gonzo/audio"
-	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/ui"
-	"github.com/BigJk/project_gonzo/ui/animation"
-	"github.com/BigJk/project_gonzo/ui/style"
+	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/ui"
+	"github.com/BigJk/end_of_eden/ui/animation"
+	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"

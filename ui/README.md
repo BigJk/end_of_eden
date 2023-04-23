@@ -1,3 +1,3 @@
 # UI
 
-This is the ui part of project_gonzo.
+This is the ui part of end_of_eden.

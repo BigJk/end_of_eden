@@ -9,7 +9,7 @@ import (
 	"runtime"
 )
 
-const GameExecutable = "project_gonzo"
+const GameExecutable = "end_of_eden"
 
 func locateTtyd() (string, error) {
 	locations := []string{
@@ -36,7 +36,7 @@ func locateTtyd() (string, error) {
 		return locations[i], nil
 	}
 
-	return "", errors.New("ttyd not found!")
+	return "", errors.New("ttyd not found")
 }
 
 func main() {
@@ -56,7 +56,7 @@ func main() {
 	// Build ttyd command
 	game := exec.Command(ttyd, lo.Flatten([][]string{
 		{"--check-origin", "--browser", "--once", "./" + GameExecutable + ext},
-		args, // pass args to project_gonzo
+		args, // pass args to end_of_eden
 	})...)
 	game.Stdout = os.Stdout
 	game.Stderr = os.Stderr

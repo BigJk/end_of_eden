@@ -3,7 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
-	"github.com/BigJk/project_gonzo/luhelp"
+	"github.com/BigJk/end_of_eden/luhelp"
 	"github.com/labstack/echo/v4"
 	"github.com/olahol/melody"
 	"github.com/samber/lo"
@@ -52,7 +52,7 @@ func ExposeDebug(bind string, session *Session, l *lua.LState, log *log.Logger) 
 	})
 
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "project_gonzo debug server")
+		return c.String(http.StatusOK, "end_of_eden debug server")
 	})
 
 	e.GET("/state", func(c echo.Context) error {

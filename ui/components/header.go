@@ -1,7 +1,7 @@
 package components
 
 import (
-	"github.com/BigJk/project_gonzo/ui/style"
+	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/lipgloss"
 )
 

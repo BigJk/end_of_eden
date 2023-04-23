@@ -25,7 +25,7 @@ func init() {
 	windows.GetConsoleMode(stdout, &originalMode)
 	windows.SetConsoleMode(stdout, originalMode|windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
 
-	/* Disable for now as microsoft/terminal works well with gonzo
+	/* Disable for now as microsoft/terminal works well with EoE
 
 	winterm.SetConsoleWindowInfo(uintptr(stdout), true, winterm.SMALL_RECT{
 		Left:   0,

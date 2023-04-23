@@ -2,11 +2,11 @@ package merchant
 
 import (
 	"fmt"
-	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/ui"
-	"github.com/BigJk/project_gonzo/ui/components"
-	"github.com/BigJk/project_gonzo/ui/style"
-	"github.com/BigJk/project_gonzo/util"
+	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/ui"
+	"github.com/BigJk/end_of_eden/ui/components"
+	"github.com/BigJk/end_of_eden/ui/style"
+	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"

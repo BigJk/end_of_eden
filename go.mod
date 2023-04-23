@@ -1,4 +1,4 @@
-module github.com/BigJk/project_gonzo
+module github.com/BigJk/end_of_eden
 
 go 1.20
 

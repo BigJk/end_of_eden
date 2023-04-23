@@ -1,11 +1,11 @@
 package mainmenu
 
 import (
-	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/ui"
-	"github.com/BigJk/project_gonzo/ui/menus/about"
-	"github.com/BigJk/project_gonzo/ui/menus/gameview"
-	"github.com/BigJk/project_gonzo/ui/style"
+	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/ui"
+	"github.com/BigJk/end_of_eden/ui/menus/about"
+	"github.com/BigJk/end_of_eden/ui/menus/gameview"
+	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"

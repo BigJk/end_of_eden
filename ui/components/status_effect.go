@@ -2,8 +2,8 @@ package components
 
 import (
 	"fmt"
-	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/util"
+	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/samber/lo"

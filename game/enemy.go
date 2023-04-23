@@ -1,6 +1,6 @@
 package game
 
-import "github.com/BigJk/project_gonzo/luhelp"
+import "github.com/BigJk/end_of_eden/luhelp"
 
 // Enemy represents a definition of a enemy that can be linked from a Actor.
 type Enemy struct {

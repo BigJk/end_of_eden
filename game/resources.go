@@ -1,7 +1,7 @@
 package game
 
 import (
-	"github.com/BigJk/project_gonzo/luhelp"
+	"github.com/BigJk/end_of_eden/luhelp"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"io/fs"

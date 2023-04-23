@@ -1,6 +1,6 @@
 # Game
 
-This is the core implementation of project_gonzo. This doesn't contain any ui code, as the base game logic and ui is fully seperated in this project.
+This is the core implementation of end_of_eden. This doesn't contain any ui code, as the base game logic and ui is fully seperated in this project.
 
 # Session
 

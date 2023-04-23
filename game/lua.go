@@ -1,10 +1,10 @@
 package game
 
 import (
-	"github.com/BigJk/project_gonzo/audio"
-	"github.com/BigJk/project_gonzo/gen/faces"
-	"github.com/BigJk/project_gonzo/luhelp"
-	"github.com/BigJk/project_gonzo/util"
+	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/gen/faces"
+	"github.com/BigJk/end_of_eden/luhelp"
+	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"

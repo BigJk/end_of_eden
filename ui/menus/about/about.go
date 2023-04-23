@@ -1,9 +1,9 @@
 package about
 
 import (
-	"github.com/BigJk/project_gonzo/ui"
-	"github.com/BigJk/project_gonzo/ui/style"
-	"github.com/BigJk/project_gonzo/util"
+	"github.com/BigJk/end_of_eden/ui"
+	"github.com/BigJk/end_of_eden/ui/style"
+	"github.com/BigJk/end_of_eden/util"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"

@@ -3,7 +3,7 @@ package game
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/BigJk/project_gonzo/util"
+	"github.com/BigJk/end_of_eden/util"
 	"github.com/samber/lo"
 )
 

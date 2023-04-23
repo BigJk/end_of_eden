@@ -3,19 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/gen"
-	"github.com/BigJk/project_gonzo/gen/faces"
-	"github.com/BigJk/project_gonzo/ui/menus/gameview"
-	"github.com/BigJk/project_gonzo/ui/menus/mainmenu"
+	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/gen"
+	"github.com/BigJk/end_of_eden/gen/faces"
+	"github.com/BigJk/end_of_eden/ui/menus/gameview"
+	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/BigJk/project_gonzo/audio"
-	"github.com/BigJk/project_gonzo/ui/root"
+	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/ui/root"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -56,7 +56,7 @@ func main() {
 	log.Println("=================================")
 
 	// Set window title
-	fmt.Println("\033]2;Project Gonzo\007")
+	fmt.Println("\033]2;End of Eden\007")
 
 	// Setup game
 	var baseModel tea.Model

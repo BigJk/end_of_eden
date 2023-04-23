@@ -1,7 +1,7 @@
 package root
 
 import (
-	"github.com/BigJk/project_gonzo/ui"
+	"github.com/BigJk/end_of_eden/ui"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
 )
