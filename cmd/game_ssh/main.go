@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"github.com/BigJk/project_gonzo/ui/mainmenu"
+	"github.com/BigJk/project_gonzo/ui/menus/mainmenu"
 	"github.com/BigJk/project_gonzo/ui/root"
 	zone "github.com/lrstanley/bubblezone"
 	"os"

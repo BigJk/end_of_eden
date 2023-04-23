@@ -4,7 +4,7 @@ import (
 	"github.com/BigJk/project_gonzo/game"
 	"github.com/BigJk/project_gonzo/ui"
 	"github.com/BigJk/project_gonzo/ui/about"
-	"github.com/BigJk/project_gonzo/ui/gameview"
+	"github.com/BigJk/project_gonzo/ui/menus/gameview"
 	"github.com/BigJk/project_gonzo/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

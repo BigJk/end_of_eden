@@ -6,7 +6,8 @@ import (
 	"github.com/BigJk/project_gonzo/game"
 	"github.com/BigJk/project_gonzo/gen"
 	"github.com/BigJk/project_gonzo/gen/faces"
-	"github.com/BigJk/project_gonzo/ui/gameview"
+	"github.com/BigJk/project_gonzo/ui/menus/gameview"
+	"github.com/BigJk/project_gonzo/ui/menus/mainmenu"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
 	"log"
@@ -14,7 +15,6 @@ import (
 	"strings"
 
 	"github.com/BigJk/project_gonzo/audio"
-	"github.com/BigJk/project_gonzo/ui/mainmenu"
 	"github.com/BigJk/project_gonzo/ui/root"
 	tea "github.com/charmbracelet/bubbletea"
 )
