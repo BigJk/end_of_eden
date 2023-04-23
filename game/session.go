@@ -2,10 +2,10 @@ package game
 
 import (
 	"bytes"
+	"context"
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/BigJk/project_gonzo/debug"
 	"github.com/BigJk/project_gonzo/gen"
 	"github.com/BigJk/project_gonzo/gen/faces"
 	"github.com/BigJk/project_gonzo/util"
@@ -16,6 +16,12 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"oss.terrastruct.com/d2/d2graph"
+	"oss.terrastruct.com/d2/d2layouts/d2dagrelayout"
+	"oss.terrastruct.com/d2/d2lib"
+	"oss.terrastruct.com/d2/d2renderers/d2svg"
+	"oss.terrastruct.com/d2/d2themes/d2themescatalog"
+	"oss.terrastruct.com/d2/lib/textmeasure"
 	"sort"
 	"time"
 )
@@ -80,6 +86,7 @@ type Session struct {
 	Logs []LogEntry
 }
 
+// NewSession creates a new game session.
 func NewSession(options ...func(s *Session)) *Session {
 	session := &Session{
 		log:   log.New(io.Discard, "", 0),
@@ -91,6 +98,8 @@ func NewSession(options ...func(s *Session)) *Session {
 		stagesCleared: 0,
 	}
 
+	session.luaState = SessionAdapter(session)
+
 	for i := range options {
 		if options[i] == nil {
 			continue
@@ -98,7 +107,6 @@ func NewSession(options ...func(s *Session)) *Session {
 		options[i](session)
 	}
 
-	session.luaState = SessionAdapter(session)
 	session.resources = NewResourcesManager(session.luaState, session.log)
 	session.SetEvent("START")
 
@@ -114,18 +122,27 @@ func NewSession(options ...func(s *Session)) *Session {
 	return session
 }
 
+// WithDebugEnabled enables the lua debugging. With lua debugging a server will be started
+// on the given bind address (e.g. :5912, 127.0.0.1:8512, ...). This exposes the /ws route
+// to connect over websocket to. In essence, it exposes REPL access to the internal lua state
+// which is helpful to debug problems. You can use the debug_r function to send data back to
+// the websocket.
+//
+// Tip: Use https://github.com/websockets/wscat to connect and talk with it.
 func WithDebugEnabled(bind string) func(s *Session) {
 	return func(s *Session) {
-		s.closer = append(s.closer, debug.Expose(bind, s.luaState, s.log))
+		s.closer = append(s.closer, ExposeDebug(bind, s, s.luaState, s.log))
 	}
 }
 
+// WithLogging sets the internal logger.
 func WithLogging(logger *log.Logger) func(s *Session) {
 	return func(s *Session) {
 		s.log = logger
 	}
 }
 
+// Close closes the internal lua state and everything else.
 func (s *Session) Close() {
 	for i := range s.closer {
 		if err := s.closer[i](); err != nil {
@@ -135,6 +152,7 @@ func (s *Session) Close() {
 	s.luaState.Close()
 }
 
+// ToSavedState creates a saved state of the session that can be serialized with Gob.
 func (s *Session) ToSavedState() SavedState {
 	return SavedState{
 		State:            s.state,
@@ -149,6 +167,9 @@ func (s *Session) ToSavedState() SavedState {
 	}
 }
 
+// LoadSavedState applies a saved state to the session. This will overwrite all game related data, but
+// not the lua state, logging etc. This also means that for a save file to work the same lua scripts
+// should be loaded or the state could be corrupted.
 func (s *Session) LoadSavedState(save SavedState) {
 	s.state = save.State
 	s.actors = lo.MapValues(save.Actors, func(item Actor, key string) Actor {
@@ -188,10 +209,14 @@ func (s *Session) GobDecode(data []byte) error {
 // Checkpoints
 //
 
+// MarkState creates a checkpoint of the session state that can be used to diff and see what happened
+// between two points in time.
 func (s *Session) MarkState() StateCheckpointMarker {
 	return StateCheckpointMarker{checkpoints: s.stateCheckpoints}
 }
 
+// PushState pushes a new state to the session. New states are relevant information like damage done,
+// money received, actor death etc.
 func (s *Session) PushState(events map[StateEvent]any) {
 	savedState := *s
 
@@ -208,6 +233,7 @@ func (s *Session) PushState(events map[StateEvent]any) {
 	})
 }
 
+// GetFormerState iterates backwards over the states, so index == -1 means the last state and so on.
 func (s *Session) GetFormerState(index int) *Session {
 	if index == 0 {
 		return s
@@ -221,25 +247,16 @@ func (s *Session) GetFormerState(index int) *Session {
 	return s.stateCheckpoints[index].Session
 }
 
-func (s *Session) FindLastState(event StateEvent) (*Session, map[StateEvent]any) {
-	for i := len(s.stateCheckpoints); i >= 0; i-- {
-		if s.stateCheckpoints[i].Events != nil {
-			if _, ok := s.stateCheckpoints[i].Events[event]; ok {
-				return s.stateCheckpoints[i].Session, s.stateCheckpoints[i].Events
-			}
-		}
-	}
-	return nil, nil
-}
-
 //
 // Game State Functions
 //
 
+// GetGameState returns the current game state.
 func (s *Session) GetGameState() GameState {
 	return s.state
 }
 
+// SetGameState sets the game state and applies all needed setups for the new state to be valid.
 func (s *Session) SetGameState(state GameState) {
 	s.state = state
 
@@ -253,6 +270,8 @@ func (s *Session) SetGameState(state GameState) {
 	}
 }
 
+// SetEvent changes the active event, but won't set the game state to EVENT. So this can be used
+// to set the next event even before a fight or merchant interaction is over.
 func (s *Session) SetEvent(id string) {
 	s.currentEvent = ""
 	if _, ok := s.resources.Events[id]; ok {
@@ -262,6 +281,8 @@ func (s *Session) SetEvent(id string) {
 	}
 }
 
+// GetEvent returns the event definition of the current event. Will be nil if no event is present.
+// It is not allowed to change the Event data, as this points to the event data created in lua!
 func (s *Session) GetEvent() *Event {
 	if len(s.currentEvent) == 0 {
 		return nil
@@ -269,6 +290,7 @@ func (s *Session) GetEvent() *Event {
 	return s.resources.Events[s.currentEvent]
 }
 
+// CleanUpFight resets the fight state.
 func (s *Session) CleanUpFight() {
 	s.currentFight.CurrentPoints = PointsPerRound
 	s.currentFight.Deck = lo.Shuffle(s.GetPlayer().Cards.ToSlice())
@@ -278,6 +300,10 @@ func (s *Session) CleanUpFight() {
 	s.currentFight.Round = 0
 }
 
+// SetupFight setups the fight state, which means removing all leftover status effects, cleaning the state
+// drawing the initial hand size and trigger the first wave of OnPlayerTurn callbacks.
+//
+// Additionally, this will create a save file as this is a clean state to save.
 func (s *Session) SetupFight() {
 	s.RemoveAllStatusEffects()
 	s.CleanUpFight()
@@ -297,14 +323,19 @@ func (s *Session) SetupFight() {
 	}
 }
 
+// GetFight returns the fight state. This will return a fight state even if no fight is active at the moment.
 func (s *Session) GetFight() FightState {
 	return s.currentFight
 }
 
+// GetStagesCleared returns the amount of stages cleared so far. Each fight represent a stage.
 func (s *Session) GetStagesCleared() int {
 	return s.stagesCleared
 }
 
+// FinishPlayerTurn signals that the player is done with its turn. All enemies act now, status effects are
+// evaluated, if the fight is over is checked and if not this will advance to the next round and draw cards
+// for the player.
 func (s *Session) FinishPlayerTurn() {
 	// Enemies are allowed to act.
 	for k, v := range s.actors {
@@ -375,6 +406,7 @@ func (s *Session) FinishPlayerTurn() {
 	s.TriggerOnPlayerTurn()
 }
 
+// FinishFight tries to finish the fight. This will return true if the fight is really over.
 func (s *Session) FinishFight() bool {
 	if s.GetOpponentCount(PlayerActorID) == 0 {
 		s.currentFight.Description = ""
@@ -394,6 +426,8 @@ func (s *Session) FinishFight() bool {
 	return false
 }
 
+// FinishEvent finishes a event with the given choice. If the game state is not in the EVENT state this
+// does nothing.
 func (s *Session) FinishEvent(choice int) {
 	if len(s.currentEvent) == 0 || s.state != GameStateEvent {
 		return
@@ -431,18 +465,22 @@ func (s *Session) FinishEvent(choice int) {
 	}
 }
 
+// SetFightDescription sets the description of the fight.
 func (s *Session) SetFightDescription(description string) {
 	s.currentFight.Description = description
 }
 
+// GetFightRound returns the current round of the fight.
 func (s *Session) GetFightRound() int {
 	return s.currentFight.Round
 }
 
+// HadEvent checks if the given event already happened in this run.
 func (s *Session) HadEvent(id string) bool {
 	return lo.Contains(s.eventHistory, id)
 }
 
+// GetEventHistory returns the ordered list of all events encountered so far.
 func (s *Session) GetEventHistory() []string {
 	return s.eventHistory
 }
@@ -451,6 +489,7 @@ func (s *Session) GetEventHistory() []string {
 // Merchant
 //
 
+// SetupMerchant sets up the merchant, which means generating a new face, text and initial wares.
 func (s *Session) SetupMerchant() {
 	s.merchant.Artifacts = nil
 	s.merchant.Cards = nil
@@ -463,18 +502,22 @@ func (s *Session) SetupMerchant() {
 	}
 }
 
+// LeaveMerchant finishes the merchant state and lets the storyteller decide what to do next.
 func (s *Session) LeaveMerchant() {
 	s.SetGameState(GameStateRandom)
 }
 
+// GetMerchant return the merchant state.
 func (s *Session) GetMerchant() MerchantState {
 	return s.merchant
 }
 
+// GetMerchantGoldMax returns what the max cost of a artifact or card is that the merchant might offer.
 func (s *Session) GetMerchantGoldMax() int {
 	return 150 + s.stagesCleared*30
 }
 
+// GetRandomArtifact returns the type id of a random artifact with a price lower than the given value.
 func (s *Session) GetRandomArtifact(maxGold int) string {
 	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
 		return item.Price >= 0 && item.Price < maxGold
@@ -487,6 +530,7 @@ func (s *Session) GetRandomArtifact(maxGold int) string {
 	return ""
 }
 
+// GetRandomCard returns the type id of a random card with a price lower than the given value.
 func (s *Session) GetRandomCard(maxGold int) string {
 	possible := lo.Filter(lo.Values(s.resources.Cards), func(item *Card, index int) bool {
 		return item.Price >= 0 && item.Price < maxGold
@@ -499,18 +543,21 @@ func (s *Session) GetRandomCard(maxGold int) string {
 	return ""
 }
 
+// AddMerchantArtifact adds another artifact to the wares of the merchant.
 func (s *Session) AddMerchantArtifact() {
 	if val := s.GetRandomArtifact(s.GetMerchantGoldMax()); len(val) > 0 {
 		s.merchant.Artifacts = append(s.merchant.Artifacts, val)
 	}
 }
 
+// AddMerchantCard adds another card to the wares of the merchant.
 func (s *Session) AddMerchantCard() {
 	if val := s.GetRandomCard(s.GetMerchantGoldMax()); len(val) > 0 {
 		s.merchant.Cards = append(s.merchant.Cards, val)
 	}
 }
 
+// PlayerBuyCard buys the card with the given type id. The card needs to be in the wares of the merchant.
 func (s *Session) PlayerBuyCard(t string) bool {
 	if !lo.Contains(s.merchant.Cards, t) {
 		return false
@@ -545,6 +592,7 @@ func (s *Session) PlayerBuyCard(t string) bool {
 	return true
 }
 
+// PlayerBuyArtifact buys the artifact with the given type id. The artifact needs to be in the wares of the merchant.
 func (s *Session) PlayerBuyArtifact(t string) bool {
 	if !lo.Contains(s.merchant.Artifacts, t) {
 		return false
@@ -583,6 +631,8 @@ func (s *Session) PlayerBuyArtifact(t string) bool {
 // StoryTeller
 //
 
+// ActiveTeller returns the active storyteller. The storyteller is responsible for deciding what enemies or events
+// the player will encounter next.
 func (s *Session) ActiveTeller() *StoryTeller {
 	teller := lo.Filter(lo.Values(s.resources.StoryTeller), func(teller *StoryTeller, index int) bool {
 		res, err := teller.Active(CreateContext("type_id", teller.ID))
@@ -611,6 +661,7 @@ func (s *Session) ActiveTeller() *StoryTeller {
 	return teller[0]
 }
 
+// LetTellerDecide lets the currently active storyteller decide what the next game state will be.
 func (s *Session) LetTellerDecide() {
 	active := s.ActiveTeller()
 
@@ -636,6 +687,11 @@ func (s *Session) LetTellerDecide() {
 // Instances
 //
 
+func (s *Session) GetInstances() []string {
+	return lo.Keys(s.instances)
+}
+
+// GetInstance returns a instance by guid. An instance is a CardInstance or ArtifactInstance.
 func (s *Session) GetInstance(guid string) any {
 	return s.instances[guid]
 }
@@ -678,6 +734,7 @@ func (s *Session) TraverseArtifactsStatus(guids []string, artifact func(instance
 // Status Effect Functions
 //
 
+// GetStatusEffectOrder returns the order value of a status effect by guid.
 func (s *Session) GetStatusEffectOrder(guid string) int {
 	// Try as type id
 	if e, ok := s.resources.StatusEffects[guid]; ok {
@@ -697,6 +754,7 @@ func (s *Session) GetStatusEffectOrder(guid string) int {
 	return 0
 }
 
+// GetStatusEffect returns status effect by guid.
 func (s *Session) GetStatusEffect(guid string) *StatusEffect {
 	// Try as type id
 	if e, ok := s.resources.StatusEffects[guid]; ok {
@@ -716,10 +774,12 @@ func (s *Session) GetStatusEffect(guid string) *StatusEffect {
 	return nil
 }
 
+// GetStatusEffectInstance returns status effect instance by guid.
 func (s *Session) GetStatusEffectInstance(guid string) StatusEffectInstance {
 	return s.instances[guid].(StatusEffectInstance)
 }
 
+// RemoveAllStatusEffects clears all present status effects.
 func (s *Session) RemoveAllStatusEffects() {
 	var clean []string
 	for guid, v := range s.instances {
@@ -733,6 +793,8 @@ func (s *Session) RemoveAllStatusEffects() {
 	}
 }
 
+// GiveStatusEffect gives the owner a status effect of a certain type. Status effects are singleton per actor,
+// so if the actor already has the status effect the stacks will be increased.
 func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) string {
 	if len(owner) == 0 {
 		s.log.Println("Error: trying to give status effect without owner!")
@@ -786,6 +848,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 	return instance.GUID
 }
 
+// RemoveStatusEffect removes a status effect by guid.
 func (s *Session) RemoveStatusEffect(guid string) {
 	instance := s.instances[guid].(StatusEffectInstance)
 	if _, err := s.resources.StatusEffects[instance.TypeID].Callbacks[CallbackOnStatusRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
@@ -797,10 +860,12 @@ func (s *Session) RemoveStatusEffect(guid string) {
 	delete(s.instances, guid)
 }
 
+// GetActorStatusEffects returns the guids of all the status effects a certain actor owns.
 func (s *Session) GetActorStatusEffects(guid string) []string {
 	return s.actors[guid].StatusEffects.ToSlice()
 }
 
+// AddStatusEffectStacks increases the stacks of a certain status effect by guid.
 func (s *Session) AddStatusEffectStacks(guid string, stacks int) {
 	instance := s.instances[guid].(StatusEffectInstance)
 	instance.Stacks += stacks
@@ -811,6 +876,7 @@ func (s *Session) AddStatusEffectStacks(guid string, stacks int) {
 	}
 }
 
+// SetStatusEffectStacks sets the stacks of a certain status effect by guid.
 func (s *Session) SetStatusEffectStacks(guid string, stacks int) {
 	instance := s.instances[guid].(StatusEffectInstance)
 	instance.Stacks = stacks
@@ -825,6 +891,7 @@ func (s *Session) SetStatusEffectStacks(guid string, stacks int) {
 // Artifact Functions
 //
 
+// GetArtifactOrder returns the order value of a certain artifact by guid.
 func (s *Session) GetArtifactOrder(guid string) int {
 	artInstance, ok := s.instances[guid]
 	if !ok {
@@ -839,6 +906,7 @@ func (s *Session) GetArtifactOrder(guid string) int {
 	return 0
 }
 
+// GetRandomArtifactType returns a random artifact type with a given max price.
 func (s *Session) GetRandomArtifactType(maxPrice int) string {
 	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
 		return item.Price < maxPrice
@@ -849,12 +917,15 @@ func (s *Session) GetRandomArtifactType(maxPrice int) string {
 	return lo.Shuffle(possible)[0].ID
 }
 
+// GetArtifacts returns all artifacts owned by a actor.
 func (s *Session) GetArtifacts(owner string) []string {
 	guids := s.actors[owner].Artifacts.ToSlice()
 	sort.Strings(guids)
 	return guids
 }
 
+// GetArtifact returns an artifact, and instance by guid or type id. If a type id is given
+// only the Artifact will be returned.
 func (s *Session) GetArtifact(guid string) (*Artifact, ArtifactInstance) {
 	// check if guid is actually typeId
 	if val, ok := s.resources.Artifacts[guid]; ok {
@@ -874,6 +945,7 @@ func (s *Session) GetArtifact(guid string) (*Artifact, ArtifactInstance) {
 	return nil, ArtifactInstance{}
 }
 
+// GiveArtifact gives an artifact to an actor.
 func (s *Session) GiveArtifact(typeId string, owner string) string {
 	instance := ArtifactInstance{
 		TypeID: typeId,
@@ -891,6 +963,7 @@ func (s *Session) GiveArtifact(typeId string, owner string) string {
 	return instance.GUID
 }
 
+// RemoveArtifact removes a artifact by guid.
 func (s *Session) RemoveArtifact(guid string) {
 	instance := s.instances[guid].(ArtifactInstance)
 	if _, err := s.resources.Artifacts[instance.TypeID].Callbacks[CallbackOnRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
@@ -1039,132 +1112,75 @@ func (s *Session) PlayerDrawCard(amount int) {
 //
 
 func (s *Session) DealDamage(source string, target string, damage int, flat bool) int {
-	if val, ok := s.actors[target]; ok {
-		guids := lo.Flatten([][]string{
-			s.GetActor(source).Artifacts.ToSlice(),
-			s.GetActor(target).Artifacts.ToSlice(),
-			s.GetActor(target).StatusEffects.ToSlice(),
-			s.GetActor(source).StatusEffects.ToSlice(),
-		})
-
-		if !flat {
-			s.TraverseArtifactsStatus(guids,
-				func(instance ArtifactInstance, art *Artifact) {
-					res, err := art.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
-					if err != nil {
-						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
-					} else if res != nil {
-						if newDamage, ok := res.(float64); ok {
-							damage = int(newDamage)
-						}
-					}
-				},
-				func(instance StatusEffectInstance, se *StatusEffect) {
-					res, err := se.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
-					if err != nil {
-						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
-					} else if res != nil {
-						if newDamage, ok := res.(float64); ok {
-							damage = int(newDamage)
-						}
-					}
-				},
-			)
-		}
-
-		if source == PlayerActorID {
-			s.Log(LogTypeSuccess, fmt.Sprintf("You hit the enemy for %d damage", damage))
-		} else if target == PlayerActorID {
-			s.Log(LogTypeDanger, fmt.Sprintf("You took %d damage", damage))
-		} else {
-			s.Log(LogTypeSuccess, fmt.Sprintf("%s took %d damage", val.Name, damage))
-		}
-
-		// Negative damage aka heal is not allowed!
-		if damage < 0 {
-			damage = 0
-		}
-
-		// Trigger OnDamage callbacks
-		s.TraverseArtifactsStatus(guids,
-			func(instance ArtifactInstance, art *Artifact) {
-				_, err := art.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
-				if err != nil {
-					s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
-				}
-			},
-			func(instance StatusEffectInstance, se *StatusEffect) {
-				_, err := se.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
-				if err != nil {
-					s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
-				}
-			},
-		)
-
-		// Re-fetch actor in case the OnDamage callback triggered some kind of damage or healing.
-		val = s.actors[target]
-
-		hpLeft := lo.Clamp(val.HP-damage, 0, val.MaxHP)
-
-		// Remove dead non-player actor
-		if target != PlayerActorID && hpLeft == 0 {
-			s.PushState(map[StateEvent]any{
-				StateEventDeath: StateEventDeathData{
-					Source: source,
-					Target: target,
-					Damage: damage,
-				},
-			})
-			s.Log(LogTypeSuccess, fmt.Sprintf("%s died and dropped %d gold!", val.Name, val.Gold))
-			s.UpdatePlayer(func(actor *Actor) bool {
-				if val.Gold > 0 {
-					actor.Gold += val.Gold
-					s.PushState(map[StateEvent]any{
-						StateEventMoney: StateEventMoneyData{
-							Target: target,
-							Money:  val.Gold,
-						},
-					})
-				}
-				return true
-			})
-			s.TraverseArtifactsStatus(guids,
-				func(instance ArtifactInstance, art *Artifact) {
-					_, err := art.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
-					if err != nil {
-						s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
-					}
-				},
-				func(instance StatusEffectInstance, se *StatusEffect) {
-					_, err := se.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
-					if err != nil {
-						s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
-					}
-				},
-			)
-			s.RemoveActor(target)
-		} else {
-			s.PushState(map[StateEvent]any{
-				StateEventDamage: StateEventDamageData{
-					Source: source,
-					Target: target,
-					Damage: damage,
-				},
-			})
-			s.UpdateActor(target, func(actor *Actor) bool {
-				actor.HP = hpLeft
-				return true
-			})
-			if target == PlayerActorID {
-				if s.GetPlayer().HP == 0 {
-					s.SetGameState(GameStateGameOver)
-				}
-			}
-		}
-
-		return damage
+	val, ok := s.actors[target]
+	if !ok {
+		return 0
 	}
-	return 0
+
+	guids := lo.Flatten([][]string{
+		s.GetActor(source).Artifacts.ToSlice(),
+		s.GetActor(target).Artifacts.ToSlice(),
+		s.GetActor(target).StatusEffects.ToSlice(),
+		s.GetActor(source).StatusEffects.ToSlice(),
+	})
+
+	// If not flat we will modify the damage based on the OnDamageCalc callbacks.
+	if !flat {
+		damage = s.TriggerOnDamageCalc(guids, source, target, damage)
+	}
+
+	if source == PlayerActorID {
+		s.Log(LogTypeSuccess, fmt.Sprintf("You hit the enemy for %d damage", damage))
+	} else if target == PlayerActorID {
+		s.Log(LogTypeDanger, fmt.Sprintf("You took %d damage", damage))
+	} else {
+		s.Log(LogTypeSuccess, fmt.Sprintf("%s took %d damage", val.Name, damage))
+	}
+
+	// Negative damage aka heal is not allowed!
+	if damage < 0 {
+		return 0
+	}
+
+	// Trigger OnDamage callbacks
+	s.TriggerOnDamage(guids, source, target, damage)
+
+	// Re-fetch actor in case the OnDamage callback triggered some kind of damage or healing.
+	val = s.actors[target]
+
+	hpLeft := lo.Clamp(val.HP-damage, 0, val.MaxHP)
+
+	// Remove dead non-player actor
+	if target != PlayerActorID && hpLeft == 0 {
+		s.PushState(map[StateEvent]any{
+			StateEventDeath: StateEventDeathData{
+				Source: source,
+				Target: target,
+				Damage: damage,
+			},
+		})
+		s.Log(LogTypeSuccess, fmt.Sprintf("%s died and dropped %d gold!", val.Name, val.Gold))
+		s.GivePlayerGold(val.Gold)
+		s.TriggerOnActorDie(guids, source, target, damage)
+		s.RemoveActor(target)
+	} else {
+		s.PushState(map[StateEvent]any{
+			StateEventDamage: StateEventDamageData{
+				Source: source,
+				Target: target,
+				Damage: damage,
+			},
+		})
+		s.UpdateActor(target, func(actor *Actor) bool {
+			actor.HP = hpLeft
+			return true
+		})
+		if target == PlayerActorID && s.GetPlayer().HP == 0 {
+			s.SetGameState(GameStateGameOver)
+		}
+	}
+
+	return damage
 }
 
 func (s *Session) DealDamageMulti(source string, targets []string, damage int, flat bool) []int {
@@ -1235,6 +1251,10 @@ func (s *Session) GetPlayer() Actor {
 
 func (s *Session) UpdatePlayer(update func(actor *Actor) bool) {
 	s.UpdateActor(PlayerActorID, update)
+}
+
+func (s *Session) GetActors() []string {
+	return lo.Keys(s.actors)
 }
 
 func (s *Session) GetActor(id string) Actor {
@@ -1386,8 +1406,18 @@ func (s *Session) GetEnemy(typeId string) *Enemy {
 //
 
 func (s *Session) GivePlayerGold(amount int) {
+	if amount <= 0 {
+		return
+	}
+
 	s.UpdatePlayer(func(actor *Actor) bool {
 		actor.Gold += amount
+		s.PushState(map[StateEvent]any{
+			StateEventMoney: StateEventMoneyData{
+				Target: PlayerActorID,
+				Money:  amount,
+			},
+		})
 		return true
 	})
 }
@@ -1395,6 +1425,66 @@ func (s *Session) GivePlayerGold(amount int) {
 //
 // Misc Callback
 //
+
+func (s *Session) TriggerOnDamageCalc(guids []string, source string, target string, damage int) int {
+	s.TraverseArtifactsStatus(guids,
+		func(instance ArtifactInstance, art *Artifact) {
+			res, err := art.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
+			if err != nil {
+				s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+			} else if res != nil {
+				if newDamage, ok := res.(float64); ok {
+					damage = int(newDamage)
+				}
+			}
+		},
+		func(instance StatusEffectInstance, se *StatusEffect) {
+			res, err := se.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
+			if err != nil {
+				s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+			} else if res != nil {
+				if newDamage, ok := res.(float64); ok {
+					damage = int(newDamage)
+				}
+			}
+		},
+	)
+	return damage
+}
+
+func (s *Session) TriggerOnDamage(guids []string, source string, target string, damage int) {
+	s.TraverseArtifactsStatus(guids,
+		func(instance ArtifactInstance, art *Artifact) {
+			_, err := art.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
+			if err != nil {
+				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+			}
+		},
+		func(instance StatusEffectInstance, se *StatusEffect) {
+			_, err := se.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
+			if err != nil {
+				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+			}
+		},
+	)
+}
+
+func (s *Session) TriggerOnActorDie(guids []string, source string, target string, damage int) {
+	s.TraverseArtifactsStatus(guids,
+		func(instance ArtifactInstance, art *Artifact) {
+			_, err := art.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
+			if err != nil {
+				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+			}
+		},
+		func(instance StatusEffectInstance, se *StatusEffect) {
+			_, err := se.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
+			if err != nil {
+				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+			}
+		},
+	)
+}
 
 func (s *Session) TriggerOnPlayerTurn() {
 	s.TraverseArtifactsStatus(lo.Flatten([][]string{
@@ -1432,4 +1522,81 @@ func (s *Session) Log(t LogType, msg string) {
 		Type:    t,
 		Message: msg,
 	})
+}
+
+func (s *Session) ToSVG() ([]byte, string, error) {
+	diag := `
+direction: right
+
+resources: Lua Defined Resources {
+  cards: Cards
+  artifacts: Artifacts
+  status: Status Effects
+}
+
+instances: Instances {
+}
+
+actors: Actors {
+}
+
+`
+	for k, v := range s.actors {
+		//content := spew.Sdump(v)
+		diag += fmt.Sprintf(`
+actors.%s: {
+  text: ||txt
+%s
+||
+}
+
+`, k, fmt.Sprintf("NAME = %s\nHP = %d / %d", v.Name, v.HP, v.MaxHP))
+
+		lo.ForEach(v.Cards.ToSlice(), func(item string, index int) {
+			diag += fmt.Sprintf("actors.%s -> instances.%s\n", k, item)
+		})
+		lo.ForEach(v.Artifacts.ToSlice(), func(item string, index int) {
+			diag += fmt.Sprintf("actors.%s -> instances.%s\n", k, item)
+		})
+		lo.ForEach(v.StatusEffects.ToSlice(), func(item string, index int) {
+			diag += fmt.Sprintf("actors.%s -> instances.%s\n", k, item)
+		})
+	}
+
+	for i := range s.instances {
+		switch inst := s.instances[i].(type) {
+		case ArtifactInstance:
+			diag += fmt.Sprintf("instances.%s -> %s\n", inst.GUID, "resources.artifacts."+inst.TypeID+": TypeId {style.animated: true}")
+		case CardInstance:
+			diag += fmt.Sprintf("instances.%s { \ntext: ||txt\n%s\n||\n}\n", inst.GUID, fmt.Sprintf("Level = %d", inst.Level))
+			diag += fmt.Sprintf("instances.%s -> %s\n", inst.GUID, "resources.cards."+inst.TypeID+": TypeId {style.animated: true}")
+		case StatusEffectInstance:
+			diag += fmt.Sprintf("instances.%s { \ntext: ||txt\n%s\n||\n}\n", inst.GUID, fmt.Sprintf("Level = %d\nRounds Left = %d", inst.Stacks, inst.RoundsLeft))
+			diag += fmt.Sprintf("instances.%s -> %s\n", inst.GUID, "resources.status."+inst.TypeID+": TypeId {style.animated: true}")
+		}
+	}
+
+	ruler, _ := textmeasure.NewRuler()
+	defaultLayout := func(ctx context.Context, g *d2graph.Graph) error {
+		return d2dagrelayout.Layout(ctx, g, nil)
+		//return d2elklayout.Layout(ctx, g, nil)
+	}
+	diagram, _, err := d2lib.Compile(context.Background(), diag, &d2lib.CompileOptions{
+		Layout: defaultLayout,
+		Ruler:  ruler,
+	})
+	if err != nil {
+		return nil, diag, err
+	}
+
+	out, err := d2svg.Render(diagram, &d2svg.RenderOpts{
+		Pad:     d2svg.DEFAULT_PADDING * 2,
+		Center:  true,
+		ThemeID: d2themescatalog.TerminalGrayscale.ID,
+	})
+	if err != nil {
+		return nil, diag, err
+	}
+
+	return out, diag, nil
 }

@@ -1,7 +1,12 @@
+run:
+  skip-files:
+    - ".*_test.go"
 linters:
   enable:
     - godot
     - misspell
+    - gocognit
+    - funlen
 linters-settings:
   staticcheck:
     checks: ["all", "-SA1019"]
