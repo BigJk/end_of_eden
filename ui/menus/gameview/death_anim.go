@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/BigJk/project_gonzo/audio"
 	"github.com/BigJk/project_gonzo/game"
-	"github.com/BigJk/project_gonzo/ui"
 	"github.com/BigJk/project_gonzo/ui/animation"
 	"github.com/BigJk/project_gonzo/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
@@ -49,7 +48,7 @@ func (m DeathAnimationModel) Init() tea.Cmd {
 
 func (m DeathAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case ui.SizeMsg:
+	case tea.WindowSizeMsg:
 		m = m.SetSize(msg.Width, msg.Height)
 	case tea.Key:
 		if m.progress > 0.1 && (msg.Type == tea.KeyEnter || msg.Type == tea.KeySpace) {

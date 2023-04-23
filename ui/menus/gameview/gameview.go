@@ -171,7 +171,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.merchant, _ = m.event.Update(msg)
 
 		for i := range m.animations {
-			m.animations[i], _ = m.animations[i].Update(ui.SizeMsg{Width: m.Size.Width, Height: m.fightEnemyViewHeight() + m.fightCardViewHeight() + 1})
+			m.animations[i], _ = m.animations[i].Update(tea.WindowSizeMsg{Width: m.Size.Width, Height: m.fightEnemyViewHeight() + m.fightCardViewHeight() + 1})
 		}
 	}
 
@@ -282,8 +282,9 @@ func (m Model) finishTurn() Model {
 func (m Model) tryCast() Model {
 	before := m.Session.MarkState()
 
-	if len(m.Session.GetFight().Hand) > 0 {
-		card, _ := m.Session.GetCard(m.Session.GetFight().Hand[m.selectedCard])
+	hand := m.Session.GetFight().Hand
+	if len(hand) > 0 && m.selectedCard < len(hand) {
+		card, _ := m.Session.GetCard(hand[m.selectedCard])
 		if card.NeedTarget {
 			if m.inOpponentSelection {
 				m.inOpponentSelection = false

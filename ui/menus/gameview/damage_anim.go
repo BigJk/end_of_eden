@@ -68,7 +68,7 @@ func (m DamageAnimationModel) Init() tea.Cmd {
 
 func (m DamageAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case ui.SizeMsg:
+	case tea.WindowSizeMsg:
 		m = m.SetSize(msg.Width, msg.Height)
 	case tea.Key:
 		if m.elapsed > 0.2 && (msg.Type == tea.KeyEnter || msg.Type == tea.KeySpace) {

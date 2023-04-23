@@ -25,6 +25,9 @@ func StatusEffect(session *game.Session, guid string) string {
 func StatusEffects(session *game.Session, actor game.Actor) string {
 	return strings.Join(lo.Map(util.SortStringsStable(actor.StatusEffects.ToSlice()), func(guid string, index int) string {
 		status := session.GetStatusEffect(guid)
+		if status == nil {
+			return ""
+		}
 
 		fg, _ := colorful.Hex(status.Foreground)
 		bg := fg.BlendRgb(colorful.LinearRgb(0, 0, 0), 0.7)
