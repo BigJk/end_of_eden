@@ -168,7 +168,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Always pass size events
 		m.event, _ = m.event.Update(msg)
-		m.merchant, _ = m.event.Update(msg)
+		m.merchant, _ = m.merchant.Update(msg)
 
 		for i := range m.animations {
 			m.animations[i], _ = m.animations[i].Update(tea.WindowSizeMsg{Width: m.Size.Width, Height: m.fightEnemyViewHeight() + m.fightCardViewHeight() + 1})

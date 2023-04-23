@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	headerLogo = lipgloss.NewStyle().Foreground(style.BaseRedDarker).Render(`▐█ ▀ ▪▪     •█▌▐█▪▀·.█▌▪     
-▄█ ▀█▄ ▄█▀▄ ▐█▐▐▌▄█▀▀▀• ▄█▀▄ 
-▐█▄▪▐█▐█▌.▐▌██▐█▌█▌▪▄█▀▐█▌.▐▌`)
+	headerLogo = lipgloss.NewStyle().Foreground(style.BaseRedDarker).Render(`▀▄.▀·██▪ ██ ▀▄.▀·•█▌▐█
+▐▀▀▪▄▐█· ▐█▌▐▀▀▪▄▐█▐▐▌
+▐█▄▄▌██. ██ ▐█▄▄▌██▐█▌`)
 	headerOuterStyle = lipgloss.NewStyle().Foreground(style.BaseWhite).Border(lipgloss.BlockBorder(), false, false, true, false).BorderForeground(style.BaseRedDarker)
 )
 
