@@ -37,7 +37,6 @@ type Model struct {
 
 	zones               *zone.Manager
 	parent              tea.Model
-	viewport            viewport.Model
 	selectedChoice      int
 	selectedCard        int
 	selectedOpponent    int
@@ -46,6 +45,8 @@ type Model struct {
 
 	lastMouse tea.MouseMsg
 
+	curEvent          string
+	viewport          viewport.Model
 	merchantSellTable table.Model
 
 	Session *game.Session
@@ -212,20 +213,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Window Size
 	//
 	case tea.WindowSizeMsg:
-		headerHeight := lipgloss.Height(m.eventHeaderView())
-		footerHeight := lipgloss.Height(m.eventFooterView())
-		verticalMarginHeight := headerHeight + footerHeight + m.eventChoiceHeight()
-
-		if !m.HasSize() {
-			m.viewport = viewport.New(util.Min(msg.Width, 100), msg.Height-verticalMarginHeight)
-			m.viewport.YPosition = headerHeight
-			m.viewport.HighPerformanceRendering = false
-
-			m = m.eventUpdateContent()
-		} else {
-			m.viewport.Width = util.Min(msg.Width, 100)
-			m.viewport.Height = msg.Height - verticalMarginHeight
-		}
+		m = m.eventUpdateSize(msg.Width, msg.Height, !m.HasSize())
 
 		m.Size = msg
 
@@ -270,6 +258,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.merchantSellTable, cmd = m.merchantSellTable.Update(msg)
 		cmds = append(cmds, cmd)
 	case game.GameStateEvent:
+		if m.HasSize() {
+			m = m.eventUpdateSize(m.Size.Width, m.Size.Height, false)
+			m = m.eventUpdateContent()
+		}
 		m.viewport, cmd = m.viewport.Update(msg)
 		cmds = append(cmds, cmd)
 	case game.GameStateGameOver:
@@ -614,9 +606,34 @@ func (m Model) merchantView() string {
 // Event View
 //
 
+func (m Model) eventUpdateSize(width, height int, init bool) Model {
+	headerHeight := lipgloss.Height(m.eventHeaderView())
+	footerHeight := lipgloss.Height(m.eventFooterView())
+	verticalMarginHeight := headerHeight + footerHeight + m.eventChoiceHeight()
+
+	if init {
+		m.viewport = viewport.New(util.Min(width, 100), height-verticalMarginHeight)
+		m.viewport.YPosition = headerHeight
+		m.viewport.HighPerformanceRendering = false
+
+		m = m.eventUpdateContent()
+	} else {
+		m.viewport.Width = util.Min(width, 100)
+		m.viewport.Height = height - verticalMarginHeight
+	}
+
+	return m
+}
+
 func (m Model) eventUpdateContent() Model {
 	if m.Session.GetEvent() == nil {
 		m.viewport.SetContent("")
+		return m
+	}
+
+	// Don't update if we are still in the same event.
+	eventId := m.Session.GetEvent().ID
+	if m.curEvent == eventId {
 		return m
 	}
 
@@ -627,6 +644,7 @@ func (m Model) eventUpdateContent() Model {
 	res, _ := r.Render(m.Session.GetEvent().Description)
 
 	m.viewport.SetContent(res)
+	m.curEvent = eventId
 	return m
 }
 
@@ -675,6 +693,6 @@ func (m Model) eventChoices() []string {
 
 func (m Model) eventChoiceHeight() int {
 	return lo.SumBy(m.eventChoices(), func(item string) int {
-		return lipgloss.Height(item) + 5
+		return lipgloss.Height(item) + 1
 	})
 }
