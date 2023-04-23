@@ -108,8 +108,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m = m.finishTurn()
 			}
 		case tea.KeyLeft:
+			m.selectedCard = lo.Clamp(m.selectedCard-1, 0, len(m.Session.GetFight().Hand)-1)
 		case tea.KeyRight:
-			// TODO: right / left movement
+			m.selectedCard = lo.Clamp(m.selectedCard+1, 0, len(m.Session.GetFight().Hand)-1)
 		}
 	//
 	// Mouse

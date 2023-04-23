@@ -68,6 +68,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			m = m.tryFinishEvent()
+		case tea.KeyTab:
+			m.selectedChoice = (m.selectedChoice + 1) % len(m.session.GetEvent().Choices)
 		}
 	case tea.MouseMsg:
 		m.LastMouse = msg
