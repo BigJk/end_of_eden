@@ -1,6 +1,9 @@
 package style
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/lipgloss"
+)
 
 // Colors
 
@@ -13,6 +16,20 @@ var (
 	BaseGrayDarker = lipgloss.Color("#363636")
 	BaseYellow     = lipgloss.Color("#ffd966")
 	BaseGreen      = lipgloss.Color("#80ed99")
+
+	TableStyle = func() table.Styles {
+		s := table.DefaultStyles()
+		s.Header = s.Header.
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderForeground(BaseGrayDarker).
+			BorderBottom(true).
+			Bold(false)
+		s.Selected = s.Selected.
+			Foreground(lipgloss.Color(BaseWhite)).
+			Background(lipgloss.Color(BaseRedDarker)).
+			Bold(false)
+		return s
+	}()
 )
 
 // Styles

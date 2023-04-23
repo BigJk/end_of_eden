@@ -42,8 +42,10 @@ const (
 )
 
 const (
-	PointsPerRound = 3
-	DrawSize       = 3
+	DefaultUpgradeCost = 65
+	DefaultRemoveCost  = 50
+	PointsPerRound     = 3
+	DrawSize           = 3
 )
 
 // FightState represents the current state of the fight in regard to the
@@ -1107,6 +1109,43 @@ func (s *Session) PlayerDrawCard(amount int) {
 	}
 }
 
+func (s *Session) BuyUpgradeCard(guid string) bool {
+	card, instance := s.GetCard(guid)
+	if instance.IsNone() || card.MaxLevel == 0 || instance.Level == card.MaxLevel {
+		return false
+	}
+
+	if s.GetPlayer().Gold < DefaultUpgradeCost {
+		return false
+	}
+	s.UpdatePlayer(func(actor *Actor) bool {
+		actor.Gold -= DefaultUpgradeCost
+		return true
+	})
+
+	instance.Level += 1
+	s.instances[guid] = instance
+	return true
+}
+
+func (s *Session) BuyRemoveCard(guid string) bool {
+	_, instance := s.GetCard(guid)
+	if instance.IsNone() {
+		return false
+	}
+
+	if s.GetPlayer().Gold < DefaultRemoveCost {
+		return false
+	}
+	s.UpdatePlayer(func(actor *Actor) bool {
+		actor.Gold -= DefaultUpgradeCost
+		return true
+	})
+
+	s.RemoveCard(guid)
+	return true
+}
+
 //
 // Damage & Heal Function
 //
@@ -1542,7 +1581,6 @@ actors: Actors {
 
 `
 	for k, v := range s.actors {
-		//content := spew.Sdump(v)
 		diag += fmt.Sprintf(`
 actors.%s: {
   text: ||txt

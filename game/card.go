@@ -31,3 +31,7 @@ type CardInstance struct {
 	Level  int
 	Owner  string
 }
+
+func (c CardInstance) IsNone() bool {
+	return len(c.GUID) == 0
+}

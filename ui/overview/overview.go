@@ -1,4 +1,4 @@
-package gameview
+package overview
 
 import (
 	"fmt"
@@ -27,19 +27,6 @@ var (
 		game.LogTypeDanger:  lipgloss.NewStyle().Foreground(style.BaseRed),
 		game.LogTypeSuccess: lipgloss.NewStyle().Foreground(style.BaseGreen),
 	}
-	tableStyle = func() table.Styles {
-		s := table.DefaultStyles()
-		s.Header = s.Header.
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderForeground(style.BaseGrayDarker).
-			BorderBottom(true).
-			Bold(false)
-		s.Selected = s.Selected.
-			Foreground(lipgloss.Color(style.BaseWhite)).
-			Background(lipgloss.Color(style.BaseRedDarker)).
-			Bold(false)
-		return s
-	}()
 )
 
 type Choice string
@@ -86,7 +73,7 @@ type MenuModel struct {
 	Session *game.Session
 }
 
-func NewMenuModel(parent tea.Model, zones *zone.Manager, session *game.Session) MenuModel {
+func New(parent tea.Model, zones *zone.Manager, session *game.Session) MenuModel {
 	choices := []list.Item{
 		choiceItem{zones, "Character", "Check your stats.", ChoiceCharacter},
 		choiceItem{zones, "Logs", "Check what happened.", ChoiceLogs},
@@ -106,14 +93,14 @@ func NewMenuModel(parent tea.Model, zones *zone.Manager, session *game.Session) 
 		selected:  ChoiceCharacter,
 		listFocus: true,
 		cardTable: table.New(
-			table.WithStyles(tableStyle),
+			table.WithStyles(style.TableStyle),
 			table.WithColumns([]table.Column{
 				{Title: "Name", Width: 25},
 				{Title: "Level", Width: 5},
 			}),
 		),
 		artifactTable: table.New(
-			table.WithStyles(tableStyle),
+			table.WithStyles(style.TableStyle),
 			table.WithColumns([]table.Column{
 				{Title: "Name", Width: 25},
 				{Title: "Price", Width: 5},

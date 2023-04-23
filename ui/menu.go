@@ -11,7 +11,8 @@ type Menu interface {
 
 // MenuBase is the base Menu implementation.
 type MenuBase struct {
-	Size tea.WindowSizeMsg
+	Size      tea.WindowSizeMsg
+	LastMouse tea.MouseMsg
 }
 
 func (m MenuBase) HasSize() bool {
