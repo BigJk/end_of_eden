@@ -42,6 +42,7 @@ GAME_STATE_RANDOM              : value
 DECAY_ONE                      : value
 DECAY_ALL                      : value
 DECAY_NONE                     : value
+guid                           : function
 text_bold                      : function
 text_italic                    : function
 text_underline                 : function
@@ -68,22 +69,38 @@ get_opponent_by_index          : function
 get_opponent_count             : function
 get_opponent_guids             : function
 remove_actor                   : function
+actor_add_max_hp               : function
 add_actor_by_enemy             : function
 give_artifact                  : function
 remove_artifact                : function
+get_random_artifact_type       : function
+get_artifact                   : function
+get_artifact_instance          : function
 give_status_effect             : function
 remove_status_effect           : function
 add_status_effect_stacks       : function
 set_status_effect_stacks       : function
+get_actor_status_effects       : function
+get_status_effect              : function
+get_status_effect_instance     : function
 give_card                      : function
 remove_card                    : function
 cast_card                      : function
 get_cards                      : function
+get_card                       : function
+get_card_instance              : function
 deal_damage                    : function
 deal_damage_multi              : function
 heal                           : function
 player_draw_card               : function
 give_player_gold               : function
+get_merchant                   : function
+add_merchant_card              : function
+add_merchant_artifact          : function
+get_merchant_gold_max          : function
+gen_face                       : function
+random_card                    : function
+random_artifact                : function
 ```
 
 ## Callbacks
@@ -113,6 +130,7 @@ CallbackOnInit                : type_id guid
 CallbackOnPickUp              : type_id guid owner 
 CallbackOnPlayerTurn          : type_id guid owner round 
 CallbackOnPlayerTurn          : type_id guid owner round stacks 
+CallbackOnPlayerTurn          : type_id guid round 
 CallbackOnRemove              : type_id guid owner 
 CallbackOnStatusAdd           : type_id guid 
 CallbackOnStatusRemove        : type_id guid owner 
