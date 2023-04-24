@@ -28,12 +28,12 @@
 A modern console is required to support all the features like full mouse control. Just start the  ``end_of_eden(.exe)`` executable in your terminal.
 
 ### Tested Terminals
+| Terminal                                              |   OS    | Status             | Note                                                            |
+|-------------------------------------------------------|---------|--------------------|-----------------------------------------------------------------|
+| **[terminal](https://github.com/microsoft/terminal)** | windows | :white_check_mark: |                                                                 |
+| **cmd**                                               | windows | :warning:          | no mouse motion support, mouse clicks and everything else works |
+| **[iterm2](https://iterm2.com/)**                     | osx     | :white_check_mark: |                                                                 |
 
-- osx: 
-  - **item2:** no problems
-- windows: 
-  - **[terminal](https://github.com/microsoft/terminal):** no problems
-  - **cmd:** no mouse motion support, mouse clicks and everything else works
 
 # Tech
 
@@ -46,7 +46,7 @@ A modern console is required to support all the features like full mouse control
 
 ## Lua
 
-Lua is used to define artifacts, cards, enemies and everything else that is dynamic in the game. This makes end_of_eden easily extendable. **Modding support coming soon!**
+Lua is used to define artifacts, cards, enemies and everything else that is dynamic in the game. This makes End of Eden easily extendable. **Modding support coming soon!**
 
 - The lua code tries to conform to the [luarocks style guide](https://github.com/luarocks/lua-style-guide).
 - The [luafun](https://github.com/luafun/luafun) functional library is available by default to provide functions like ``map``, ``filter``, etc. which are very helpful. Check the [luafun docs](https://luafun.github.io/index.html) for more information.
