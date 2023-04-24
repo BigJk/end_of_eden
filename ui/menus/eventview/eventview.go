@@ -107,7 +107,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Left, lipgloss.Top, fmt.Sprintf("%s\n%s\n%s\n%s", m.eventHeaderView(), m.viewport.View(), m.eventFooterView(), strings.Join(m.eventChoices(), "\n")))
+	return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Top, fmt.Sprintf("%s\n%s\n%s\n%s", m.eventHeaderView(), m.viewport.View(), m.eventFooterView(), strings.Join(m.eventChoices(), "\n")))
 }
 
 func (m Model) tryFinishEvent() Model {
