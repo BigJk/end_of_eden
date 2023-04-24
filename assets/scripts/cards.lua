@@ -1,5 +1,5 @@
-function highlight(dmg)
-    return text_underline(text_bold("[" .. tostring(dmg) .. "]"))
+function highlight(val)
+    return text_underline(text_bold("[" .. tostring(val) .. "]"))
 end
 
 register_card("KILL",
@@ -68,7 +68,7 @@ register_card("RUPTURE",
 register_card("BLOCK",
     {
         name = "Block",
-        description = "Shield yourself and gain 5 block.",
+        description = "Shield yourself and gain 5 " .. highlight("block") .. ".",
         state = function(ctx)
             return "Shield yourself and gain " .. highlight(5 + ctx.level * 3) .. " block."
         end,
@@ -89,7 +89,7 @@ register_card("BLOCK",
 register_card("BLOCK_SPIKES",
     {
         name = "Block Spikes",
-        description = "Transforms block to damage.",
+        description = "Transforms " .. highlight("block") .. " to damage.",
         state = function(ctx)
             -- Fetch all BLOCK instances of owner
             local blocks = fun.iter(pairs(get_actor_status_effects(ctx.owner)))
@@ -136,6 +136,49 @@ register_card("BLOCK_SPIKES",
     }
 );
 
+register_card("SHIELD_BASH",
+        {
+            name = "Shield Bash",
+            description = "Deal 4 (+2 for each upgrade) damage to the enemy and gain " .. highlight("block") .. " status effect equal to the damage dealt.",
+            state = function(ctx)
+                return "Deal " .. highlight(4 + ctx.level * 2) .. " damage to the enemy and gain " .. highlight("block") .. " status effect equal to the damage dealt."
+            end,
+            max_level = 1,
+            color = "#ff5722",
+            need_target = true,
+            point_cost = 1,
+            price = 40,
+            callbacks = {
+                on_cast = function(ctx)
+                    local damage = deal_damage(ctx.caster, 4 + ctx.level * 2)
+                    give_status_effect("BLOCK", ctx.caster, damage)
+                    return nil
+                end,
+            }
+        }
+);
+
+register_card("FEAR",
+    {
+        name = "Fear",
+        description = "Inflict " .. highlight("fear") .. " on the target, causing them to miss their next turn.",
+        state = function(ctx)
+            return nil
+        end,
+        max_level = 0,
+        color = "#725e9c",
+        need_target = true,
+        point_cost = 2,
+        price = 80,
+        callbacks = {
+            on_cast = function(ctx)
+                give_status_effect("FEAR", ctx.target)
+                return nil
+            end,
+        }
+    }
+);
+
 register_card("RADIANT_SEED",
     {
         name = "Radiant Seed",
@@ -154,6 +197,28 @@ register_card("RADIANT_SEED",
                 deal_damage(ctx.caster, ctx.caster, 5 - ctx.level * 2, true)
                 -- Deal damage to opponents
                 deal_damage_multi(ctx.caster, get_opponent_guids(ctx.caster), 10 + ctx.level * 2)
+                return nil
+            end,
+        }
+    }
+);
+
+register_card("BERSERKER_RAGE",
+    {
+        name = "Berserker Rage",
+        description = "Gain " .. highlight("3 energy") .. ", but take 30% (-10% per level) of your HP as damage.",
+        state = function(ctx)
+            return "Gain " .. highlight("3 energy") .. ", but take " .. highlight(tostring(30 - ctx.level * 10) .. "%") .. " (" .. tostring(get_player().hp * (0.3 - ctx.level * 0.1)) .. ") of your HP as damage."
+        end,
+        max_level = 0,
+        color = "#d8a448",
+        need_target = false,
+        point_cost = 0,
+        price = 100,
+        callbacks = {
+            on_cast = function(ctx)
+                player_give_action_points(3)
+                deal_damage(ctx.caster, ctx.caster, get_player().hp * (0.3 - ctx.level * 0.1), true)
                 return nil
             end,
         }
