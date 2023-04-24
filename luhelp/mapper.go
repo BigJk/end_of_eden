@@ -73,7 +73,7 @@ func NewMapper(state *lua.LState) *Mapper {
 // Map maps the lua table to the given struct pointer.
 func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 	opt := mapper.Option
-	val := toGoValue(tbl, opt)
+	val := ToGoValue(tbl, opt)
 
 	switch val := val.(type) {
 	case map[any]any:
@@ -102,6 +102,10 @@ func (mapper *Mapper) Map(tbl *lua.LTable, st any) error {
 	return errors.New("could not decode")
 }
 
+func (mapper *Mapper) ToGoValue(lv lua.LValue) any {
+	return ToGoValue(lv, mapper.Option)
+}
+
 var camelRegex = regexp.MustCompile(`_([a-z])`)
 
 // ToUpperCamelCase is an Option.NameFunc that converts strings from snake case to upper camel case.
@@ -110,7 +114,7 @@ func toUpperCamelCase(s string) string {
 }
 
 // ToGoValue converts the given LValue to a Go object.
-func toGoValue(lv lua.LValue, opt Option) any {
+func ToGoValue(lv lua.LValue, opt Option) any {
 	if lv.Type() == lua.LTFunction {
 		return opt.FnHook(lv)
 	}
@@ -129,14 +133,14 @@ func toGoValue(lv lua.LValue, opt Option) any {
 		if maxn == 0 { // table
 			ret := make(map[any]any)
 			v.ForEach(func(key, value lua.LValue) {
-				keyStr := fmt.Sprint(toGoValue(key, opt))
-				ret[opt.NameFunc(keyStr)] = toGoValue(value, opt)
+				keyStr := fmt.Sprint(ToGoValue(key, opt))
+				ret[opt.NameFunc(keyStr)] = ToGoValue(value, opt)
 			})
 			return ret
 		} else { // array
 			ret := make([]any, 0, maxn)
 			for i := 1; i <= maxn; i++ {
-				ret = append(ret, toGoValue(v.RawGetInt(i), opt))
+				ret = append(ret, ToGoValue(v.RawGetInt(i), opt))
 			}
 
 			return ret

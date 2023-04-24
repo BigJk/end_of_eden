@@ -81,6 +81,7 @@ type Session struct {
 	currentFight  FightState
 	merchant      MerchantState
 	eventHistory  []string
+	ctxData       map[string]any
 
 	stateCheckpoints []StateCheckpoint
 	closer           []func() error
@@ -97,6 +98,7 @@ func NewSession(options ...func(s *Session)) *Session {
 			PlayerActorID: NewActor(PlayerActorID),
 		},
 		instances:     map[string]any{},
+		ctxData:       map[string]any{},
 		stagesCleared: 0,
 	}
 
@@ -166,6 +168,7 @@ func (s *Session) ToSavedState() SavedState {
 		Merchant:         s.merchant,
 		EventHistory:     s.eventHistory,
 		StateCheckpoints: s.stateCheckpoints,
+		CtxData:          s.ctxData,
 	}
 }
 
@@ -187,6 +190,7 @@ func (s *Session) LoadSavedState(save SavedState) {
 		item.Session = s
 		return item
 	})
+	s.ctxData = save.CtxData
 }
 
 func (s *Session) GobEncode() ([]byte, error) {
@@ -205,6 +209,14 @@ func (s *Session) GobDecode(data []byte) error {
 	}
 	s.LoadSavedState(saved)
 	return nil
+}
+
+//
+// Internal
+//
+
+func (s *Session) logLuaError(callback string, typeId string, err error) {
+	s.log.Printf("Error from %s:CallbackOnTurn type=%s %s\n", callback, typeId, err.Error())
 }
 
 //
@@ -340,17 +352,7 @@ func (s *Session) GetStagesCleared() int {
 // for the player.
 func (s *Session) FinishPlayerTurn() {
 	// Enemies are allowed to act.
-	for k, v := range s.actors {
-		if k == PlayerActorID || v.IsNone() {
-			continue
-		}
-
-		if enemy, ok := s.resources.Enemies[v.TypeID]; ok {
-			if _, err := enemy.Callbacks[CallbackOnTurn].Call(CreateContext("type_id", v.TypeID, "guid", k, "round", s.currentFight.Round)); err != nil {
-				s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", v.TypeID, err.Error())
-			}
-		}
-	}
+	s.EnemyTurn()
 
 	// Turn over so we remove all dead status effects.
 	var removeStatus []string
@@ -367,19 +369,25 @@ func (s *Session) FinishPlayerTurn() {
 				s.instances[guid] = instance
 			}
 
-			if _, err := s.GetStatusEffect(guid).Callbacks[CallbackOnTurn].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner, "round", s.currentFight.Round, "stacks", instance.Stacks)); err != nil {
-				s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", instance.TypeID, err.Error())
+			// Enemy StatusEffect OnTurn were already done in EnemyTurn(). We only let
+			// the player owned ones turn now.
+			if instance.Owner == PlayerActorID {
+				if _, err := s.GetStatusEffect(guid).Callbacks[CallbackOnTurn].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner, "round", s.currentFight.Round, "stacks", instance.Stacks)); err != nil {
+					s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", instance.TypeID, err.Error())
+				}
 			}
 
 			switch se.Decay {
 			// Decay stacks by one and re-set rounds if stacks left.
 			case DecayOne:
-				if instance.Stacks <= 0 && instance.RoundsLeft <= 0 {
-					removeStatus = append(removeStatus, guid)
-				} else {
+				if instance.RoundsLeft <= 0 {
 					instance.Stacks -= 1
 					instance.RoundsLeft = se.Rounds
 					s.instances[guid] = instance
+
+					if instance.Stacks <= 0 {
+						removeStatus = append(removeStatus, guid)
+					}
 				}
 			// Remove all.
 			case DecayAll:
@@ -406,6 +414,45 @@ func (s *Session) FinishPlayerTurn() {
 
 	s.PlayerDrawCard(DrawSize)
 	s.TriggerOnPlayerTurn()
+}
+
+func (s *Session) EnemyTurn() {
+	for k, v := range s.actors {
+		if k == PlayerActorID || v.IsNone() {
+			continue
+		}
+
+		if enemy, ok := s.resources.Enemies[v.TypeID]; ok {
+			skipTurn := false
+			s.TraverseArtifactsStatus(append(v.Artifacts.ToSlice(), v.StatusEffects.ToSlice()...),
+				func(instance ArtifactInstance, artifact *Artifact) {
+					res, err := artifact.Callbacks[CallbackOnTurn].Call(CreateContext("type_id", artifact.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound()))
+					if err != nil {
+						s.logLuaError(CallbackOnTurn, artifact.ID, err)
+					} else if skip, ok := res.(bool); ok && skip {
+						skipTurn = true
+					}
+				},
+				func(instance StatusEffectInstance, statusEffect *StatusEffect) {
+					res, err := statusEffect.Callbacks[CallbackOnTurn].Call(CreateContext("type_id", statusEffect.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound(), "stacks", instance.Stacks))
+					if err != nil {
+						s.logLuaError(CallbackOnTurn, statusEffect.ID, err)
+					} else if skip, ok := res.(bool); ok && skip {
+						skipTurn = true
+					}
+				},
+			)
+
+			// An effect like FEAR aborted the turn for this actor.
+			if skipTurn {
+				continue
+			}
+
+			if _, err := enemy.Callbacks[CallbackOnTurn].Call(CreateContext("type_id", v.TypeID, "guid", k, "round", s.currentFight.Round)); err != nil {
+				s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", v.TypeID, err.Error())
+			}
+		}
+	}
 }
 
 // FinishFight tries to finish the fight. This will return true if the fight is really over.
@@ -1109,6 +1156,10 @@ func (s *Session) PlayerDrawCard(amount int) {
 	}
 }
 
+func (s *Session) PlayerGiveActionPoints(amount int) {
+	s.currentFight.CurrentPoints += amount
+}
+
 func (s *Session) BuyUpgradeCard(guid string) bool {
 	card, instance := s.GetCard(guid)
 	if instance.IsNone() || card.MaxLevel == 0 || instance.Level == card.MaxLevel {
@@ -1563,6 +1614,16 @@ func (s *Session) Log(t LogType, msg string) {
 	})
 }
 
+func (s *Session) Fetch(key string) any {
+	return s.ctxData[key]
+}
+
+func (s *Session) Store(key string, value any) {
+	s.ctxData[key] = value
+}
+
+// ToSVG creates an SVG representation from the internal state. The returned string is the d2
+// representation of the SVG (https://d2lang.com/).
 func (s *Session) ToSVG() ([]byte, string, error) {
 	diag := `
 direction: right

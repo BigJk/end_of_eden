@@ -18,4 +18,5 @@ type SavedState struct {
 	Merchant         MerchantState
 	EventHistory     []string
 	StateCheckpoints []StateCheckpoint
+	CtxData          map[string]any
 }

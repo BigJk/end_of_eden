@@ -66,6 +66,16 @@ fun = require "fun"
 		return 1
 	}))
 
+	l.SetGlobal("store", l.NewFunction(func(state *lua.LState) int {
+		session.Store(state.ToString(1), mapper.ToGoValue(state.Get(2)))
+		return 0
+	}))
+
+	l.SetGlobal("fetch", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp.ToLua(state, session.Fetch(state.ToString(1))))
+		return 1
+	}))
+
 	// Style
 
 	l.SetGlobal("text_bold", l.NewFunction(func(state *lua.LState) int {
@@ -115,7 +125,7 @@ fun = require "fun"
 		return 0
 	}))
 
-	l.SetGlobal("debug_value", l.NewFunction(func(state *lua.LState) int {
+	l.SetGlobal("breakpoint", l.NewFunction(func(state *lua.LState) int {
 		val := lo.Map(make([]lua.LValue, state.GetTop()), func(_ lua.LValue, index int) lua.LValue {
 			val := state.Get(1 + index)
 			return val
@@ -387,6 +397,11 @@ fun = require "fun"
 
 	l.SetGlobal("player_draw_card", l.NewFunction(func(state *lua.LState) int {
 		session.PlayerDrawCard(int(state.ToNumber(1)))
+		return 0
+	}))
+
+	l.SetGlobal("player_give_action_points", l.NewFunction(func(state *lua.LState) int {
+		session.PlayerGiveActionPoints(int(state.ToNumber(1)))
 		return 0
 	}))
 
