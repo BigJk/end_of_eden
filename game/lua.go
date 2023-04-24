@@ -15,7 +15,9 @@ import (
 
 // SessionAdapter creates a lua vm that is bound to the session in the given Session.
 func SessionAdapter(session *Session) *lua.LState {
-	l := lua.NewState()
+	l := lua.NewState(lua.Options{
+		IncludeGoStackTrace: true,
+	})
 	mapper := luhelp.NewMapper(l)
 
 	_ = filepath.Walk("./assets/scripts/libs", func(path string, info fs.FileInfo, _ error) error {

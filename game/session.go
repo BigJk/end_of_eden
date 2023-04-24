@@ -22,6 +22,7 @@ import (
 	"oss.terrastruct.com/d2/d2renderers/d2svg"
 	"oss.terrastruct.com/d2/d2themes/d2themescatalog"
 	"oss.terrastruct.com/d2/lib/textmeasure"
+	"runtime"
 	"sort"
 	"time"
 )
@@ -67,6 +68,14 @@ type MerchantState struct {
 	Artifacts []string
 }
 
+type LuaError struct {
+	File     string
+	Line     int
+	Callback string
+	Type     string
+	Err      error
+}
+
 // Session represents the state inside a game session.
 type Session struct {
 	log       *log.Logger
@@ -85,6 +94,8 @@ type Session struct {
 
 	stateCheckpoints []StateCheckpoint
 	closer           []func() error
+	onLuaError       func(file string, line int, callback string, typeId string, err error)
+	luaErrors        chan LuaError
 
 	Logs []LogEntry
 }
@@ -100,7 +111,10 @@ func NewSession(options ...func(s *Session)) *Session {
 		instances:     map[string]any{},
 		ctxData:       map[string]any{},
 		stagesCleared: 0,
+		onLuaError:    nil,
+		luaErrors:     make(chan LuaError, 25),
 	}
+	session.SetOnLuaError(nil)
 
 	session.luaState = SessionAdapter(session)
 
@@ -146,6 +160,20 @@ func WithLogging(logger *log.Logger) func(s *Session) {
 	}
 }
 
+func WithOnLuaError(fn func(file string, line int, callback string, typeId string, err error)) func(s *Session) {
+	return func(s *Session) {
+		s.onLuaError = fn
+	}
+}
+
+func (s *Session) SetOnLuaError(fn func(file string, line int, callback string, typeId string, err error)) {
+	if fn == nil {
+		s.onLuaError = func(file string, line int, callback string, typeId string, err error) {}
+	} else {
+		s.onLuaError = fn
+	}
+}
+
 // Close closes the internal lua state and everything else.
 func (s *Session) Close() {
 	for i := range s.closer {
@@ -154,6 +182,10 @@ func (s *Session) Close() {
 		}
 	}
 	s.luaState.Close()
+}
+
+func (s *Session) LuaErrors() chan LuaError {
+	return s.luaErrors
 }
 
 // ToSavedState creates a saved state of the session that can be serialized with Gob.
@@ -216,7 +248,28 @@ func (s *Session) GobDecode(data []byte) error {
 //
 
 func (s *Session) logLuaError(callback string, typeId string, err error) {
-	s.log.Printf("Error from %s:CallbackOnTurn type=%s %s\n", callback, typeId, err.Error())
+	_, file, no, ok := runtime.Caller(1)
+	if ok {
+		s.log.Printf("%s:%d Error from Lua:%s type=%s %s\n", file, no, callback, typeId, err.Error())
+		s.onLuaError(file, no, callback, typeId, err)
+		s.luaErrors <- LuaError{
+			File:     file,
+			Line:     no,
+			Callback: callback,
+			Type:     typeId,
+			Err:      err,
+		}
+	} else {
+		s.log.Printf("Error from Lua:%s type=%s %s\n", callback, typeId, err.Error())
+		s.onLuaError("", 0, callback, typeId, err)
+		s.luaErrors <- LuaError{
+			File:     "",
+			Line:     0,
+			Callback: callback,
+			Type:     typeId,
+			Err:      err,
+		}
+	}
 }
 
 //
@@ -373,7 +426,7 @@ func (s *Session) FinishPlayerTurn() {
 			// the player owned ones turn now.
 			if instance.Owner == PlayerActorID {
 				if _, err := s.GetStatusEffect(guid).Callbacks[CallbackOnTurn].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner, "round", s.currentFight.Round, "stacks", instance.Stacks)); err != nil {
-					s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", instance.TypeID, err.Error())
+					s.logLuaError(CallbackOnTurn, instance.TypeID, err)
 				}
 			}
 
@@ -449,7 +502,7 @@ func (s *Session) EnemyTurn() {
 			}
 
 			if _, err := enemy.Callbacks[CallbackOnTurn].Call(CreateContext("type_id", v.TypeID, "guid", k, "round", s.currentFight.Round)); err != nil {
-				s.log.Printf("Error from Callback:CallbackOnTurn type=%s %s\n", v.TypeID, err.Error())
+				s.logLuaError(CallbackOnTurn, v.TypeID, err)
 			}
 		}
 	}
@@ -686,7 +739,7 @@ func (s *Session) ActiveTeller() *StoryTeller {
 	teller := lo.Filter(lo.Values(s.resources.StoryTeller), func(teller *StoryTeller, index int) bool {
 		res, err := teller.Active(CreateContext("type_id", teller.ID))
 		if err != nil {
-			s.log.Printf("Error from Callback:Active type=%s %s\n", teller.ID, err.Error())
+			s.logLuaError("Active", teller.ID, err)
 			return false
 		}
 		if val, ok := res.(float64); ok {
@@ -721,14 +774,14 @@ func (s *Session) LetTellerDecide() {
 
 	res, err := active.Decide(CreateContext("type_id", active.ID))
 	if err != nil {
-		s.log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, err.Error())
+		s.logLuaError("Decide", active.ID, err)
 		return
 	}
 
 	if val, ok := res.(string); ok {
 		s.SetGameState(GameState(val))
 	} else {
-		s.log.Printf("Error from Callback:Decide type=%s %s\n", active.ID, "return wasn't a game state")
+		s.logLuaError("Decide", active.ID, errors.New("return wasn't a game state"))
 	}
 }
 
@@ -854,7 +907,11 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 
 	// TODO: This should always be either 0 or 1 len, so the logic down below is a bit meh.
 	same := lo.Filter(s.actors[owner].StatusEffects.ToSlice(), func(guid string, index int) bool {
-		instance := s.instances[guid].(StatusEffectInstance)
+		instance, ok := s.instances[guid].(StatusEffectInstance)
+		if !ok {
+			return false
+		}
+
 		return instance.TypeID == typeId
 	})
 
@@ -875,7 +932,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 		s.instances[same[0]] = instance
 
 		if _, err := status.Callbacks[CallbackOnStatusStack].Call(CreateContext("type_id", typeId, "guid", same[0], "owner", owner, "stacks", instance.Stacks)); err != nil {
-			s.log.Printf("Error from Callback:CallbackOnStatusStack type=%s %s\n", instance.TypeID, err.Error())
+			s.logLuaError(CallbackOnStatusStack, instance.TypeID, err)
 		}
 
 		return instance.GUID
@@ -901,7 +958,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 func (s *Session) RemoveStatusEffect(guid string) {
 	instance := s.instances[guid].(StatusEffectInstance)
 	if _, err := s.resources.StatusEffects[instance.TypeID].Callbacks[CallbackOnStatusRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
-		s.log.Printf("Error from Callback:CallbackOnStatusRemove type=%s %s\n", instance.TypeID, err.Error())
+		s.logLuaError(CallbackOnStatusRemove, instance.TypeID, err)
 	}
 	if actor, ok := s.actors[instance.Owner]; ok {
 		actor.StatusEffects.Remove(instance.GUID)
@@ -1006,7 +1063,7 @@ func (s *Session) GiveArtifact(typeId string, owner string) string {
 
 	// Call OnPickUp callback for the new instance
 	if _, err := s.resources.Artifacts[typeId].Callbacks[CallbackOnPickUp].Call(CreateContext("type_id", typeId, "guid", instance.GUID, "owner", owner)); err != nil {
-		s.log.Printf("Error from Callback:CallbackOnPickUp type=%s %s\n", instance.TypeID, err.Error())
+		s.logLuaError(CallbackOnPickUp, instance.TypeID, err)
 	}
 
 	return instance.GUID
@@ -1016,7 +1073,7 @@ func (s *Session) GiveArtifact(typeId string, owner string) string {
 func (s *Session) RemoveArtifact(guid string) {
 	instance := s.instances[guid].(ArtifactInstance)
 	if _, err := s.resources.Artifacts[instance.TypeID].Callbacks[CallbackOnRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
-		s.log.Printf("Error from Callback:CallbackOnRemove type=%s %s\n", instance.TypeID, err.Error())
+		s.logLuaError(CallbackOnRemove, instance.TypeID, err)
 	}
 	s.actors[instance.Owner].Artifacts.Remove(instance.GUID)
 	delete(s.instances, guid)
@@ -1066,7 +1123,7 @@ func (s *Session) CastCard(guid string, target string) bool {
 	if card, instance := s.GetCard(guid); card != nil {
 		res, err := card.Callbacks[CallbackOnCast].Call(CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level))
 		if err != nil {
-			s.log.Printf("Error from Callback:CallbackOnCast type=%s %s\n", instance.TypeID, err.Error())
+			s.logLuaError(CallbackOnCast, instance.TypeID, err)
 		}
 		if val, ok := res.(bool); ok {
 			return val
@@ -1093,7 +1150,7 @@ func (s *Session) GetCardState(guid string) string {
 
 	res, err := card.State.Call(CreateContext("type_id", card.ID, "guid", guid, "level", instance.Level, "owner", instance.Owner))
 	if err != nil {
-		s.log.Printf("Error from Callback:State type=%s %s\n", instance.TypeID, err.Error())
+		s.logLuaError("State", instance.TypeID, err)
 	}
 
 	if res == nil {
@@ -1290,7 +1347,7 @@ func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 				func(instance ArtifactInstance, art *Artifact) {
 					res, err := art.Callbacks[CallbackOnHealCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "heal", heal))
 					if err != nil {
-						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+						s.logLuaError(CallbackOnHealCalc, instance.TypeID, err)
 					} else if res != nil {
 						if newHeal, ok := res.(float64); ok {
 							heal = int(newHeal)
@@ -1300,7 +1357,7 @@ func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 				func(instance StatusEffectInstance, se *StatusEffect) {
 					res, err := se.Callbacks[CallbackOnHealCalc].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "heal", heal))
 					if err != nil {
-						s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+						s.logLuaError(CallbackOnHealCalc, instance.TypeID, err)
 					} else if res != nil {
 						if newHeal, ok := res.(float64); ok {
 							heal = int(newHeal)
@@ -1384,7 +1441,7 @@ func (s *Session) AddActorFromEnemy(id string) string {
 		s.AddActor(actor)
 
 		if _, err := base.Callbacks[CallbackOnInit].Call(CreateContext("type_id", id, "guid", actor.GUID)); err != nil {
-			s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", actor.TypeID, err.Error())
+			s.logLuaError(CallbackOnInit, actor.TypeID, err)
 		}
 
 		return actor.GUID
@@ -1521,7 +1578,7 @@ func (s *Session) TriggerOnDamageCalc(guids []string, source string, target stri
 		func(instance ArtifactInstance, art *Artifact) {
 			res, err := art.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 			if err != nil {
-				s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnDamageCalc, instance.TypeID, err)
 			} else if res != nil {
 				if newDamage, ok := res.(float64); ok {
 					damage = int(newDamage)
@@ -1531,7 +1588,7 @@ func (s *Session) TriggerOnDamageCalc(guids []string, source string, target stri
 		func(instance StatusEffectInstance, se *StatusEffect) {
 			res, err := se.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
 			if err != nil {
-				s.log.Printf("Error from Callback:CallbackOnDamageCalc type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnDamageCalc, instance.TypeID, err)
 			} else if res != nil {
 				if newDamage, ok := res.(float64); ok {
 					damage = int(newDamage)
@@ -1547,13 +1604,13 @@ func (s *Session) TriggerOnDamage(guids []string, source string, target string, 
 		func(instance ArtifactInstance, art *Artifact) {
 			_, err := art.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 			if err != nil {
-				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnDamage, instance.TypeID, err)
 			}
 		},
 		func(instance StatusEffectInstance, se *StatusEffect) {
 			_, err := se.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
 			if err != nil {
-				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnDamage, instance.TypeID, err)
 			}
 		},
 	)
@@ -1564,13 +1621,13 @@ func (s *Session) TriggerOnActorDie(guids []string, source string, target string
 		func(instance ArtifactInstance, art *Artifact) {
 			_, err := art.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
 			if err != nil {
-				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnActorDie, instance.TypeID, err)
 			}
 		},
 		func(instance StatusEffectInstance, se *StatusEffect) {
 			_, err := se.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
 			if err != nil {
-				s.log.Printf("Error from Callback:CallbackOnDamage type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnActorDie, instance.TypeID, err)
 			}
 		},
 	)
@@ -1583,12 +1640,12 @@ func (s *Session) TriggerOnPlayerTurn() {
 	}),
 		func(instance ArtifactInstance, artifact *Artifact) {
 			if _, err := artifact.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", artifact.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound())); err != nil {
-				s.log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnPlayerTurn, instance.TypeID, err)
 			}
 		},
 		func(instance StatusEffectInstance, statusEffect *StatusEffect) {
 			if _, err := statusEffect.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", statusEffect.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound(), "stacks", instance.Stacks)); err != nil {
-				s.log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", instance.TypeID, err.Error())
+				s.logLuaError(CallbackOnPlayerTurn, instance.TypeID, err)
 			}
 		},
 	)
@@ -1596,7 +1653,7 @@ func (s *Session) TriggerOnPlayerTurn() {
 	lo.ForEach(s.GetOpponents(PlayerActorID), func(actor Actor, index int) {
 		if enemy := s.GetEnemy(actor.TypeID); enemy != nil {
 			if _, err := enemy.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", enemy.ID, "guid", actor.GUID, "round", s.GetFightRound())); err != nil {
-				s.log.Printf("Error from Callback:CallbackOnPlayerTurn type=%s %s\n", enemy.ID, err.Error())
+				s.logLuaError(CallbackOnPlayerTurn, enemy.ID, err)
 			}
 		}
 	})

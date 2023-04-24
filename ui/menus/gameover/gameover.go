@@ -6,6 +6,7 @@ import (
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/animation"
+	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -29,13 +30,12 @@ type GameOverFrame time.Time
 type Model struct {
 	ui.MenuBase
 
+	session   *game.Session
 	zones     *zone.Manager
+	start     game.StateCheckpointMarker
 	started   bool
 	progress  float64
 	lastMouse tea.MouseMsg
-
-	Session *game.Session
-	Start   game.StateCheckpointMarker
 
 	allDamage         int
 	allDamageReceived int
@@ -45,8 +45,8 @@ type Model struct {
 func New(zones *zone.Manager, session *game.Session, start game.StateCheckpointMarker) Model {
 	m := Model{
 		zones:   zones,
-		Session: session,
-		Start:   start,
+		session: session,
+		start:   start,
 	}
 
 	// Collect stats
@@ -75,6 +75,10 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if cmd := root.CheckLuaErrors(m.zones, m.session); cmd != nil {
+		return m, cmd
+	}
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Size = msg
@@ -82,7 +86,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.lastMouse = msg
 
 		if msg.Type == tea.MouseLeft && m.zones.Get(ZoneToMenu).InBounds(msg) {
-			m.Session.Close()
+			m.session.Close()
 			return nil, nil
 		}
 	case GameOverFrame:
@@ -125,7 +129,7 @@ func (m Model) View() string {
 					fmt.Sprintf(
 						"%s\n\n%s%d\n%s%d\n%s%d\n%s%d",
 						style.BoldStyle.Render("Run Statistic"),
-						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Stages ")), m.Session.GetStagesCleared(),
+						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Stages ")), m.session.GetStagesCleared(),
 						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Damage Done ")), m.allDamage,
 						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Damage Received ")), m.allDamageReceived,
 						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Gold Collected ")), m.allGold,
@@ -144,8 +148,8 @@ func (m Model) top() string {
 		Border(lipgloss.BlockBorder(), false, false, true, false).
 		BorderForeground(style.BaseRedDarker)
 
-	fight := m.Session.GetFight()
-	player := m.Session.GetPlayer()
+	fight := m.session.GetFight()
+	player := m.session.GetPlayer()
 
 	return outerStyle.Render(lipgloss.JoinHorizontal(
 		lipgloss.Center,
@@ -154,7 +158,7 @@ func (m Model) top() string {
 ▐█▄▪▐█▐█▌.▐▌██▐█▌█▌▪▄█▀▐█▌.▐▌`),
 		lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Gold: %d", player.Gold)),
 		lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("HP: %d / %d", player.HP, player.MaxHP)),
-		lipgloss.NewStyle().Bold(true).Foreground(style.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Stage", m.Session.GetStagesCleared()+1)),
+		lipgloss.NewStyle().Bold(true).Foreground(style.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Stage", m.session.GetStagesCleared()+1)),
 		lipgloss.NewStyle().Bold(true).Foreground(style.BaseWhite).Padding(0, 4, 0, 0).Render(fmt.Sprintf("%d. Round", fight.Round+1)),
 		lipgloss.NewStyle().Italic(true).Foreground(style.BaseGray).Padding(0, 4, 0, 0).Render("\"Better luck next time...\""),
 	))

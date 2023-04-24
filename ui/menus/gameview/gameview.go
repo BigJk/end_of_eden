@@ -10,6 +10,7 @@ import (
 	"github.com/BigJk/end_of_eden/ui/menus/gameover"
 	"github.com/BigJk/end_of_eden/ui/menus/merchant"
 	"github.com/BigJk/end_of_eden/ui/menus/overview"
+	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -61,6 +62,10 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if cmd := root.CheckLuaErrors(m.zones, m.Session); cmd != nil {
+		return m, cmd
+	}
+
 	var (
 		cmd  tea.Cmd
 		cmds []tea.Cmd

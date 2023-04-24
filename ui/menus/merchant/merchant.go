@@ -5,6 +5,7 @@ import (
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
+	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/bubbles/help"
@@ -48,6 +49,10 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if cmd := root.CheckLuaErrors(m.zones, m.session); cmd != nil {
+		return m, cmd
+	}
+
 	var (
 		cmd  tea.Cmd
 		cmds []tea.Cmd

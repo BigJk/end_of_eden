@@ -10,6 +10,7 @@ import (
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
+	"golang.design/x/clipboard"
 	"log"
 	"os"
 	"strings"
@@ -28,6 +29,11 @@ func main() {
 	testArtifacts := flag.String("artifacts", "", "test artifacts")
 	testGameState := flag.String("game_state", "", "test game state")
 	flag.Parse()
+
+	// Init clipboard
+	if err := clipboard.Init(); err != nil {
+		panic(err)
+	}
 
 	// Init audio
 	if *audioFlag {
@@ -100,7 +106,7 @@ func main() {
 			session.SetGameState(game.GameState(*testGameState))
 		}
 
-		baseModel = baseModel.(root.Model).SetModel(gameview.New(baseModel, zones, session))
+		baseModel = baseModel.(root.Model).PushModel(gameview.New(baseModel, zones, session))
 	}
 
 	// Run game
