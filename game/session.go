@@ -1368,9 +1368,9 @@ func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 		}
 
 		if target == PlayerActorID {
-			s.Log(LogTypeDanger, fmt.Sprintf("You healed %d damage", heal))
+			s.Log(LogTypeSuccess, fmt.Sprintf("You healed %d damage", heal))
 		} else {
-			s.Log(LogTypeSuccess, fmt.Sprintf("%s healed %d damage", val.Name, heal))
+			s.Log(LogTypeDanger, fmt.Sprintf("%s healed %d damage", val.Name, heal))
 		}
 
 		// Negative heal aka damage is not allowed!

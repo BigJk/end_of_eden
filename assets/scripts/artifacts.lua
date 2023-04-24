@@ -1,5 +1,4 @@
-register_artifact(
-    "GIGANTIC_STRENGTH",
+register_artifact("GIGANTIC_STRENGTH",
     {
         name = "Stone Of Gigantic Strength",
         description = "Double all damage dealt.",
@@ -16,8 +15,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "REPULSION_STONE",
+register_artifact("REPULSION_STONE",
     {
         name = "Repulsion Stone",
         description = "For each damage taken heal for 2",
@@ -34,8 +32,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "RADIANT_SEED",
+register_artifact("RADIANT_SEED",
     {
         name = "Radiant Seed",
         description = "A small glowing seed.",
@@ -50,8 +47,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "JUICY_FRUIT",
+register_artifact("JUICY_FRUIT",
     {
         name = "Juicy Fruit",
         description = "Tastes good and boosts your HP.",
@@ -66,8 +62,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "DEFLECTOR_SHIELD",
+register_artifact("DEFLECTOR_SHIELD",
     {
         name = "Deflector Shield",
         description = "Gain 8 block at the start of combat.",
@@ -84,8 +79,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "SHORT_RADIANCE",
+register_artifact("SHORT_RADIANCE",
     {
         name = "Short Radiance",
         description = "Apply 1 vulnerable at the start of combat.",
@@ -104,8 +98,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "BAG_OF_HOLDING",
+register_artifact("BAG_OF_HOLDING",
     {
         name = "Bag of Holding",
         description = "Start with a additional card at the beginning of combat.",
@@ -122,8 +115,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "SPIKED_PLANT",
+register_artifact("SPIKED_PLANT",
     {
         name = "Spiked Plant",
         description = "Deal 2 damage back to enemy attacks.",
@@ -140,8 +132,7 @@ register_artifact(
     }
 );
 
-register_artifact(
-    "GOLD_CONVERTER",
+register_artifact("GOLD_CONVERTER",
     {
         name = "Gold Converter",
         description = "Gain 10 extra gold for each killed enemy.",
@@ -152,6 +143,23 @@ register_artifact(
                 if ctx.owner == PLAYER_ID and ctx.owner == ctx.source then
                     give_player_gold(10)
                 end
+                return nil
+            end,
+        }
+    }
+);
+
+register_artifact("HOLY_GRAIL",
+    {
+        name = "Holy Grail",
+        description = "At the start of each turn, heal for 2 HP for each card in your hand.",
+        price = 150,
+        order = 100, -- Evaluate late so that other draw artifacts have priority.
+        callbacks = {
+            on_player_turn = function(ctx)
+                local num_cards = #get_cards(ctx.owner)
+                local heal_amount = num_cards * 2
+                heal(ctx.owner, ctx.owner, heal_amount)
                 return nil
             end,
         }
