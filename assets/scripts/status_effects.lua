@@ -147,3 +147,21 @@ register_status_effect("FEAR", {
         end,
     }
 })
+
+register_status_effect("BLEED", {
+    name = "Bleed",
+    description = "You are losing some red sauce.",
+    look = "Bld",
+    foreground = "#ff0000",
+    state = function(ctx)
+        return nil
+    end,
+    can_stack = false,
+    decay = DECAY_ALL,
+    rounds = 2,
+    callbacks = {
+        on_turn = function(ctx)
+            return true
+        end,
+    }
+})

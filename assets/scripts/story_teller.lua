@@ -44,6 +44,14 @@ register_story_teller("PRE_STAGE", {
 -- Stage 1
 --
 
+stage_2 = {
+    fights = {
+        { "RUST_MITE", "RUST_MITE", "RUST_MITE" },
+        { "SHADOW_ASSASSIN", "SHADOW_ASSASSIN" },
+        { "SHADOW_ASSASSIN" }
+    }
+}
+
 register_story_teller("STAGE_1", {
     active = function(ctx)
         if had_event("FIRST_OUTSIDE") then
@@ -58,7 +66,17 @@ register_story_teller("STAGE_1", {
             -- BOSS
         end
 
-        return nil
+        -- 10% chance to find a random artifact
+        if math.random() < 0.1 then
+            set_event(create_artifact_choice({ random_artifact(get_merchant_gold_max()), random_artifact(get_merchant_gold_max()) }))
+        end
+
+        local choice = stage_2.fights[math.random(#stage_2.fights)]
+        for _, v in ipairs(choice) do
+            add_actor_by_enemy(v)
+        end
+
+        return GAME_STATE_FIGHT
     end
 })
 
