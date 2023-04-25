@@ -8,6 +8,8 @@ import (
 	"github.com/BigJk/end_of_eden/gen/faces"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
+	"github.com/BigJk/end_of_eden/ui/style"
+	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
 	"golang.design/x/clipboard"
@@ -21,6 +23,7 @@ import (
 )
 
 var prog *tea.Program
+var loadStyle = lipgloss.NewStyle().Bold(true).Italic(true).Foreground(style.BaseGray)
 
 func main() {
 	audioFlag := flag.Bool("audio", true, "disable audio")
@@ -30,24 +33,36 @@ func main() {
 	testGameState := flag.String("game_state", "", "test game state")
 	flag.Parse()
 
+	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
+
 	// Init clipboard
-	if err := clipboard.Init(); err != nil {
-		panic(err)
+	fmt.Println(loadStyle.Render("Initializing Clipboard. Please wait..."))
+	{
+		if err := clipboard.Init(); err != nil {
+			panic(err)
+		}
 	}
+	fmt.Println(loadStyle.Render("Done!"))
 
 	// Init audio
 	if *audioFlag {
+		fmt.Println(loadStyle.Render("Initializing audio. Please wait..."))
 		audio.InitAudio()
-		audio.PlayMusic("theme")
+		audio.PlayMusic("planet_mining")
+		fmt.Println(loadStyle.Render("Done!"))
 	}
 
-	// Init face generator
-	if err := faces.InitGlobal("./assets/gen/faces"); err != nil {
-		panic(err)
-	}
+	fmt.Println(loadStyle.Render("Initializing Proc-Gen. Please wait..."))
+	{
+		// Init face generator
+		if err := faces.InitGlobal("./assets/gen/faces"); err != nil {
+			panic(err)
+		}
 
-	// Init other gens
-	gen.InitGen()
+		// Init other gens
+		gen.InitGen()
+	}
+	fmt.Println(loadStyle.Render("Done!"))
 
 	// Redirect log to file
 	_ = os.Mkdir("./logs", 0777)

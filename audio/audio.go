@@ -1,23 +1,25 @@
 package audio
 
 import (
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/wav"
 	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/effects"
-	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
-	"github.com/faiface/beep/wav"
 )
 
 const sampleRate = 44100
 const baseVolume = -1
 
+var mtx = sync.Mutex{}
 var sounds = map[string]*beep.Buffer{}
 var enabled = false
 var music = &beep.Ctrl{
@@ -32,47 +34,66 @@ func InitAudio() {
 		return
 	}
 
+	wg := sync.WaitGroup{}
+
 	_ = filepath.Walk("./assets/audio", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
 
-		var streamer beep.StreamSeekCloser
-		var format beep.Format
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 
-		if !info.IsDir() {
-			if strings.HasSuffix(path, ".mp3") {
-				f, err := os.Open(path)
-				if err != nil {
-					return err
-				}
+			var streamer beep.StreamSeekCloser
+			var format beep.Format
 
-				streamer, format, err = mp3.Decode(f)
-				if err != nil {
-					return err
-				}
-			} else if strings.HasSuffix(path, ".wav") {
-				f, err := os.Open(path)
-				if err != nil {
-					return err
-				}
+			if !info.IsDir() {
+				if strings.HasSuffix(path, ".mp3") {
+					f, err := os.Open(path)
+					if err != nil {
+						log.Println("Audio error:", err)
+						return
+					}
 
-				streamer, format, err = wav.Decode(f)
-				if err != nil {
-					return err
+					streamer, format, err = mp3.Decode(f)
+					if err != nil {
+						log.Println("Audio error:", err)
+						return
+					}
+				} else if strings.HasSuffix(path, ".wav") {
+					f, err := os.Open(path)
+					if err != nil {
+						log.Println("Audio error:", err)
+						return
+					}
+
+					streamer, format, err = wav.Decode(f)
+					if err != nil {
+						log.Println("Audio error:", err)
+						return
+					}
 				}
 			}
-		}
 
-		if streamer != nil {
-			buf := beep.NewBuffer(beep.Format{
-				SampleRate:  sampleRate,
-				NumChannels: 2,
-				Precision:   2,
-			})
-			buf.Append(beep.Resample(6, format.SampleRate, sampleRate, streamer))
-			sounds[strings.Split(filepath.Base(path), ".")[0]] = buf
-		}
+			if streamer != nil {
+				buf := beep.NewBuffer(beep.Format{
+					SampleRate:  sampleRate,
+					NumChannels: 2,
+					Precision:   2,
+				})
+
+				if format.SampleRate == sampleRate {
+					buf.Append(streamer)
+				} else {
+					buf.Append(beep.Resample(3, format.SampleRate, sampleRate, streamer))
+				}
+
+				mtx.Lock()
+				sounds[strings.Split(filepath.Base(path), ".")[0]] = buf
+				mtx.Unlock()
+			}
+		}()
 
 		return nil
 	})
@@ -80,6 +101,8 @@ func InitAudio() {
 	if err := speaker.Init(sampleRate, 200); err != nil {
 		panic(err)
 	}
+
+	wg.Wait()
 
 	speaker.Play(music)
 

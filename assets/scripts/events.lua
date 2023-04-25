@@ -50,6 +50,8 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
                 }
         },
         on_enter = function()
+                play_music("energetic_orthogonal_expansions")
+
                 -- Give the player it's start cards
                 give_card("MELEE_HIT", PLAYER_ID)
                 give_card("MELEE_HIT", PLAYER_ID)

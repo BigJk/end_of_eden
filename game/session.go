@@ -968,7 +968,11 @@ func (s *Session) RemoveStatusEffect(guid string) {
 
 // GetActorStatusEffects returns the guids of all the status effects a certain actor owns.
 func (s *Session) GetActorStatusEffects(guid string) []string {
-	return s.actors[guid].StatusEffects.ToSlice()
+	if actor, ok := s.actors[guid]; ok {
+		actor.StatusEffects.ToSlice()
+	}
+
+	return []string{}
 }
 
 // AddStatusEffectStacks increases the stacks of a certain status effect by guid.

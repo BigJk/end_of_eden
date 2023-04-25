@@ -161,6 +161,11 @@ fun = require "fun"
 		return 0
 	}))
 
+	l.SetGlobal("play_music", l.NewFunction(func(state *lua.LState) int {
+		audio.PlayMusic(state.ToString(1))
+		return 0
+	}))
+
 	// Game State
 
 	l.SetGlobal("set_event", l.NewFunction(func(state *lua.LState) int {
