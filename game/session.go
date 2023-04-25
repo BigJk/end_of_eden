@@ -13,6 +13,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/exp/slices"
 	"io"
+	"io/fs"
 	"log"
 	"math/rand"
 	"os"
@@ -22,8 +23,10 @@ import (
 	"oss.terrastruct.com/d2/d2renderers/d2svg"
 	"oss.terrastruct.com/d2/d2themes/d2themescatalog"
 	"oss.terrastruct.com/d2/lib/textmeasure"
+	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -92,6 +95,7 @@ type Session struct {
 	eventHistory  []string
 	ctxData       map[string]any
 
+	loadedMods       []string
 	stateCheckpoints []StateCheckpoint
 	closer           []func() error
 	onLuaError       func(file string, line int, callback string, typeId string, err error)
@@ -127,6 +131,7 @@ func NewSession(options ...func(s *Session)) *Session {
 
 	session.resources = NewResourcesManager(session.luaState, session.log)
 	session.SetEvent("START")
+	session.loadMods(session.loadedMods)
 
 	session.log.Println("Session started!")
 
@@ -156,6 +161,12 @@ func WithDebugEnabled(port int) func(s *Session) {
 func WithLogging(logger *log.Logger) func(s *Session) {
 	return func(s *Session) {
 		s.log = logger
+	}
+}
+
+func WithMods(mods []string) func(s *Session) {
+	return func(s *Session) {
+		s.loadedMods = mods
 	}
 }
 
@@ -200,6 +211,7 @@ func (s *Session) ToSavedState() SavedState {
 		EventHistory:     s.eventHistory,
 		StateCheckpoints: s.stateCheckpoints,
 		CtxData:          s.ctxData,
+		LoadedMods:       s.loadedMods,
 	}
 }
 
@@ -222,6 +234,10 @@ func (s *Session) LoadSavedState(save SavedState) {
 		return item
 	})
 	s.ctxData = save.CtxData
+	s.loadedMods = save.LoadedMods
+
+	// Don't load mods from settings but from the saved list!
+	s.loadMods(s.loadedMods)
 }
 
 func (s *Session) GobEncode() ([]byte, error) {
@@ -268,6 +284,31 @@ func (s *Session) logLuaError(callback string, typeId string, err error) {
 			Type:     typeId,
 			Err:      err,
 		}
+	}
+}
+
+func (s *Session) loadMods(mods []string) {
+	for i := range mods {
+		mod, err := ModDescription(filepath.Join("./mods", mods[i]))
+		if err != nil {
+			log.Println("Error loading mod:", err)
+		} else {
+			log.Println("Loading mod:", mod.Name)
+		}
+
+		_ = filepath.Walk(filepath.Join("./mods", mods[i]), func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+
+			if !info.IsDir() && strings.HasSuffix(path, ".lua") {
+				if err := s.luaState.DoFile(path); err != nil {
+					s.logLuaError("ModLoader", "", err)
+				}
+			}
+
+			return nil
+		})
 	}
 }
 

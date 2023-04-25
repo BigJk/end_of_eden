@@ -19,4 +19,5 @@ type SavedState struct {
 	EventHistory     []string
 	StateCheckpoints []StateCheckpoint
 	CtxData          map[string]any
+	LoadedMods       []string
 }

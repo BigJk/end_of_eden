@@ -6,6 +6,7 @@ import (
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
+	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	"github.com/BigJk/end_of_eden/ui/style"
@@ -34,6 +35,14 @@ func main() {
 	flag.Parse()
 
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
+
+	fmt.Println(loadStyle.Render("Initializing Settings. Please wait..."))
+	{
+		if err := settings.LoadSettings(); err != nil {
+			panic(err)
+		}
+	}
+	fmt.Println(loadStyle.Render("Done!"))
 
 	// Init clipboard
 	fmt.Println(loadStyle.Render("Initializing Clipboard. Please wait..."))
@@ -87,7 +96,7 @@ func main() {
 
 	// If test flags are present we load up a session with the given cards, enemies and artifacts.
 	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 || len(*testGameState) > 0 {
-		session := game.NewSession(game.WithLogging(log.Default()))
+		session := game.NewSession(game.WithLogging(log.Default()), game.WithMods(settings.LoadedSettings.Mods))
 		session.SetGameState(game.GameStateFight)
 		session.GetPlayer().Cards.Clear()
 

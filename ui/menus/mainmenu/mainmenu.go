@@ -3,6 +3,7 @@ package mainmenu
 import (
 	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/menus/about"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
@@ -88,6 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.choices = m.choices.Clear()
 		return gameview.New(m, m.zones, game.NewSession(
 			game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
+			game.WithMods(settings.LoadedSettings.Mods),
 			lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 		)), cmd
 	case ChoiceAbout:

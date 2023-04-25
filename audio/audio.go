@@ -1,6 +1,7 @@
 package audio
 
 import (
+	"github.com/BigJk/end_of_eden/settings"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/wav"
 	"io/fs"
@@ -114,11 +115,15 @@ func Play(key string, volumeModifier ...float64) {
 		return
 	}
 
+	if settings.LoadedSettings.Volume == 0 {
+		return
+	}
+
 	if val, ok := sounds[key]; ok {
 		volume := &effects.Volume{
 			Streamer: val.Streamer(0, val.Len()),
 			Base:     2,
-			Volume:   baseVolume,
+			Volume:   baseVolume - (1-settings.LoadedSettings.Volume)*5,
 			Silent:   false,
 		}
 
@@ -135,11 +140,15 @@ func PlayMusic(key string) {
 		return
 	}
 
+	if settings.LoadedSettings.Volume == 0 {
+		return
+	}
+
 	if val, ok := sounds[key]; ok {
 		volume := &effects.Volume{
 			Streamer: beep.Loop(-1, val.Streamer(0, val.Len())),
 			Base:     2,
-			Volume:   baseVolume - 2,
+			Volume:   baseVolume - 2 - (1-settings.LoadedSettings.Volume)*5,
 			Silent:   false,
 		}
 
