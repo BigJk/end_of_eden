@@ -141,15 +141,14 @@ func NewSession(options ...func(s *Session)) *Session {
 }
 
 // WithDebugEnabled enables the lua debugging. With lua debugging a server will be started
-// on the given bind address (e.g. :5912, 127.0.0.1:8512, ...). This exposes the /ws route
-// to connect over websocket to. In essence, it exposes REPL access to the internal lua state
-// which is helpful to debug problems. You can use the debug_r function to send data back to
-// the websocket.
+// on the given bind port. This exposes the /ws route to connect over websocket to. In essence,
+// it exposes REPL access to the internal lua state which is helpful to debug problems. You can use
+// the debug_r function to send data back to  the websocket.
 //
 // Tip: Use https://github.com/websockets/wscat to connect and talk with it.
-func WithDebugEnabled(bind string) func(s *Session) {
+func WithDebugEnabled(port int) func(s *Session) {
 	return func(s *Session) {
-		s.closer = append(s.closer, ExposeDebug(bind, s, s.luaState, s.log))
+		s.closer = append(s.closer, ExposeDebug(port, s, s.luaState, s.log))
 	}
 }
 
