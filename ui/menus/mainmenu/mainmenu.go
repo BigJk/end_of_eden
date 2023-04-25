@@ -7,6 +7,8 @@ import (
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/menus/about"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
+	"github.com/BigJk/end_of_eden/ui/menus/mods"
+	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -97,6 +99,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.choices = m.choices.Clear()
 		return about.New(m, m.zones), cmd
+	case ChoiceMods:
+		audio.Play("btn_menu")
+
+		m.choices = m.choices.Clear()
+		return m, root.Push(mods.NewModel(m.zones))
 	case ChoiceSettings:
 	case ChoiceExit:
 		return m, tea.Quit

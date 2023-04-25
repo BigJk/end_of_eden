@@ -11,6 +11,12 @@ import (
 
 type PushModelMsg tea.Model
 
+func Push(model tea.Model) tea.Cmd {
+	return func() tea.Msg {
+		return PushModelMsg(model)
+	}
+}
+
 type Model struct {
 	zones *zone.Manager
 	stack []tea.Model
