@@ -84,7 +84,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				for i := 0; i < len(m.session.GetEvent().Choices); i++ {
 					if choiceZone := m.zones.Get(fmt.Sprintf("%s%d", ZoneChoice, i)); choiceZone.InBounds(msg) {
 						if msg.Type == tea.MouseLeft && m.selectedChoice == i {
-							audio.Play("button")
+							audio.Play("btn_menu")
 							m = m.tryFinishEvent()
 							break
 						} else {

@@ -15,8 +15,15 @@ import (
 	"github.com/faiface/beep/wav"
 )
 
+const sampleRate = 44100
+const baseVolume = -1
+
 var sounds = map[string]*beep.Buffer{}
 var enabled = false
+var music = &beep.Ctrl{
+	Streamer: beep.Loop(-1, emptySound{}),
+	Paused:   false,
+}
 
 func InitAudio() {
 	// TODO: Fix audio. Currently, audio is resulting in a lot of noise.
@@ -59,25 +66,27 @@ func InitAudio() {
 
 		if streamer != nil {
 			buf := beep.NewBuffer(beep.Format{
-				SampleRate:  24000,
+				SampleRate:  sampleRate,
 				NumChannels: 2,
 				Precision:   2,
 			})
-			buf.Append(beep.Resample(6, format.SampleRate, 24000, streamer))
+			buf.Append(beep.Resample(6, format.SampleRate, sampleRate, streamer))
 			sounds[strings.Split(filepath.Base(path), ".")[0]] = buf
 		}
 
 		return nil
 	})
 
-	if err := speaker.Init(24000, 100); err != nil {
+	if err := speaker.Init(sampleRate, 200); err != nil {
 		panic(err)
 	}
+
+	speaker.Play(music)
 
 	enabled = true
 }
 
-func Play(key string) {
+func Play(key string, volumeModifier ...float64) {
 	if !enabled || runtime.GOOS == "windows" {
 		return
 	}
@@ -86,10 +95,33 @@ func Play(key string) {
 		volume := &effects.Volume{
 			Streamer: val.Streamer(0, val.Len()),
 			Base:     2,
-			Volume:   -1,
+			Volume:   baseVolume,
 			Silent:   false,
 		}
 
+		if len(volumeModifier) > 0 {
+			volume.Volume += volumeModifier[0]
+		}
+
 		speaker.Play(volume)
+	}
+}
+
+func PlayMusic(key string) {
+	if !enabled || runtime.GOOS == "windows" {
+		return
+	}
+
+	if val, ok := sounds[key]; ok {
+		volume := &effects.Volume{
+			Streamer: beep.Loop(-1, val.Streamer(0, val.Len())),
+			Base:     2,
+			Volume:   baseVolume - 2,
+			Silent:   false,
+		}
+
+		speaker.Lock()
+		music.Streamer = volume
+		speaker.Unlock()
 	}
 }

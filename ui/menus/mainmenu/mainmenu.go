@@ -1,6 +1,7 @@
 package mainmenu
 
 import (
+	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/menus/about"
@@ -53,6 +54,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.choices.selected {
 	case ChoiceContinue:
+		audio.Play("btn_menu")
+
 		if saved, err := os.ReadFile("./session.save"); err == nil {
 			f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 			if err != nil {
@@ -74,6 +77,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case ChoiceNewGame:
+		audio.Play("btn_menu")
+
 		_ = os.Mkdir("./logs", 0777)
 		f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
@@ -86,6 +91,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			lo.Ternary(os.Getenv("PG_DEBUG") == "1", game.WithDebugEnabled("127.0.0.1:8272"), nil),
 		)), cmd
 	case ChoiceAbout:
+		audio.Play("btn_menu")
+
 		m.choices = m.choices.Clear()
 		return about.New(m, m.zones), cmd
 	case ChoiceSettings:

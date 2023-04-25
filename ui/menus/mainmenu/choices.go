@@ -1,6 +1,7 @@
 package mainmenu
 
 import (
+	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -83,8 +84,8 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := style.ListStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	case tea.KeyMsg:
-		switch keypress := msg.String(); keypress {
-		case "enter":
+		switch msg.Type {
+		case tea.KeyEnter:
 			choice, ok := m.list.SelectedItem().(choiceItem)
 			if ok {
 				if choice.key == ChoiceExit {
@@ -92,11 +93,19 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.selected = choice.key
 			}
+		case tea.KeyDown:
+			fallthrough
+		case tea.KeyUp:
+			audio.Play("interface_move", -1.5)
 		}
 	case tea.MouseMsg:
 		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
 			for i := range m.choices {
 				if m.zones.Get("choice_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) || m.zones.Get("choice_desc_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) {
+					if m.list.Index() != i {
+						audio.Play("interface_move", -1.5)
+					}
+
 					m.list.Select(i)
 					if msg.Type == tea.MouseLeft {
 						m.selected = m.choices[i].(choiceItem).key

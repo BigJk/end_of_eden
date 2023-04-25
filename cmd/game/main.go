@@ -38,6 +38,7 @@ func main() {
 	// Init audio
 	if *audioFlag {
 		audio.InitAudio()
+		audio.PlayMusic("theme")
 	}
 
 	// Init face generator

@@ -90,7 +90,7 @@ func (m DamageAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.px[i], m.velx[i] = m.springs[i].Update(m.px[i], m.velx[i], 85.0)
 			if m.px[i] >= 95 {
-				audio.Play("dmg1")
+				audio.Play("damage_2")
 				m.reached[i] = true
 			}
 

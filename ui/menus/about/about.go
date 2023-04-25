@@ -1,6 +1,7 @@
 package about
 
 import (
+	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/BigJk/end_of_eden/util"
@@ -40,6 +41,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.MouseMsg:
 		if msg.Type == tea.MouseLeft && m.zones.Get("back").InBounds(msg) {
+			audio.Play("btn_menu")
+
 			return m.parent, nil
 		}
 	}

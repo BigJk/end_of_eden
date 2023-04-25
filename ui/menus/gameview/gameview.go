@@ -250,7 +250,7 @@ func (m Model) View() string {
 //
 
 func (m Model) finishTurn() Model {
-	audio.Play("button")
+	audio.Play("btn_complete")
 
 	before := m.Session.MarkState()
 	m.Session.FinishPlayerTurn()
@@ -297,18 +297,18 @@ func (m Model) tryCast() Model {
 				if err := m.Session.PlayerCastHand(m.selectedCard, m.Session.GetOpponentByIndex(game.PlayerActorID, m.selectedOpponent).GUID); err == nil {
 					audio.Play("damage_1")
 				} else {
-					audio.Play("button_deny")
+					audio.Play("btn_deny")
 				}
 			} else {
-				audio.Play("button")
+				audio.Play("btn_menu")
 
 				m.inOpponentSelection = true
 			}
 		} else {
 			if err := m.Session.PlayerCastHand(m.selectedCard, ""); err == nil {
-				audio.Play("button")
+				audio.Play("btn_menu")
 			} else {
-				audio.Play("button_deny")
+				audio.Play("btn_deny")
 			}
 		}
 	}

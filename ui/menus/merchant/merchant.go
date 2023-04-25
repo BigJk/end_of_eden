@@ -2,6 +2,7 @@ package merchant
 
 import (
 	"fmt"
+	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
@@ -73,13 +74,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case StateMain:
 			if msg.Type == tea.MouseLeft {
 				if m.zones.Get(ZoneBuyItem).InBounds(msg) {
+					audio.Play("btn_menu")
 					m = m.merchantBuy()
 				} else if m.zones.Get(ZoneLeave).InBounds(msg) {
+					audio.Play("btn_menu")
 					m.session.LeaveMerchant()
 				} else if m.zones.Get(ZoneUpgrade).InBounds(msg) {
+					audio.Play("btn_menu")
 					m.state = StateUpgrade
 					m.table.SetCursor(0)
 				} else if m.zones.Get(ZoneRemove).InBounds(msg) {
+					audio.Play("btn_menu")
 					m.state = StateRemove
 					m.table.SetCursor(0)
 				}
@@ -89,12 +94,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case StateRemove:
 			if msg.Type == tea.MouseLeft {
 				if m.zones.Get(ZoneBuyItem).InBounds(msg) {
+					audio.Play("btn_menu")
 					if m.state == StateUpgrade {
 						m.session.BuyUpgradeCard(m.playerCardGetSelected())
 					} else {
 						m.session.BuyRemoveCard(m.playerCardGetSelected())
 					}
 				} else if m.zones.Get(ZoneBack).InBounds(msg) {
+					audio.Play("btn_menu")
 					m.state = StateMain
 					m.table.SetCursor(0)
 				}
@@ -103,6 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter:
+			audio.Play("btn_menu")
 			m = m.merchantBuy()
 		}
 	}
@@ -280,7 +288,7 @@ func (m Model) merchantLeft(buttons []string, textOverwrite string) string {
 func (m Model) playerCardGetSelected() string {
 	cards := m.session.GetCards(game.PlayerActorID)
 
-	if m.table.Cursor() >= len(cards) {
+	if m.table.Cursor() >= len(cards) || m.table.Cursor() < 0 {
 		return ""
 	}
 
@@ -300,7 +308,7 @@ func (m Model) merchantGetSelected() any {
 		}),
 	})
 
-	if m.table.Cursor() >= len(items) {
+	if m.table.Cursor() >= len(items) || m.table.Cursor() < 0 {
 		return nil
 	}
 
