@@ -3,3 +3,5 @@ debug.log
 logs/
 .ssh/
 *.save
+settings.json
+mods/example_mod_*
