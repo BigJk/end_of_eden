@@ -53,3 +53,7 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 - See ``./assets/scripts`` for the scripts of the base game.
 - See [Lua Documentation](docs/LUA_DOCS.md)
 
+# Credits
+
+- Thanks to **Huw Millward** for the face data published in [Warsim Generator Toolbox](https://huw2k8.itch.io/warsims-generator-toolbox)
+- [Interface Beep Sounds](https://bleeoop.itch.io/interface-bleeps) by **Bleeoop**
