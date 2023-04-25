@@ -1,9 +1,6 @@
 package audio
 
 import (
-	"github.com/BigJk/end_of_eden/settings"
-	"github.com/faiface/beep/mp3"
-	"github.com/faiface/beep/wav"
 	"io/fs"
 	"log"
 	"os"
@@ -12,12 +9,16 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/BigJk/end_of_eden/settings"
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/wav"
+
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/effects"
 	"github.com/faiface/beep/speaker"
 )
 
-const sampleRate = 44100
+const sampleRate = 48000
 const baseVolume = -1
 
 var mtx = sync.Mutex{}
@@ -29,12 +30,6 @@ var music = &beep.Ctrl{
 }
 
 func InitAudio() {
-	// TODO: Fix audio. Currently, audio is resulting in a lot of noise.
-	if runtime.GOOS == "windows" {
-		log.Printf("Disable audio on windows!")
-		return
-	}
-
 	wg := sync.WaitGroup{}
 
 	_ = filepath.Walk("./assets/audio", func(path string, info fs.FileInfo, err error) error {
@@ -99,7 +94,13 @@ func InitAudio() {
 		return nil
 	})
 
-	if err := speaker.Init(sampleRate, 200); err != nil {
+	bufferSize := 200
+	if runtime.GOOS == "windows" {
+		// TODO: investigate why windows is misbehaving with audio
+		bufferSize = sampleRate / 20
+	}
+
+	if err := speaker.Init(sampleRate, bufferSize); err != nil {
 		panic(err)
 	}
 
@@ -111,7 +112,7 @@ func InitAudio() {
 }
 
 func Play(key string, volumeModifier ...float64) {
-	if !enabled || runtime.GOOS == "windows" {
+	if !enabled {
 		return
 	}
 
@@ -136,7 +137,7 @@ func Play(key string, volumeModifier ...float64) {
 }
 
 func PlayMusic(key string) {
-	if !enabled || runtime.GOOS == "windows" {
+	if !enabled {
 		return
 	}
 
