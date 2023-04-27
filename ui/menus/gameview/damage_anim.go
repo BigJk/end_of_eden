@@ -126,6 +126,9 @@ func (m DamageAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+// TODO: remove in favor of components.Actor
+var faceStyle = lipgloss.NewStyle().Border(lipgloss.OuterHalfBlockBorder()).Padding(0, 1).Margin(0, 0, 1, 0).BorderForeground(style.BaseGrayDarker).Foreground(style.BaseRed)
+
 func (m DamageAnimationModel) View() string {
 	hp := m.startHp - lo.SumBy(
 		lo.Filter(m.damages, func(_ game.StateEventDamageData, i int) bool {

@@ -8,7 +8,7 @@ register_status_effect("WEAKEN", {
     look = "W",
     foreground = "#ed985f",
     state = function()
-        return "-" .. tostring(ctx.stacks * 2) .. " damage"
+        return "Deals " .. highlight(ctx.stacks * 2) .. " less damage"
     end,
     can_stack = true,
     decay = DECAY_ALL,
@@ -29,7 +29,7 @@ register_status_effect("VULNERABLE", {
     look = "Vur",
     foreground = "#ffba08",
     state = function(ctx)
-        return tostring(ctx.stacks * 25) .. "% more damage"
+        return "Takes " .. highlight(ctx.stacks * 25) .. "% more damage"
     end,
     can_stack = true,
     decay = DECAY_ALL,
@@ -50,7 +50,7 @@ register_status_effect("BURN", {
     look = "Brn",
     foreground = "#d00000",
     state = function(ctx)
-        return tostring(ctx.stacks * 4) .. " damage per turn"
+        return "Takes " .. highlight(ctx.stacks * 4) .. " damage per turn"
     end,
     can_stack = true,
     decay = DECAY_ALL,
@@ -73,7 +73,7 @@ register_status_effect("STRENGTH", {
     look = "Str",
     foreground = "#d00000",
     state = function(ctx)
-        return tostring(ctx.stacks) .. " damage"
+        return "Deal " .. highlight(ctx.stacks) .. " more damage"
     end,
     can_stack = true,
     decay = DECAY_ALL,
@@ -94,7 +94,7 @@ register_status_effect("BLOCK", {
     look = "Blk",
     foreground = "#219ebc",
     state = function(ctx)
-        return tostring(ctx.stacks) .. " damage reduced"
+        return "Takes " .. highlight(ctx.stacks) .. " less damage"
     end,
     can_stack = true,
     decay = DECAY_ALL,
@@ -117,7 +117,7 @@ register_status_effect("RITUAL", {
     look = "Rit",
     foreground = "#bb3e03",
     state = function(ctx)
-        return tostring(ctx.stacks * 25) .. "% more damage"
+        return nil
     end,
     can_stack = true,
     decay = DECAY_NONE,
@@ -136,7 +136,7 @@ register_status_effect("FEAR", {
     look = "Fear",
     foreground = "#bb3e03",
     state = function(ctx)
-        return "Can't act for " .. highlight(tostring(ctx.stacks)) .. " turns"
+        return "Can't act for " .. highlight(ctx.stacks) .. " turns"
     end,
     can_stack = true,
     decay = DECAY_ONE,
@@ -150,7 +150,7 @@ register_status_effect("FEAR", {
 
 register_status_effect("BLEED", {
     name = "Bleed",
-    description = "You are losing some red sauce.",
+    description = "Losing some red sauce.",
     look = "Bld",
     foreground = "#ff0000",
     state = function(ctx)

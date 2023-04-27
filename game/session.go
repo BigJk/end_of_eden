@@ -622,6 +622,16 @@ func (s *Session) HadEvent(id string) bool {
 	return lo.Contains(s.eventHistory, id)
 }
 
+// HadEvents checks if the given events already happened in this run.
+func (s *Session) HadEvents(ids []string) bool {
+	return lo.Every(s.eventHistory, ids)
+}
+
+// HadEventsAny checks if at least one of the given events already happened in this run.
+func (s *Session) HadEventsAny(ids []string) bool {
+	return lo.Some(s.eventHistory, ids)
+}
+
 // GetEventHistory returns the ordered list of all events encountered so far.
 func (s *Session) GetEventHistory() []string {
 	return s.eventHistory
@@ -914,6 +924,29 @@ func (s *Session) GetStatusEffect(guid string) *StatusEffect {
 		}
 	}
 	return nil
+}
+
+// GetStatusEffectState returns the rendered state of the status effect.
+func (s *Session) GetStatusEffectState(guid string) string {
+	status := s.GetStatusEffect(guid)
+	if status == nil {
+		return ""
+	}
+	instance := s.GetStatusEffectInstance(guid)
+
+	if status.State == nil {
+		return status.Description
+	}
+
+	res, err := status.State.Call(CreateContext("type_id", status.ID, "guid", guid, "stacks", instance.Stacks, "owner", instance.Owner))
+	if err != nil {
+		s.logLuaError("State", instance.TypeID, err)
+	}
+
+	if res == nil {
+		return status.Description
+	}
+	return res.(string)
 }
 
 // GetStatusEffectInstance returns status effect instance by guid.

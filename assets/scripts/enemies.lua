@@ -34,8 +34,8 @@ register_enemy(
         description = "Loves to eat metal.",
         look = "/v\\",
         color = "#e6e65a",
-        initial_hp = 16,
-        max_hp = 16,
+        initial_hp = 22,
+        max_hp = 22,
         gold = 10,
         callbacks = {
             on_turn = function(ctx)
@@ -60,8 +60,8 @@ register_enemy(
 (* *)
  )#(]],
         color = "#32a891",
-        initial_hp = 22,
-        max_hp = 22,
+        initial_hp = 25,
+        max_hp = 25,
         gold = 15,
         callbacks = {
             on_player_turn = function(ctx)

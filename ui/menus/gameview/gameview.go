@@ -34,6 +34,7 @@ type Model struct {
 	selectedCard        int
 	selectedOpponent    int
 	inOpponentSelection bool
+	inEnemyView         bool
 	animations          []tea.Model
 
 	event    tea.Model
@@ -89,8 +90,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case tea.KeyEscape:
 			// Switch to menu
-			if m.inOpponentSelection {
+			if m.inOpponentSelection || m.inEnemyView {
 				m.inOpponentSelection = false
+				m.inEnemyView = false
 			} else {
 				return overview.New(m, m.zones, m.Session), nil
 			}
@@ -137,7 +139,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case game.GameStateFight:
 				if m.inOpponentSelection {
 					for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
-						if cardZone := m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)); cardZone.InBounds(msg) {
+						if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(msg) {
 							if msg.Type == tea.MouseLeft && m.selectedOpponent == i {
 								m = m.tryCast()
 							} else {
@@ -148,7 +150,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					onCard := false
 					for i := 0; i < len(m.Session.GetFight().Hand); i++ {
-						if cardZone := m.zones.Get(fmt.Sprintf("%s%d", ZoneCard, i)); cardZone.InBounds(msg) {
+						if m.zones.Get(fmt.Sprintf("%s%d", ZoneCard, i)).InBounds(msg) {
 							onCard = true
 							if msg.Type == tea.MouseLeft && m.selectedCard == i {
 								m = m.tryCast()
@@ -160,6 +162,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					if !onCard && msg.Type == tea.MouseMotion {
 						m.selectedCard = -1
+					}
+
+					if !m.inOpponentSelection && msg.Type == tea.MouseLeft {
+						for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
+							if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(msg) {
+								m.selectedOpponent = i
+								m.inEnemyView = true
+							}
+						}
 					}
 				}
 
@@ -228,6 +239,15 @@ func (m Model) View() string {
 
 	switch m.Session.GetGameState() {
 	case game.GameStateFight:
+		if m.inEnemyView {
+			return lipgloss.JoinVertical(
+				lipgloss.Top,
+				m.fightStatusTop(),
+				m.fightEnemyInspectView(),
+				m.fightStatusBottom(),
+			)
+		}
+
 		return lipgloss.JoinVertical(
 			lipgloss.Top,
 			m.fightStatusTop(),
@@ -367,7 +387,7 @@ func (m Model) fightStatusBottom() string {
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(style.BaseWhite)).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Deck: %d", len(fight.Deck))),
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Used: %d", len(fight.Used))),
 			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Exhausted: %d", len(fight.Exhausted))),
-			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Action Points: %d / %d", fight.CurrentPoints, game.PointsPerRound)),
+			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Action Points: %d", fight.CurrentPoints)),
 			components.StatusEffects(m.Session, m.Session.GetPlayer()),
 		),
 		),
@@ -388,11 +408,27 @@ func (m Model) fightCardViewHeight() int {
 	return m.Size.Height - m.fightEnemyViewHeight() - 1 - 4 - 4
 }
 
-var faceStyle = lipgloss.NewStyle().Border(lipgloss.OuterHalfBlockBorder()).Padding(0, 1).Margin(0, 0, 1, 0).BorderForeground(style.BaseGrayDarker).Foreground(style.BaseRed)
+func (m Model) fightEnemyInspectView() string {
+	enemy := m.Session.GetOpponents(game.PlayerActorID)[m.selectedOpponent]
+
+	status := "Status Effects:\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
+		return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
+	}), "\n\n")
+
+	return lipgloss.Place(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, lipgloss.Center, lipgloss.Center,
+		lipgloss.NewStyle().Border(lipgloss.ThickBorder(), true).Padding(1, 2).BorderForeground(style.BaseRedDarker).Render(
+			lipgloss.JoinHorizontal(lipgloss.Top,
+				lipgloss.NewStyle().Border(lipgloss.NormalBorder(), false, true, false, false).BorderForeground(style.BaseGrayDarker).Padding(0, 2, 2, 0).Render(components.Actor(m.Session, enemy, m.Session.GetEnemy(enemy.TypeID), true, true, false)),
+				lipgloss.NewStyle().Margin(0, 0, 0, 3).Width(30).Render(status),
+			),
+		),
+		lipgloss.WithWhitespaceChars("?"), lipgloss.WithWhitespaceForeground(style.BaseGrayDarker),
+	)
+}
 
 func (m Model) fightEnemyView() string {
 	enemyBoxes := lo.Map(m.Session.GetOpponents(game.PlayerActorID), func(actor game.Actor, i int) string {
-		return components.Actor(m.Session, actor, m.Session.GetEnemy(actor.TypeID), true, true, m.inOpponentSelection && i == m.selectedOpponent)
+		return components.Actor(m.Session, actor, m.Session.GetEnemy(actor.TypeID), true, true, m.inOpponentSelection && i == m.selectedOpponent || m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse))
 	})
 
 	enemyBoxes = lo.Map(enemyBoxes, func(item string, i int) string {

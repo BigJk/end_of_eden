@@ -3,6 +3,33 @@
 --
 
 register_event(
+        "MERCHANT",
+        {
+                name = "A strange figure",
+                description = [[The merchant is a tall, lanky figure draped in a long, tattered coat made of plant fibers and animal hides. Their face is hidden behind a mask made of twisted roots and vines, giving them an unsettling, almost alien appearance.
+
+Despite their strange appearance, the merchant is a shrewd negotiator and a skilled trader. They carry with them a collection of bizarre and exotic items, including plant-based weapons, animal pelts, and strange, glowing artifacts that seem to pulse with an otherworldly energy.
+
+The merchant is always looking for a good deal, and they're not above haggling with potential customers...]],
+                choices = {
+                        {
+                                description = "Trade",
+                                callback = function()
+                                        return GAME_STATE_MERCHANT
+                                end
+                        },
+                        {
+                                description = "Pass",
+                                callback = function()
+                                        return GAME_STATE_RANDOM
+                                end
+                        }
+                },
+                on_end = function(choice) return nil end,
+        }
+)
+
+register_event(
     "START",
     {
         name = "Waking up...",
@@ -66,6 +93,10 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
     }
 )
 
+--
+-- Stage 1 Entrance
+--
+
 register_event(
         "FIRST_OUTSIDE",
         {
@@ -90,72 +121,77 @@ You take a deep breath of the fresh air, feeling the warmth of the sun on your f
 )
 
 register_event(
-        "CHOICE",
+        "THE_WASTELAND",
         {
-                name = "A choice",
-                description = [[Some challenges are behind you. Choose wisely...]],
+                name = "The Wasteland",
+                description = [[
+```
+        |==|  ~
+ _.,-*~'^'~*-,._      (       ~         _.,-*~'^'~*-,._  ~      (())
+|               '*-,._       __   _.,-*'               '-,._    | x|
+|                     '*-,._/.,-*'                          '*-,|x_|,-*,
+|                                                                      |
+`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'
+```
+
+You finally find a way leading to the outside, and with a deep breath, you step out into the unforgiving wasteland.
+
+The scorching sun beats down on you as the sand whips against your skin, a reminder of the horrors that have befallen the world. In the distance, the remains of once-great cities jut up from the ground like jagged teeth, now nothing more than crumbling ruins. The air is thick with the acrid smell of decay and the oppressive silence is only broken by the occasional howl of some mutated creature. As you take your first steps into this new world, you realize that survival will not be easy, and that the journey ahead will be fraught with danger at every turn...]],
                 choices = {
                         {
-                                description = "Meet the Merchant",
-                                callback = function()
-                                        return GAME_STATE_MERCHANT
-                                end
-                        },
-                        {
-                                description = "Remove a Card",
-                                callback = function()
-                                        set_event("CARD_REMOVE")
-                                        return GAME_STATE_EVENT
-                                end
-                        },
-                        {
-                                description = "Gain a Card",
-                                callback = function()
-                                        set_event("CARD_GAIN")
-                                        return GAME_STATE_EVENT
-                                end
-                        },
-                        {
-                                description = "Rest & Heal",
-                                callback = function()
-                                        set_event("REST")
-                                        return GAME_STATE_EVENT
-                                end
-                        },
-                        {
-                                description = "Pass",
-                                callback = function()
-                                        return GAME_STATE_RANDOM
-                                end
+                                description = "Go...",
+                                callback = function() return nil end
                         }
                 },
-                on_end = function(choice) return nil end,
+                on_end = function()
+                        return GAME_STATE_RANDOM
+                end,
         }
 )
 
 register_event(
-        "MERCHANT",
+        "THE_CORE",
         {
-                name = "A strange figure",
-                description = [[The merchant is a tall, lanky figure draped in a long, tattered coat made of plant fibers and animal hides. Their face is hidden behind a mask made of twisted roots and vines, giving them an unsettling, almost alien appearance.
+                name = "The Wasteland",
+                description = [[
+```
+  ________            ______
+ /_  __/ /_  ___     / ____/___  ________
+  / / / __ \/ _ \   / /   / __ \/ ___/ _ \
+ / / / / / /  __/  / /___/ /_/ / /  /  __/
+/_/ /_/ /_/\___/   \____/\____/_/   \___/ ...
 
-Despite their strange appearance, the merchant is a shrewd negotiator and a skilled trader. They carry with them a collection of bizarre and exotic items, including plant-based weapons, animal pelts, and strange, glowing artifacts that seem to pulse with an otherworldly energy.
+```
+You finally find a way you thought would lead to the outside, only to discover that you're still inside the massive facility known as "The Core."
 
-The merchant is always looking for a good deal, and they're not above haggling with potential customers...]],
+As you step out of the cryo facility, the eerie silence is broken by the sound of metal scraping against metal and distant whirring of malfunctioning machinery. The flickering lights and sparks from faulty wires cast a sickly glow on the cold metal walls. You realize that this place is not as deserted as you initially thought, and the unsettling feeling in your gut only grows stronger as you make your way through the dimly lit corridors, surrounded by the echoes of your own footsteps and the sound of flickering computer screens.]],
                 choices = {
                         {
-                                description = "Trade",
-                                callback = function()
-                                        return GAME_STATE_MERCHANT
-                                end
-                        },
-                        {
-                                description = "Pass",
-                                callback = function()
-                                        return GAME_STATE_RANDOM
-                                end
+                                description = "Go...",
+                                callback = function() return nil end
                         }
                 },
-                on_end = function(choice) return nil end,
+                on_end = function()
+                        return GAME_STATE_RANDOM
+                end,
+        }
+)
+
+register_event(
+        "BIO_KINGDOM",
+        {
+                name = "Bio Kingdom",
+                description = [[You finally find a way leading to the outside, and step out of the cryo facility into a world you no longer recognize.
+
+The air is thick with humidity and the sounds of the jungle are overwhelming. Strange, mutated plants tower over you, their vines twisting and tangling around each other in a macabre dance. The colors of the leaves and flowers are sickly, a greenish hue that reminds you of illness rather than life. The ruins of buildings are visible in the distance, swallowed up by the overgrowth. You can hear the chirping and buzzing of insects, but it's mixed with something else - something that sounds almost like whispers or moans. The "jungle" seems to be alive, but not in any way that you would have imagined.]],
+                choices = {
+                        {
+                                description = "Go...",
+                                callback = function() return nil end
+                        }
+                },
+                on_end = function()
+                        return GAME_STATE_RANDOM
+                end,
         }
 )

@@ -208,6 +208,28 @@ fun = require "fun"
 		return 1
 	}))
 
+	l.SetGlobal("had_events", l.NewFunction(func(state *lua.LState) int {
+		var ids []string
+		if err := mapper.Map(state.Get(1).(*lua.LTable), &ids); err != nil {
+			session.logLuaError("had_event", "", err)
+			return 0
+		} else {
+			state.Push(luhelp.ToLua(state, session.HadEvents(ids)))
+		}
+		return 1
+	}))
+
+	l.SetGlobal("had_events_any", l.NewFunction(func(state *lua.LState) int {
+		var ids []string
+		if err := mapper.Map(state.Get(1).(*lua.LTable), &ids); err != nil {
+			session.logLuaError("had_events_any", "", err)
+			return 0
+		} else {
+			state.Push(luhelp.ToLua(state, session.HadEvents(ids)))
+		}
+		return 1
+	}))
+
 	// Actor Operations
 
 	l.SetGlobal("get_player", l.NewFunction(func(state *lua.LState) int {

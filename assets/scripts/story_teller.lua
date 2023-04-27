@@ -6,9 +6,11 @@ end, registered.card))
 -- Pre-Stage
 --
 
+stage_1_init_events = { "THE_CORE", "BIO_KINGDOM", "THE_WASTELAND" }
+
 register_story_teller("PRE_STAGE", {
     active = function(ctx)
-        if not had_event("FIRST_OUTSIDE") then
+        if not had_events_any(stage_1_init_events) then
             return 1
         end
         return 0
@@ -19,8 +21,11 @@ register_story_teller("PRE_STAGE", {
         if stage >= 3 then
             -- If we didn't skip the pre-stage we get another artifact
             set_event(create_artifact_choice({ random_artifact(get_merchant_gold_max()), random_artifact(get_merchant_gold_max()) }, {
+                description = [[As you explore the abandoned cryo facility, a feeling of dread washes over you. The facility is eerily quiet, with malfunctioning computers and flickering lights being the only signs of life. As you move through the winding corridors, you stumble upon a hidden door. It's almost as if the facility itself is trying to keep you from finding what lies beyond.
+
+After some effort, you manage to open the door and find yourself in a small room. The room is dark, and you can barely make out a chest in the center of the room. As you approach it, the feeling of unease grows stronger. What secret artifact could be hidden inside this chest? Is it something that will aid you on your journey or something more sinister? You take a deep breath, steeling yourself for whatever you may find inside, and reach for the lid...]],
                 on_end = function()
-                    set_event("FIRST_OUTSIDE")
+                    set_event(stage_1_init_events[math.random(#stage_1_init_events)])
                     return GAME_STATE_EVENT
                 end
             }))
@@ -54,7 +59,7 @@ stage_2 = {
 
 register_story_teller("STAGE_1", {
     active = function(ctx)
-        if had_event("FIRST_OUTSIDE") then
+        if had_events_any(stage_1_init_events) then
             return 1
         end
         return 0
@@ -86,7 +91,7 @@ register_story_teller("STAGE_1", {
 
 register_story_teller("STAGE_2", {
     active = function(ctx)
-        if had_event("FIRST_OUTSIDE") and get_stages_cleared() > 10 then
+        if had_events_any(stage_1_init_events) and get_stages_cleared() > 10 then
             return 2
         end
         return 0
@@ -108,7 +113,7 @@ register_story_teller("STAGE_2", {
 
 register_story_teller("STAGE_3", {
     active = function(ctx)
-        if had_event("FIRST_OUTSIDE") and get_stages_cleared() > 20 then
+        if had_events_any(stage_1_init_events) and get_stages_cleared() > 20 then
             return 3
         end
         return 0
