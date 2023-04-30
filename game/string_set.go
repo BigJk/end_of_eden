@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"github.com/BigJk/end_of_eden/util"
 	"github.com/samber/lo"
+	"sort"
 )
 
 // StringSet represents a string set that can be serialized by Gob.
@@ -47,7 +48,9 @@ func (s *StringSet) Clear() {
 }
 
 func (s *StringSet) ToSlice() []string {
-	return lo.Keys(s.values)
+	keys := lo.Keys(s.values)
+	sort.Strings(keys)
+	return keys
 }
 
 func (s *StringSet) Clone() *StringSet {

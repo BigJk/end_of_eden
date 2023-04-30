@@ -161,14 +161,23 @@ func (m Model) View() string {
 	var faceSection string
 	switch m.state {
 	case StateMain:
-		faceSection = m.merchantLeft([]string{
+		buttons := []string{
 			style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneUpgrade).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2, 1, 2).
 				Render(m.zones.Mark(ZoneUpgrade, fmt.Sprintf("↑  Upgrade Card (%d$)", game.DefaultUpgradeCost))),
-			style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneRemove).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2, 1, 2).
-				Render(m.zones.Mark(ZoneRemove, fmt.Sprintf("✕  Remove Card (%d$)", game.DefaultRemoveCost))),
+			"",
 			style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneLeave).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2).
 				Render(m.zones.Mark(ZoneLeave, "Leave Merchant")),
-		}, "")
+		}
+
+		if len(m.session.GetCards(game.PlayerActorID)) > 3 {
+			buttons[1] = style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneRemove).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2, 1, 2).
+				Render(m.zones.Mark(ZoneRemove, fmt.Sprintf("✕  Remove Card (%d$)", game.DefaultRemoveCost)))
+		} else {
+			buttons[1] = style.HeaderStyle.Copy().Background(style.BaseGrayDarker).Margin(0, 2, 1, 2).
+				Render(fmt.Sprintf("✕  Remove Card (%d$)", game.DefaultRemoveCost))
+		}
+
+		faceSection = m.merchantLeft(buttons, "")
 	case StateUpgrade:
 		fallthrough
 	case StateRemove:

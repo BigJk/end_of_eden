@@ -1,6 +1,8 @@
 package game
 
-import "github.com/BigJk/end_of_eden/luhelp"
+import (
+	"github.com/BigJk/end_of_eden/lua/luhelp"
+)
 
 // EventChoice represents a possible choice in the Event.
 type EventChoice struct {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
+	"github.com/BigJk/end_of_eden/lua/ludoc"
 	"github.com/BigJk/end_of_eden/util"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
@@ -83,6 +84,7 @@ type LuaError struct {
 type Session struct {
 	log       *log.Logger
 	luaState  *lua.LState
+	luaDocs   *ludoc.Docs
 	resources *ResourcesManager
 
 	state         GameState
@@ -120,7 +122,7 @@ func NewSession(options ...func(s *Session)) *Session {
 	}
 	session.SetOnLuaError(nil)
 
-	session.luaState = SessionAdapter(session)
+	session.luaState, session.luaDocs = SessionAdapter(session)
 
 	for i := range options {
 		if options[i] == nil {
@@ -129,7 +131,7 @@ func NewSession(options ...func(s *Session)) *Session {
 		options[i](session)
 	}
 
-	session.resources = NewResourcesManager(session.luaState, session.log)
+	session.resources = NewResourcesManager(session.luaState, session.luaDocs, session.log)
 	session.SetEvent("START")
 	session.loadMods(session.loadedMods)
 
@@ -182,6 +184,10 @@ func (s *Session) SetOnLuaError(fn func(file string, line int, callback string, 
 	} else {
 		s.onLuaError = fn
 	}
+}
+
+func (s *Session) LuaDocs() *ludoc.Docs {
+	return s.luaDocs
 }
 
 // Close closes the internal lua state and everything else.
@@ -1331,6 +1337,17 @@ func (s *Session) BuyRemoveCard(guid string) bool {
 	return true
 }
 
+func (s *Session) UpgradeCard(guid string) bool {
+	card, instance := s.GetCard(guid)
+	if instance.IsNone() || card.MaxLevel == 0 || instance.Level == card.MaxLevel {
+		return false
+	}
+
+	instance.Level += 1
+	s.instances[guid] = instance
+	return true
+}
+
 //
 // Damage & Heal Function
 //
@@ -1711,10 +1728,7 @@ func (s *Session) TriggerOnActorDie(guids []string, source string, target string
 }
 
 func (s *Session) TriggerOnPlayerTurn() {
-	s.TraverseArtifactsStatus(lo.Flatten([][]string{
-		s.GetPlayer().Artifacts.ToSlice(),
-		s.GetPlayer().StatusEffects.ToSlice(),
-	}),
+	s.TraverseArtifactsStatus(lo.Keys(s.instances),
 		func(instance ArtifactInstance, artifact *Artifact) {
 			if _, err := artifact.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", artifact.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound())); err != nil {
 				s.logLuaError(CallbackOnPlayerTurn, instance.TypeID, err)

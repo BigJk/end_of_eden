@@ -3,7 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
-	"github.com/BigJk/end_of_eden/luhelp"
+	"github.com/BigJk/end_of_eden/lua/luhelp"
 	"github.com/labstack/echo/v4"
 	"github.com/olahol/melody"
 	"github.com/samber/lo"

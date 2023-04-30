@@ -1,7 +1,8 @@
 package game
 
 import (
-	"github.com/BigJk/end_of_eden/luhelp"
+	"github.com/BigJk/end_of_eden/lua/ludoc"
+	luhelp "github.com/BigJk/end_of_eden/lua/luhelp"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"io/fs"
@@ -21,12 +22,13 @@ type ResourcesManager struct {
 	StoryTeller   map[string]*StoryTeller
 
 	luaState   *lua.LState
+	luaDocs    *ludoc.Docs
 	log        *log.Logger
 	registered *lua.LTable
 	mapper     *luhelp.Mapper
 }
 
-func NewResourcesManager(state *lua.LState, logger *log.Logger) *ResourcesManager {
+func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger) *ResourcesManager {
 	man := &ResourcesManager{
 		log:           logger,
 		luaState:      state,

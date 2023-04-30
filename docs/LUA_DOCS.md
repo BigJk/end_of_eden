@@ -4,83 +4,13 @@
 - The lua code tries to conform to the [luarocks style guide](https://github.com/luarocks/lua-style-guide).
 - The [luafun](https://github.com/luafun/luafun) functional library is available by default to provide functions like ``map``, ``filter``, etc. which are very helpful. Check the [luafun docs](https://luafun.github.io/index.html) for more information.
 - If you are new to lua: [Learn Lua in 15 Minutes](https://tylerneylon.com/a/learn-lua/)
+- For usage examples check the game scripts in ``./assets/scripts``
 
-## Global Function & Values
+## Game API
 
-There is a multitude of functions and variables globally available to access and mutate the current game state.
+There is a multitude of functions and variables globally available to access and mutate the current game state. An automated documentation is generated:
 
-### Quick Overview
-
-```
-name                           : type
-PLAYER_ID                      : value
-GAME_STATE_FIGHT               : value
-GAME_STATE_EVENT               : value
-GAME_STATE_MERCHANT            : value
-GAME_STATE_RANDOM              : value
-DECAY_ONE                      : value
-DECAY_ALL                      : value
-DECAY_NONE                     : value
-guid                           : function
-text_bold                      : function
-text_italic                    : function
-text_underline                 : function
-text_color                     : function
-text_bg                        : function
-log_i                          : function
-log_w                          : function
-log_d                          : function
-log_s                          : function
-debug_value                    : function
-debug_log                      : function
-play_audio                     : function
-set_event                      : function
-set_game_state                 : function
-set_fight_description          : function
-get_fight_round                : function
-get_stages_cleared             : function
-get_fight                      : function
-get_event_history              : function
-had_event                      : function
-get_player                     : function
-get_actor                      : function
-get_opponent_by_index          : function
-get_opponent_count             : function
-get_opponent_guids             : function
-remove_actor                   : function
-actor_add_max_hp               : function
-add_actor_by_enemy             : function
-give_artifact                  : function
-remove_artifact                : function
-get_random_artifact_type       : function
-get_artifact                   : function
-get_artifact_instance          : function
-give_status_effect             : function
-remove_status_effect           : function
-add_status_effect_stacks       : function
-set_status_effect_stacks       : function
-get_actor_status_effects       : function
-get_status_effect              : function
-get_status_effect_instance     : function
-give_card                      : function
-remove_card                    : function
-cast_card                      : function
-get_cards                      : function
-get_card                       : function
-get_card_instance              : function
-deal_damage                    : function
-deal_damage_multi              : function
-heal                           : function
-player_draw_card               : function
-give_player_gold               : function
-get_merchant                   : function
-add_merchant_card              : function
-add_merchant_artifact          : function
-get_merchant_gold_max          : function
-gen_face                       : function
-random_card                    : function
-random_artifact                : function
-```
+- [Lua Game API](./LUA_API_DOCS.md)
 
 ## Callbacks
 

@@ -123,7 +123,7 @@ register_status_effect("RITUAL", {
     decay = DECAY_NONE,
     rounds = 0,
     callbacks = {
-        on_turn = function(ctx)
+        on_player_turn = function(ctx)
             local guid = give_status_effect("STRENGTH", ctx.owner)
             set_status_effect_stacks(guid, 3 + ctx.stacks)
         end,
