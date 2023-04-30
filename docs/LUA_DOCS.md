@@ -12,6 +12,31 @@ There is a multitude of functions and variables globally available to access and
 
 - [Lua Game API](./LUA_API_DOCS.md)
 
+## Modding
+
+A mod is nothing more than a ``meta.json`` and a bunch of lua files. The ``meta.json`` defines the basic information about the mod like name, author etc. and the lua files contain the content. You can enable and disable mods via the mods menu found in the main menu.
+
+- All lua files found in the mod folder are loaded when the mod is run.
+- Check the [Lua Game API](./LUA_API_DOCS.md), especially the **Content Registry** for information.
+- Check ``/mods/example_mod`` for the bare minimum.
+- Check ``/assets/scripts`` for usage examples.
+
+### ``meta.json`` example
+
+```json
+{
+  "name": "Example Mod",
+  "author": "BigJk",
+  "description": "Serve as example",
+  "version": "0.0.1",
+  "url": ""
+}
+```
+
+### Mod Loading Order
+
+In the modding menu you can define the loading order of the mods. The mods are loaded from top to bottom. This is important if mods overwrite content of the base game, like changing the ``START`` event. If multiple mods change it the last loaded mod will be the last to overwrite it and so its event is used. Keep this in mind when organizing mods.
+
 ## Callbacks
 
 ### General

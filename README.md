@@ -37,6 +37,12 @@ A modern console is required to support all the features like full mouse control
 
 # Tech
 
+## Lua & Modding
+
+Lua is used to define artifacts, cards, enemies and everything else that is dynamic in the game. This makes End of Eden easily extendable. If you want to create mods or learn more about lua:
+
+- See [Lua Documentation](docs/LUA_DOCS.md)
+
 ## Building
 
 - You need golang ``>= 1.20`` installed
@@ -44,15 +50,14 @@ A modern console is required to support all the features like full mouse control
 - Run without building binary: ``go run ./cmd/game/``
 - **Important:** The games working directory needs to be where the ``./assets`` folder is available!
 
-## Lua
-
-Lua is used to define artifacts, cards, enemies and everything else that is dynamic in the game. This makes End of Eden easily extendable. **Modding support coming soon!**
-
-- See [Lua Documentation](docs/LUA_DOCS.md)
-
 # Credits
 
 - Thanks to **Huw Millward** for the face data published in [Warsim Generator Toolbox](https://huw2k8.itch.io/warsims-generator-toolbox)
 - [Interface Beep Sounds](https://bleeoop.itch.io/interface-bleeps) by **Bleeoop**
 - [512 Sound Effect Pack](https://opengameart.org/content/512-sound-effects-8-bit-style) by **Juhani Junkala**
 - Music and additional audio work by [synthroton](https://synthroton.bandcamp.com/)
+
+# License
+
+- **Code:** licensed under MIT
+- **Assets:** See README.md in corresponding folder
