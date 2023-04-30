@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const globTemplate = `<details> <summary><b><code>%s</code></b> </summary>
+const globTemplate = `<details> <summary><b><code>%s</code></b> </summary> <br/>
 
 %s
 
@@ -18,7 +18,7 @@ const globTemplate = `<details> <summary><b><code>%s</code></b> </summary>
 
 `
 
-const fnTemplate = `<details> <summary><b><code>%s</code></b> </summary>
+const fnTemplate = `<details> <summary><b><code>%s</code></b> </summary> <br/>
 
 %s
 

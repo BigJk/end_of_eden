@@ -21,49 +21,49 @@
 General game constants.
 
 ### Globals
-<details> <summary><b><code>DECAY_ALL</code></b> </summary>
+<details> <summary><b><code>DECAY_ALL</code></b> </summary> <br/>
 
 Status effect decays by all stacks per turn.
 
 </details>
 
-<details> <summary><b><code>DECAY_NONE</code></b> </summary>
+<details> <summary><b><code>DECAY_NONE</code></b> </summary> <br/>
 
 Status effect never decays.
 
 </details>
 
-<details> <summary><b><code>DECAY_ONE</code></b> </summary>
+<details> <summary><b><code>DECAY_ONE</code></b> </summary> <br/>
 
 Status effect decays by 1 stack per turn.
 
 </details>
 
-<details> <summary><b><code>GAME_STATE_EVENT</code></b> </summary>
+<details> <summary><b><code>GAME_STATE_EVENT</code></b> </summary> <br/>
 
 Represents the event game state.
 
 </details>
 
-<details> <summary><b><code>GAME_STATE_FIGHT</code></b> </summary>
+<details> <summary><b><code>GAME_STATE_FIGHT</code></b> </summary> <br/>
 
 Represents the fight game state.
 
 </details>
 
-<details> <summary><b><code>GAME_STATE_MERCHANT</code></b> </summary>
+<details> <summary><b><code>GAME_STATE_MERCHANT</code></b> </summary> <br/>
 
 Represents the merchant game state.
 
 </details>
 
-<details> <summary><b><code>GAME_STATE_RANDOM</code></b> </summary>
+<details> <summary><b><code>GAME_STATE_RANDOM</code></b> </summary> <br/>
 
 Represents the random game state in which the active story teller will decide what happens next.
 
 </details>
 
-<details> <summary><b><code>PLAYER_ID</code></b> </summary>
+<details> <summary><b><code>PLAYER_ID</code></b> </summary> <br/>
 
 Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_id, 10)``.
 
@@ -82,7 +82,7 @@ General game constants.
 None
 
 ### Functions
-<details> <summary><b><code>fetch</code></b> </summary>
+<details> <summary><b><code>fetch</code></b> </summary> <br/>
 
 Fetches a value from the persistent store
 
@@ -94,7 +94,7 @@ fetch(key : String) -> Any
 
 </details>
 
-<details> <summary><b><code>guid</code></b> </summary>
+<details> <summary><b><code>guid</code></b> </summary> <br/>
 
 returns a new random guid.
 
@@ -106,7 +106,7 @@ guid() -> String
 
 </details>
 
-<details> <summary><b><code>store</code></b> </summary>
+<details> <summary><b><code>store</code></b> </summary> <br/>
 
 Stores a persistent value for this run that will be restored after a save load. Can store any lua basic value or table.
 
@@ -127,7 +127,7 @@ Helper functions for text styling.
 None
 
 ### Functions
-<details> <summary><b><code>text_bg</code></b> </summary>
+<details> <summary><b><code>text_bg</code></b> </summary> <br/>
 
 Makes the text background colored. Takes hex values like #ff0000.
 
@@ -139,7 +139,7 @@ text_bg(color : String, value) -> String
 
 </details>
 
-<details> <summary><b><code>text_bold</code></b> </summary>
+<details> <summary><b><code>text_bold</code></b> </summary> <br/>
 
 Makes the text bold.
 
@@ -151,7 +151,7 @@ text_bold(value) -> String
 
 </details>
 
-<details> <summary><b><code>text_color</code></b> </summary>
+<details> <summary><b><code>text_color</code></b> </summary> <br/>
 
 Makes the text foreground colored. Takes hex values like #ff0000.
 
@@ -163,7 +163,7 @@ text_color(color : String, value) -> String
 
 </details>
 
-<details> <summary><b><code>text_italic</code></b> </summary>
+<details> <summary><b><code>text_italic</code></b> </summary> <br/>
 
 Makes the text italic.
 
@@ -175,7 +175,7 @@ text_italic(value) -> String
 
 </details>
 
-<details> <summary><b><code>text_underline</code></b> </summary>
+<details> <summary><b><code>text_underline</code></b> </summary> <br/>
 
 Makes the text underlined.
 
@@ -196,7 +196,7 @@ Various logging functions.
 None
 
 ### Functions
-<details> <summary><b><code>log_d</code></b> </summary>
+<details> <summary><b><code>log_d</code></b> </summary> <br/>
 
 Log at **danger** level to player log.
 
@@ -208,7 +208,7 @@ log_d(value) -> None
 
 </details>
 
-<details> <summary><b><code>log_i</code></b> </summary>
+<details> <summary><b><code>log_i</code></b> </summary> <br/>
 
 Log at **information** level to player log.
 
@@ -220,7 +220,7 @@ log_i(value) -> None
 
 </details>
 
-<details> <summary><b><code>log_s</code></b> </summary>
+<details> <summary><b><code>log_s</code></b> </summary> <br/>
 
 Log at **success** level to player log.
 
@@ -232,7 +232,7 @@ log_s(value) -> None
 
 </details>
 
-<details> <summary><b><code>log_w</code></b> </summary>
+<details> <summary><b><code>log_w</code></b> </summary> <br/>
 
 Log at **warning** level to player log.
 
@@ -244,7 +244,7 @@ log_w(value) -> None
 
 </details>
 
-<details> <summary><b><code>print</code></b> </summary>
+<details> <summary><b><code>print</code></b> </summary> <br/>
 
 Log to session log.
 
@@ -265,7 +265,7 @@ Audio helper functions.
 None
 
 ### Functions
-<details> <summary><b><code>play_audio</code></b> </summary>
+<details> <summary><b><code>play_audio</code></b> </summary> <br/>
 
 Plays a sound effect. If you want to play ``button.mp3`` you call ``play_audio("button")``.
 
@@ -277,7 +277,7 @@ play_audio(sound : String) -> None
 
 </details>
 
-<details> <summary><b><code>play_music</code></b> </summary>
+<details> <summary><b><code>play_music</code></b> </summary> <br/>
 
 Start a song for the background loop. If you want to play ``song.mp3`` you call ``play_music("song")``.
 
@@ -298,7 +298,7 @@ Functions that modify the general game state.
 None
 
 ### Functions
-<details> <summary><b><code>get_event_history</code></b> </summary>
+<details> <summary><b><code>get_event_history</code></b> </summary> <br/>
 
 Gets the ids of all the encountered events in the order of occurrence.
 
@@ -310,7 +310,7 @@ get_event_history() -> Array
 
 </details>
 
-<details> <summary><b><code>get_fight</code></b> </summary>
+<details> <summary><b><code>get_fight</code></b> </summary> <br/>
 
 Gets the fight state. This contains the player hand, used, exhausted and round information.
 
@@ -322,7 +322,7 @@ get_fight() -> Table
 
 </details>
 
-<details> <summary><b><code>get_fight_round</code></b> </summary>
+<details> <summary><b><code>get_fight_round</code></b> </summary> <br/>
 
 Gets the number of stages cleared.
 
@@ -334,7 +334,7 @@ get_fight_round() -> Number
 
 </details>
 
-<details> <summary><b><code>had_event</code></b> </summary>
+<details> <summary><b><code>had_event</code></b> </summary> <br/>
 
 Checks if the event happened at least once.
 
@@ -346,7 +346,7 @@ had_event(eventId : String) -> Bool
 
 </details>
 
-<details> <summary><b><code>had_events</code></b> </summary>
+<details> <summary><b><code>had_events</code></b> </summary> <br/>
 
 Checks if all the events happened at least once.
 
@@ -358,7 +358,7 @@ had_events(eventIds : Array) -> Bool
 
 </details>
 
-<details> <summary><b><code>had_events_any</code></b> </summary>
+<details> <summary><b><code>had_events_any</code></b> </summary> <br/>
 
 Checks if any of the events happened at least once.
 
@@ -370,7 +370,7 @@ had_events_any(eventIds : Array) -> Bool
 
 </details>
 
-<details> <summary><b><code>set_event</code></b> </summary>
+<details> <summary><b><code>set_event</code></b> </summary> <br/>
 
 Set event by id.
 
@@ -382,7 +382,7 @@ set_event(eventId : String) -> None
 
 </details>
 
-<details> <summary><b><code>set_fight_description</code></b> </summary>
+<details> <summary><b><code>set_fight_description</code></b> </summary> <br/>
 
 Set the current fight description. This will be shown on the top right in the game.
 
@@ -394,7 +394,7 @@ set_fight_description(desc : String) -> None
 
 </details>
 
-<details> <summary><b><code>set_game_state</code></b> </summary>
+<details> <summary><b><code>set_game_state</code></b> </summary> <br/>
 
 Set the current game state. See globals.
 
@@ -415,7 +415,7 @@ Functions that modify or access the actors. Actors are either the player or enem
 None
 
 ### Functions
-<details> <summary><b><code>actor_add_max_hp</code></b> </summary>
+<details> <summary><b><code>actor_add_max_hp</code></b> </summary> <br/>
 
 Increases the max hp value of a actor by a number. Can be negative value to decrease it.
 
@@ -427,7 +427,7 @@ actor_add_max_hp(guid : String, amount : Number) -> None
 
 </details>
 
-<details> <summary><b><code>add_actor_by_enemy</code></b> </summary>
+<details> <summary><b><code>add_actor_by_enemy</code></b> </summary> <br/>
 
 Creates a new enemy fighting against the player. Example ``add_actor_by_enemy("RUST_MITE")``.
 
@@ -439,7 +439,7 @@ add_actor_by_enemy(enemyId : String) -> None
 
 </details>
 
-<details> <summary><b><code>get_actor</code></b> </summary>
+<details> <summary><b><code>get_actor</code></b> </summary> <br/>
 
 Get a actor by guid.
 
@@ -451,7 +451,7 @@ get_actor(guid : String) -> Table
 
 </details>
 
-<details> <summary><b><code>get_opponent_by_index</code></b> </summary>
+<details> <summary><b><code>get_opponent_by_index</code></b> </summary> <br/>
 
 Get opponent (actor) by index of a certain actor. ``get_opponent_by_index(PLAYER_ID, 2)`` would return the second alive opponent of the player.
 
@@ -463,7 +463,7 @@ get_opponent_by_index(guid : String, index : Number) -> Table
 
 </details>
 
-<details> <summary><b><code>get_opponent_count</code></b> </summary>
+<details> <summary><b><code>get_opponent_count</code></b> </summary> <br/>
 
 Get the number of opponents (actors) of a certain actor. ``get_opponent_count(PLAYER_ID)`` would return 2 if the player had 2 alive enemies.
 
@@ -475,7 +475,7 @@ get_opponent_count(guid : String) -> Table
 
 </details>
 
-<details> <summary><b><code>get_opponent_guids</code></b> </summary>
+<details> <summary><b><code>get_opponent_guids</code></b> </summary> <br/>
 
 Get the guids of opponents (actors) of a certain actor. If the player had 2 enemies, ``get_opponent_guids(PLAYER_ID)`` would return a table with 2 strings containing the guids of these actors.
 
@@ -487,7 +487,7 @@ get_opponent_guids(guid : String) -> Table
 
 </details>
 
-<details> <summary><b><code>get_player</code></b> </summary>
+<details> <summary><b><code>get_player</code></b> </summary> <br/>
 
 Get the player actor. Equivalent to ``get_actor(PLAYER_ID)``
 
@@ -499,7 +499,7 @@ get_player() -> Table
 
 </details>
 
-<details> <summary><b><code>remove_actor</code></b> </summary>
+<details> <summary><b><code>remove_actor</code></b> </summary> <br/>
 
 Deletes a actor by id.
 
@@ -520,7 +520,7 @@ Functions that modify or access the artifacts.
 None
 
 ### Functions
-<details> <summary><b><code>get_artifact</code></b> </summary>
+<details> <summary><b><code>get_artifact</code></b> </summary> <br/>
 
 Returns the artifact definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.
 
@@ -532,7 +532,7 @@ get_artifact(id : String) -> Table
 
 </details>
 
-<details> <summary><b><code>get_artifact_instance</code></b> </summary>
+<details> <summary><b><code>get_artifact_instance</code></b> </summary> <br/>
 
 Returns the artifact instance by guid.
 
@@ -544,7 +544,7 @@ get_artifact_instance(guid : String) -> None
 
 </details>
 
-<details> <summary><b><code>get_random_artifact_type</code></b> </summary>
+<details> <summary><b><code>get_random_artifact_type</code></b> </summary> <br/>
 
 Returns a random type id given a max gold price.
 
@@ -556,7 +556,7 @@ get_random_artifact_type(maxGold : Number) -> None
 
 </details>
 
-<details> <summary><b><code>give_artifact</code></b> </summary>
+<details> <summary><b><code>give_artifact</code></b> </summary> <br/>
 
 Gives a actor a artifact. Returns the guid of the newly created artifact.
 
@@ -568,7 +568,7 @@ give_artifact(typeId : String, actor : String) -> String
 
 </details>
 
-<details> <summary><b><code>remove_artifact</code></b> </summary>
+<details> <summary><b><code>remove_artifact</code></b> </summary> <br/>
 
 Removes a artifact.
 
@@ -589,7 +589,7 @@ Functions that modify or access the status effects.
 None
 
 ### Functions
-<details> <summary><b><code>add_status_effect_stacks</code></b> </summary>
+<details> <summary><b><code>add_status_effect_stacks</code></b> </summary> <br/>
 
 Adds to the stack count of a status effect. Negative values are also allowed.
 
@@ -601,7 +601,7 @@ add_status_effect_stacks(guid : String, count : Number) -> None
 
 </details>
 
-<details> <summary><b><code>get_actor_status_effects</code></b> </summary>
+<details> <summary><b><code>get_actor_status_effects</code></b> </summary> <br/>
 
 Returns the guids of all status effects that belong to a actor.
 
@@ -613,7 +613,7 @@ get_actor_status_effects(actorId : String) -> Array
 
 </details>
 
-<details> <summary><b><code>get_status_effect</code></b> </summary>
+<details> <summary><b><code>get_status_effect</code></b> </summary> <br/>
 
 Returns the status effect definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.
 
@@ -625,7 +625,7 @@ get_status_effect(id : String) -> Table
 
 </details>
 
-<details> <summary><b><code>get_status_effect_instance</code></b> </summary>
+<details> <summary><b><code>get_status_effect_instance</code></b> </summary> <br/>
 
 Returns the status effect instance.
 
@@ -637,7 +637,7 @@ get_status_effect_instance(effectGuid : String) -> Table
 
 </details>
 
-<details> <summary><b><code>give_status_effect</code></b> </summary>
+<details> <summary><b><code>give_status_effect</code></b> </summary> <br/>
 
 Gives a status effect to a actor. If count is not specified a stack of 1 is applied.
 
@@ -649,7 +649,7 @@ give_status_effect(typeId : String, actorGuid : String, (optional) count : Numbe
 
 </details>
 
-<details> <summary><b><code>remove_status_effect</code></b> </summary>
+<details> <summary><b><code>remove_status_effect</code></b> </summary> <br/>
 
 Removes a status effect.
 
@@ -661,7 +661,7 @@ remove_status_effect(guid : String) -> None
 
 </details>
 
-<details> <summary><b><code>set_status_effect_stacks</code></b> </summary>
+<details> <summary><b><code>set_status_effect_stacks</code></b> </summary> <br/>
 
 Sets the stack count of a status effect by guid.
 
@@ -682,7 +682,7 @@ Functions that modify or access the cards.
 None
 
 ### Functions
-<details> <summary><b><code>cast_card</code></b> </summary>
+<details> <summary><b><code>cast_card</code></b> </summary> <br/>
 
 Tries to cast a card with a guid and optional target. If the cast isn't successful returns false.
 
@@ -694,7 +694,7 @@ cast_card(cardGuid : String, (optional) targetActorGuid : String) -> Bool
 
 </details>
 
-<details> <summary><b><code>get_card</code></b> </summary>
+<details> <summary><b><code>get_card</code></b> </summary> <br/>
 
 Returns the card type definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.
 
@@ -706,7 +706,7 @@ get_card(id : String) -> Table
 
 </details>
 
-<details> <summary><b><code>get_card_instance</code></b> </summary>
+<details> <summary><b><code>get_card_instance</code></b> </summary> <br/>
 
 Returns the instance object of a card.
 
@@ -718,7 +718,7 @@ get_card_instance(cardGuid : String) -> Table
 
 </details>
 
-<details> <summary><b><code>get_cards</code></b> </summary>
+<details> <summary><b><code>get_cards</code></b> </summary> <br/>
 
 Returns all the card guids from the given actor.
 
@@ -730,7 +730,7 @@ get_cards(actorGuid : String) -> Array
 
 </details>
 
-<details> <summary><b><code>give_card</code></b> </summary>
+<details> <summary><b><code>give_card</code></b> </summary> <br/>
 
 Gives a card.
 
@@ -742,7 +742,7 @@ give_card(cardTypeId : String, ownerActorId : String) -> String
 
 </details>
 
-<details> <summary><b><code>remove_card</code></b> </summary>
+<details> <summary><b><code>remove_card</code></b> </summary> <br/>
 
 Removes a card.
 
@@ -754,7 +754,7 @@ remove_card(cardGuid : String) -> None
 
 </details>
 
-<details> <summary><b><code>upgrade_card</code></b> </summary>
+<details> <summary><b><code>upgrade_card</code></b> </summary> <br/>
 
 Upgrade a card without paying for it.
 
@@ -775,7 +775,7 @@ Functions that deal damage or heal.
 None
 
 ### Functions
-<details> <summary><b><code>deal_damage</code></b> </summary>
+<details> <summary><b><code>deal_damage</code></b> </summary> <br/>
 
 Deal damage to a enemy from one source. If flat is true the damage can't be modified by status effects or artifacts.
 
@@ -787,7 +787,7 @@ deal_damage(source : String, target : String, damage : Number, flat : Bool) -> N
 
 </details>
 
-<details> <summary><b><code>deal_damage_multi</code></b> </summary>
+<details> <summary><b><code>deal_damage_multi</code></b> </summary> <br/>
 
 Deal damage to multiple enemies from one source. If flat is true the damage can't be modified by status effects or artifacts.
 
@@ -799,7 +799,7 @@ deal_damage_multi(source : String, targets : Array, damage : Number, flat : Bool
 
 </details>
 
-<details> <summary><b><code>heal</code></b> </summary>
+<details> <summary><b><code>heal</code></b> </summary> <br/>
 
 Heals the target triggered by the source.
 
@@ -820,7 +820,7 @@ Functions that are related to the player.
 None
 
 ### Functions
-<details> <summary><b><code>give_player_gold</code></b> </summary>
+<details> <summary><b><code>give_player_gold</code></b> </summary> <br/>
 
 Gives the player gold.
 
@@ -832,7 +832,7 @@ give_player_gold(amount : Number) -> None
 
 </details>
 
-<details> <summary><b><code>player_buy_artifact</code></b> </summary>
+<details> <summary><b><code>player_buy_artifact</code></b> </summary> <br/>
 
 Let the player buy the artifact with the given id. This will deduct the price form the players gold and return true if the buy was successful.
 
@@ -844,7 +844,7 @@ player_buy_artifact(artifactId : String) -> Bool
 
 </details>
 
-<details> <summary><b><code>player_buy_card</code></b> </summary>
+<details> <summary><b><code>player_buy_card</code></b> </summary> <br/>
 
 Let the player buy the card with the given id. This will deduct the price form the players gold and return true if the buy was successful.
 
@@ -856,7 +856,7 @@ player_buy_card(cardId : String) -> Bool
 
 </details>
 
-<details> <summary><b><code>player_draw_card</code></b> </summary>
+<details> <summary><b><code>player_draw_card</code></b> </summary> <br/>
 
 Let the player draw additional cards for this turn.
 
@@ -868,7 +868,7 @@ player_draw_card(amount : Number) -> None
 
 </details>
 
-<details> <summary><b><code>player_give_action_points</code></b> </summary>
+<details> <summary><b><code>player_give_action_points</code></b> </summary> <br/>
 
 Gives the player more action points for this turn.
 
@@ -889,7 +889,7 @@ Functions that are related to the merchant.
 None
 
 ### Functions
-<details> <summary><b><code>add_merchant_artifact</code></b> </summary>
+<details> <summary><b><code>add_merchant_artifact</code></b> </summary> <br/>
 
 Adds another random artifact to the merchant
 
@@ -901,7 +901,7 @@ add_merchant_artifact() -> None
 
 </details>
 
-<details> <summary><b><code>add_merchant_card</code></b> </summary>
+<details> <summary><b><code>add_merchant_card</code></b> </summary> <br/>
 
 Adds another random card to the merchant
 
@@ -913,7 +913,7 @@ add_merchant_card() -> None
 
 </details>
 
-<details> <summary><b><code>get_merchant</code></b> </summary>
+<details> <summary><b><code>get_merchant</code></b> </summary> <br/>
 
 Returns the merchant state.
 
@@ -925,7 +925,7 @@ get_merchant() -> Table
 
 </details>
 
-<details> <summary><b><code>get_merchant_gold_max</code></b> </summary>
+<details> <summary><b><code>get_merchant_gold_max</code></b> </summary> <br/>
 
 Returns the maximum value of artifacts and cards that the merchant will sell. Good to scale ``random_card`` and ``random_artifact``.
 
@@ -946,7 +946,7 @@ Functions that help with random generation.
 None
 
 ### Functions
-<details> <summary><b><code>gen_face</code></b> </summary>
+<details> <summary><b><code>gen_face</code></b> </summary> <br/>
 
 Generates a random face.
 
@@ -958,7 +958,7 @@ gen_face((optional) category : Number) -> String
 
 </details>
 
-<details> <summary><b><code>random_artifact</code></b> </summary>
+<details> <summary><b><code>random_artifact</code></b> </summary> <br/>
 
 Returns the type id of a random artifact.
 
@@ -970,7 +970,7 @@ random_artifact(maxPrice : Number) -> String
 
 </details>
 
-<details> <summary><b><code>random_card</code></b> </summary>
+<details> <summary><b><code>random_card</code></b> </summary> <br/>
 
 Returns the type id of a random card.
 
