@@ -15,6 +15,7 @@
 - [Player Operations](#player-operations)
 - [Merchant Operations](#merchant-operations)
 - [Random Utility](#random-utility)
+- [Content Registry](#content-registry)
 
 ## Game Constants
 
@@ -978,6 +979,228 @@ Returns the type id of a random card.
 
 ```
 random_card(maxPrice : Number) -> String
+```
+
+</details>
+
+## Content Registry
+
+These functions are used to define new content in the base game and in mods.
+
+### Globals
+
+None
+
+### Functions
+<details> <summary><b><code>register_artifact</code></b> </summary> <br/>
+
+Registers a new artifact.
+
+```lua
+register_artifact("REPULSION_STONE",
+    {
+        name = "Repulsion Stone",
+        description = "For each damage taken heal for 2",
+        price = 100,
+        order = 0,
+        callbacks = {
+            on_damage = function(ctx)
+                if ctx.target == ctx.owner then
+                    heal(ctx.owner, 2)
+                end
+                return nil
+            end,
+        }
+    }
+)
+```
+
+**Signature:**
+
+```
+register_artifact(id : String, definition : Table) -> None
+```
+
+</details>
+
+<details> <summary><b><code>register_card</code></b> </summary> <br/>
+
+Registers a new artifact.
+
+```lua
+register_card("MELEE_HIT",
+    {
+        name = "Melee Hit",
+        description = "Use your bare hands to deal 5 (+3 for each upgrade) damage.",
+        state = function(ctx)
+            return "Use your bare hands to deal " .. highlight(5 + ctx.level * 3) .. " damage."
+        end,
+        max_level = 1,
+        color = "#2f3e46",
+        need_target = true,
+        point_cost = 1,
+        price = 30,
+        callbacks = {
+            on_cast = function(ctx)
+                deal_damage(ctx.caster, ctx.target, 5 + ctx.level * 3)
+                return nil
+            end,
+        }
+    }
+)
+```
+
+**Signature:**
+
+```
+register_card(id : String, definition : Table) -> None
+```
+
+</details>
+
+<details> <summary><b><code>register_enemy</code></b> </summary> <br/>
+
+Registers a new artifact.
+
+```lua
+register_enemy("RUST_MITE",
+    {
+        name = "Rust Mite",
+        description = "Loves to eat metal.",
+        look = "/v\\",
+        color = "#e6e65a",
+        initial_hp = 22,
+        max_hp = 22,
+        gold = 10,
+        callbacks = {
+            on_turn = function(ctx)
+                if ctx.round % 4 == 0 then
+                    give_status_effect("RITUAL", ctx.guid)
+                else
+                    deal_damage(ctx.guid, PLAYER_ID, 6)
+                end
+
+                return nil
+            end
+        }
+    }
+)
+```
+
+**Signature:**
+
+```
+register_enemy(id : String, definition : Table) -> None
+```
+
+</details>
+
+<details> <summary><b><code>register_event</code></b> </summary> <br/>
+
+Registers a new artifact.
+
+```lua
+register_event("SOME_EVENT",
+	{
+		name = "Event Name",
+		description = [[Flavor Text... Can include **Markdown** Syntax!]],
+		choices = {
+			{
+				description = "Go...",
+				callback = function()
+					-- If you return nil on_end will decide the next game state
+					return nil 
+				end
+			},
+			{
+				description = "Other Option",
+				callback = function() return GAME_STATE_FIGHT end
+			}
+		},
+		on_enter = function()
+			play_music("energetic_orthogonal_expansions")
+	
+			give_card("MELEE_HIT", PLAYER_ID)
+			give_card("MELEE_HIT", PLAYER_ID)
+			give_card("MELEE_HIT", PLAYER_ID)
+			give_card("RUPTURE", PLAYER_ID)
+			give_card("BLOCK", PLAYER_ID)
+			give_artifact(get_random_artifact_type(150), PLAYER_ID)
+		end,
+		on_end = function(choice)
+			-- Choice will be nil or the index of the choice taken
+			return GAME_STATE_RANDOM
+		end,
+	}
+)
+```
+
+**Signature:**
+
+```
+register_event(id : String, definition : Table) -> None
+```
+
+</details>
+
+<details> <summary><b><code>register_status_effect</code></b> </summary> <br/>
+
+Registers a new artifact.
+
+```lua
+register_artifact("REPULSION_STONE",
+    {
+        name = "Repulsion Stone",
+        description = "For each damage taken heal for 2",
+        price = 100,
+        order = 0,
+        callbacks = {
+            on_damage = function(ctx)
+                if ctx.target == ctx.owner then
+                    heal(ctx.owner, 2)
+                end
+                return nil
+            end,
+        }
+    }
+)
+```
+
+**Signature:**
+
+```
+register_status_effect(id : String, definition : Table) -> None
+```
+
+</details>
+
+<details> <summary><b><code>register_story_teller</code></b> </summary> <br/>
+
+Registers a new artifact.
+
+```lua
+register_artifact("REPULSION_STONE",
+    {
+        name = "Repulsion Stone",
+        description = "For each damage taken heal for 2",
+        price = 100,
+        order = 0,
+        callbacks = {
+            on_damage = function(ctx)
+                if ctx.target == ctx.owner then
+                    heal(ctx.owner, 2)
+                end
+                return nil
+            end,
+        }
+    }
+)
+```
+
+**Signature:**
+
+```
+register_story_teller(id : String, definition : Table) -> None
 ```
 
 </details>
