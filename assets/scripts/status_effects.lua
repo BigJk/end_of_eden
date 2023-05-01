@@ -14,7 +14,7 @@ register_status_effect("WEAKEN", {
     decay = DECAY_ALL,
     rounds = 1,
     callbacks = {
-        on_damage_calc = function()
+        on_damage_calc = function(ctx)
             if ctx.source == ctx.owner then
                 return ctx.damage - ctx.stacks * 2
             end

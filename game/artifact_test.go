@@ -35,7 +35,7 @@ register_artifact(
 
 func TestArtifact(t *testing.T) {
 	s := lua.NewState()
-	man := NewResourcesManager(s, log.New(io.Discard, "", 0))
+	man := NewResourcesManager(s, nil, log.New(io.Discard, "", 0))
 
 	// Evaluate lua
 	if !assert.NoError(t, s.DoString(TestArtifactLua)) {

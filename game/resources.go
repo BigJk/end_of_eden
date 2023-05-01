@@ -201,6 +201,10 @@ func (man *ResourcesManager) luaDeleteEvent(l *lua.LState) int {
 }
 
 func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
+	if docs == nil {
+		return
+	}
+
 	docs.Category("Content Registry", "These functions are used to define new content in the base game and in mods.", 100)
 
 	docs.Function("register_artifact", fmt.Sprintf("Registers a new artifact.\n\n```lua\n%s\n```", `register_artifact("REPULSION_STONE",

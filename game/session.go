@@ -264,6 +264,10 @@ func (s *Session) GobDecode(data []byte) error {
 	return nil
 }
 
+func (s *Session) GetResources() *ResourcesManager {
+	return s.resources
+}
+
 //
 // Internal
 //
@@ -574,7 +578,7 @@ func (s *Session) FinishFight() bool {
 	return false
 }
 
-// FinishEvent finishes a event with the given choice. If the game state is not in the EVENT state this
+// FinishEvent finishes an event with the given choice. If the game state is not in the EVENT state this
 // does nothing.
 func (s *Session) FinishEvent(choice int) {
 	if len(s.currentEvent) == 0 || s.state != GameStateEvent {
@@ -849,7 +853,7 @@ func (s *Session) GetInstances() []string {
 	return lo.Keys(s.instances)
 }
 
-// GetInstance returns a instance by guid. An instance is a CardInstance or ArtifactInstance.
+// GetInstance returns an instance by guid. An instance is a CardInstance or ArtifactInstance.
 func (s *Session) GetInstance(guid string) any {
 	return s.instances[guid]
 }
@@ -983,6 +987,13 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 	}
 
 	status := s.resources.StatusEffects[typeId]
+	if status == nil {
+		return ""
+	}
+
+	if _, ok := s.actors[owner]; !ok {
+		return ""
+	}
 
 	// TODO: This should always be either 0 or 1 len, so the logic down below is a bit meh.
 	same := lo.Filter(s.actors[owner].StatusEffects.ToSlice(), func(guid string, index int) bool {
@@ -995,7 +1006,7 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 	})
 
 	if len(same) > 1 {
-		log.Println("Error: status effect duplicate!")
+		panic("Error: status effect duplicate!")
 	}
 
 	// If it can't stack we delete all existing instances
@@ -1035,7 +1046,11 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 
 // RemoveStatusEffect removes a status effect by guid.
 func (s *Session) RemoveStatusEffect(guid string) {
-	instance := s.instances[guid].(StatusEffectInstance)
+	instance, ok := s.instances[guid].(StatusEffectInstance)
+	if !ok {
+		return
+	}
+
 	if _, err := s.resources.StatusEffects[instance.TypeID].Callbacks[CallbackOnStatusRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
 		s.logLuaError(CallbackOnStatusRemove, instance.TypeID, err)
 	}
@@ -1056,7 +1071,11 @@ func (s *Session) GetActorStatusEffects(guid string) []string {
 
 // AddStatusEffectStacks increases the stacks of a certain status effect by guid.
 func (s *Session) AddStatusEffectStacks(guid string, stacks int) {
-	instance := s.instances[guid].(StatusEffectInstance)
+	instance, ok := s.instances[guid].(StatusEffectInstance)
+	if !ok {
+		return
+	}
+
 	instance.Stacks += stacks
 	if instance.Stacks <= 0 {
 		s.RemoveStatusEffect(guid)
@@ -1067,7 +1086,11 @@ func (s *Session) AddStatusEffectStacks(guid string, stacks int) {
 
 // SetStatusEffectStacks sets the stacks of a certain status effect by guid.
 func (s *Session) SetStatusEffectStacks(guid string, stacks int) {
-	instance := s.instances[guid].(StatusEffectInstance)
+	instance, ok := s.instances[guid].(StatusEffectInstance)
+	if !ok {
+		return
+	}
+
 	instance.Stacks = stacks
 	if instance.Stacks <= 0 {
 		s.RemoveStatusEffect(guid)
@@ -1136,6 +1159,10 @@ func (s *Session) GetArtifact(guid string) (*Artifact, ArtifactInstance) {
 
 // GiveArtifact gives an artifact to an actor.
 func (s *Session) GiveArtifact(typeId string, owner string) string {
+	if _, ok := s.resources.Artifacts[typeId]; !ok {
+		return ""
+	}
+
 	instance := ArtifactInstance{
 		TypeID: typeId,
 		GUID:   NewGuid("ARTIFACT"),
@@ -1186,6 +1213,10 @@ func (s *Session) GetCard(guid string) (*Card, CardInstance) {
 }
 
 func (s *Session) GiveCard(typeId string, owner string) string {
+	if _, ok := s.resources.Cards[typeId]; !ok {
+		return ""
+	}
+
 	instance := CardInstance{
 		TypeID: typeId,
 		GUID:   NewGuid("CARD"),
@@ -1353,6 +1384,10 @@ func (s *Session) UpgradeCard(guid string) bool {
 //
 
 func (s *Session) DealDamage(source string, target string, damage int, flat bool) int {
+	if _, ok := s.actors[source]; !ok {
+		return 0
+	}
+
 	val, ok := s.actors[target]
 	if !ok {
 		return 0
@@ -1499,7 +1534,10 @@ func (s *Session) GetActors() []string {
 }
 
 func (s *Session) GetActor(id string) Actor {
-	return s.actors[id]
+	if val, ok := s.actors[id]; ok {
+		return val
+	}
+	return NewActor("")
 }
 
 func (s *Session) UpdateActor(id string, update func(actor *Actor) bool) {

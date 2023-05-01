@@ -103,7 +103,7 @@ register_story_teller("STAGE_2", {
             -- BOSS
         end
 
-        return nil
+        return GAME_STATE_FIGHT
     end
 })
 
@@ -125,6 +125,6 @@ register_story_teller("STAGE_3", {
             -- BOSS
         end
 
-        return nil
+        return GAME_STATE_FIGHT
     end
 })
