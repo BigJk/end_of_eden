@@ -32,7 +32,16 @@ func main() {
 	testEnemies := flag.String("enemies", "", "test enemies")
 	testArtifacts := flag.String("artifacts", "", "test artifacts")
 	testGameState := flag.String("game_state", "", "test game state")
+	help := flag.Bool("help", false, "show help")
 	flag.Parse()
+
+	if *help {
+		fmt.Println("End Of Eden :: Game")
+		fmt.Println()
+
+		flag.PrintDefaults()
+		return
+	}
 
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
 

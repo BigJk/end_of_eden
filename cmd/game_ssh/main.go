@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	"github.com/BigJk/end_of_eden/ui/root"
 	zone "github.com/lrstanley/bubblezone"
@@ -27,10 +28,20 @@ var instanceLimit int
 var instances int
 
 func main() {
+	fmt.Println("End Of Eden :: SSH Server")
+	fmt.Println("Each SSH session creates it's own game session. Modding and audio not supported.")
+	fmt.Println()
+
 	bind := flag.String("bind", ":8273", "ip and port to bind to")
 	timeout := flag.Int("timeout", 0, "ssh idle timeout")
 	maxInstance := flag.Int("max_inst", 10, "maximum of game instances")
+	help := flag.Bool("help", false, "show help")
 	flag.Parse()
+
+	if *help {
+		flag.PrintDefaults()
+		return
+	}
 
 	options := []ssh.Option{
 		wish.WithAddress(*bind),

@@ -22,13 +22,14 @@ func main() {
 	fmt.Println("The fuzzy tester hits a game session with a random number of operations and tries to trigger a panic.")
 	fmt.Println()
 
-	routines := flag.Int("n", 0, "number of goroutines")
+	routines := flag.Int("n", 1, "number of goroutines")
 	timeout := flag.Duration("timeout", time.Minute, "length of testing")
 	baseSeed := flag.Int64("seed", 0, "random seed")
 	modsString := flag.String("mods", "", "mods to load and test, separated by ',' (e.g. mod1,mod2,mod3)")
+	help := flag.Bool("help", false, "show help")
 	flag.Parse()
 
-	if *routines == 0 {
+	if *help {
 		flag.PrintDefaults()
 		return
 	}
