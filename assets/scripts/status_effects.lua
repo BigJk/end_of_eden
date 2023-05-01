@@ -1,7 +1,6 @@
 --
 -- Negative Status Effects
 --
-
 register_status_effect("WEAKEN", {
     name = "Weaken",
     description = "Weakens damage for each stack",
@@ -19,7 +18,7 @@ register_status_effect("WEAKEN", {
                 return ctx.damage - ctx.stacks * 2
             end
             return ctx.damage
-        end,
+        end
     }
 })
 
@@ -40,7 +39,7 @@ register_status_effect("VULNERABLE", {
                 return ctx.damage * (1.0 + 0.25 * ctx.stacks)
             end
             return ctx.damage
-        end,
+        end
     }
 })
 
@@ -59,7 +58,7 @@ register_status_effect("BURN", {
         on_turn = function(ctx)
             deal_damage(ctx.guid, ctx.owner, ctx.stacks * 2, true)
             return nil
-        end,
+        end
     }
 })
 
@@ -84,7 +83,7 @@ register_status_effect("STRENGTH", {
                 return ctx.damage + ctx.stacks
             end
             return ctx.damage
-        end,
+        end
     }
 })
 
@@ -107,7 +106,7 @@ register_status_effect("BLOCK", {
                 return ctx.damage - ctx.stacks
             end
             return ctx.damage
-        end,
+        end
     }
 })
 
@@ -126,7 +125,7 @@ register_status_effect("RITUAL", {
         on_player_turn = function(ctx)
             local guid = give_status_effect("STRENGTH", ctx.owner)
             set_status_effect_stacks(guid, 3 + ctx.stacks)
-        end,
+        end
     }
 })
 
@@ -144,7 +143,7 @@ register_status_effect("FEAR", {
     callbacks = {
         on_turn = function(ctx)
             return true
-        end,
+        end
     }
 })
 
@@ -162,6 +161,6 @@ register_status_effect("BLEED", {
     callbacks = {
         on_turn = function(ctx)
             return true
-        end,
+        end
     }
 })

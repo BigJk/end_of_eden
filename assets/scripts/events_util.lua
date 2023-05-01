@@ -11,9 +11,11 @@ function create_artifact_choice(artifacts, options)
             end
         }
     end):totable()
-    choices[#choices+1] = {
+    choices[#choices + 1] = {
         description = "Skip...",
-        callback = function() return nil end
+        callback = function()
+            return nil
+        end
     }
 
     local def = {
@@ -22,7 +24,7 @@ function create_artifact_choice(artifacts, options)
         choices = choices,
         on_end = function()
             return GAME_STATE_RANDOM
-        end,
+        end
     }
 
     if options ~= nil then
@@ -57,9 +59,11 @@ function create_card_choice(cards, options)
             end
         }
     end):totable()
-    choices[#choices+1] = {
+    choices[#choices + 1] = {
         description = "Skip...",
-        callback = function() return nil end
+        callback = function()
+            return nil
+        end
     }
 
     local def = {
@@ -68,7 +72,7 @@ function create_card_choice(cards, options)
         choices = choices,
         on_end = function()
             return GAME_STATE_RANDOM
-        end,
+        end
     }
 
     if options ~= nil then

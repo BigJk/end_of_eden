@@ -49,13 +49,7 @@ After some effort, you manage to open the door and find yourself in a small room
 -- Stage 1
 --
 
-stage_2 = {
-    fights = {
-        { "RUST_MITE", "RUST_MITE", "RUST_MITE" },
-        { "SHADOW_ASSASSIN", "SHADOW_ASSASSIN" },
-        { "SHADOW_ASSASSIN" }
-    }
-}
+stage_2 = { fights = { { "RUST_MITE", "RUST_MITE", "RUST_MITE" }, { "SHADOW_ASSASSIN", "SHADOW_ASSASSIN" }, { "SHADOW_ASSASSIN" } } }
 
 register_story_teller("STAGE_1", {
     active = function(ctx)

@@ -1,0 +1,24 @@
+shape: sequence_diagram
+
+User
+Session
+Lua
+
+User."Init"
+
+User.t1 -> Session.t1: "SetupFight()"
+Session.t1 -> Session.t1: "Create clean fight state"
+Session.t1 -> Lua: "Trigger OnPlayerTurn"
+User.t1 <- Session.t1
+
+User."Repeat"
+
+User.mid -> Session.mid: "PlayerCastHand() etc."
+Session.mid -> Lua: "Trigger OnDamage etc."
+User.mid <- Session.mid
+
+User.t2 -> Session.t2: "FinishPlayerTurn()"
+Session.t2 -> Lua: "Trigger OnTurn"
+Session.t2 -> Session.t2: "Update and remove status effects"
+Session.t2 -> Lua: "Trigger OnPlayerTurn"
+User.t2 <- Session.t2
