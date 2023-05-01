@@ -10,7 +10,7 @@ import (
 
 var actorFaceStyle = lipgloss.NewStyle().Border(lipgloss.OuterHalfBlockBorder()).Padding(0, 1).Margin(0, 0, 1, 0).BorderForeground(style.BaseGrayDarker).Foreground(style.BaseRed)
 
-func Actor(session *game.Session, actor game.Actor, enemy *game.Enemy, showStatus bool, showHp bool, active bool) string {
+func Actor(session *game.Session, actor game.Actor, enemy *game.Enemy, showStatus bool, showHp bool, active bool, additional ...string) string {
 	face := actorFaceStyle.Copy().BorderForeground(lo.Ternary(active, style.BaseWhite, style.BaseGrayDarker)).Foreground(lipgloss.Color(enemy.Color)).Render(enemy.Look)
 
 	var parts []string
@@ -24,6 +24,10 @@ func Actor(session *game.Session, actor game.Actor, enemy *game.Enemy, showStatu
 	if showHp {
 		parts = append(parts, fmt.Sprintf("%d / %d", actor.HP, enemy.MaxHP))
 	}
+
+	parts = append(parts, lo.Filter(additional, func(item string, index int) bool {
+		return len(item) > 0
+	})...)
 
 	return lipgloss.NewStyle().Foreground(style.BaseWhite).Margin(0, 2).
 		Render(lipgloss.JoinVertical(

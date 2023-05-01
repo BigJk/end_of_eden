@@ -62,45 +62,45 @@ func ExposeDebug(port int, session *Session, l *lua.LState, log *log.Logger) fun
 	})
 
 	e.GET("/state", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, session.GetGameState())
+		return c.JSONPretty(http.StatusOK, session.GetGameState(), "\t")
 	})
 
 	e.GET("/fight", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, session.GetFight())
+		return c.JSONPretty(http.StatusOK, session.GetFight(), "\t")
 	})
 
 	e.GET("/merchant", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, session.GetMerchant())
+		return c.JSONPretty(http.StatusOK, session.GetMerchant(), "\t")
 	})
 
 	e.GET("/actor/:guid", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, session.GetActor(c.Param("guid")))
+		return c.JSONPretty(http.StatusOK, session.GetActor(c.Param("guid")), "\t")
 	})
 
 	e.GET("/instance/:guid", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, session.GetInstance(c.Param("guid")))
+		return c.JSONPretty(http.StatusOK, session.GetInstance(c.Param("guid")), "\t")
 	})
 
 	e.GET("/actors", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, lo.Map(session.GetActors(), func(guid string, _ int) Actor {
+		return c.JSONPretty(http.StatusOK, lo.Map(session.GetActors(), func(guid string, _ int) Actor {
 			return session.GetActor(guid)
-		}))
+		}), "\t")
 	})
 
 	e.POST("/exec", func(c echo.Context) error {
 		lua, err := io.ReadAll(c.Request().Body)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSONPretty(http.StatusBadRequest, err.Error(), "\t")
 		}
 
 		mtx.Lock()
 		defer mtx.Unlock()
 
 		if _, err := l.LoadString(string(lua)); err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSONPretty(http.StatusBadRequest, err.Error(), "\t")
 		} else {
 			if err := l.DoString(string(lua)); err != nil {
-				return c.JSON(http.StatusBadRequest, err.Error())
+				return c.JSONPretty(http.StatusBadRequest, err.Error(), "\t")
 			}
 		}
 
@@ -108,15 +108,15 @@ func ExposeDebug(port int, session *Session, l *lua.LState, log *log.Logger) fun
 	})
 
 	e.GET("/instances", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, lo.Map(session.GetInstances(), func(guid string, _ int) any {
+		return c.JSONPretty(http.StatusOK, lo.Map(session.GetInstances(), func(guid string, _ int) any {
 			return session.GetInstance(guid)
-		}))
+		}), "\t")
 	})
 
 	e.GET("svg", func(c echo.Context) error {
 		svg, _, err := session.ToSVG()
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSONPretty(http.StatusBadRequest, err.Error(), "\t")
 		}
 		return c.Blob(http.StatusOK, "image/svg+xml", svg)
 	})
@@ -124,7 +124,7 @@ func ExposeDebug(port int, session *Session, l *lua.LState, log *log.Logger) fun
 	e.GET("d2", func(c echo.Context) error {
 		_, diag, err := session.ToSVG()
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSONPretty(http.StatusBadRequest, err.Error(), "\t")
 		}
 		return c.String(http.StatusOK, diag)
 	})

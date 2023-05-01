@@ -37,6 +37,13 @@ register_enemy(
         initial_hp = 22,
         max_hp = 22,
         gold = 10,
+        intend = function(ctx)
+            if ctx.round % 4 == 0 then
+                return "Gather strength"
+            end
+
+            return "Deal " .. highlight(6) .. " damage"
+        end,
         callbacks = {
             on_turn = function(ctx)
                 if ctx.round % 4 == 0 then
@@ -63,6 +70,14 @@ register_enemy(
         initial_hp = 25,
         max_hp = 25,
         gold = 15,
+        intend = function(ctx)
+            local self = get_actor(ctx.guid)
+            if self.hp <= 8 then
+                return "Block " .. highlight(4)
+            end
+
+            return "Deal " .. highlight(7) .. " damage"
+        end,
         callbacks = {
             on_player_turn = function(ctx)
                 local self = get_actor(ctx.guid)
@@ -94,6 +109,22 @@ register_enemy(
         initial_hp = 20,
         max_hp = 20,
         gold = 30,
+        intend = function(ctx)
+            local bleeds = fun.iter(pairs(get_actor_status_effects(PLAYER_ID)))
+                              :map(get_status_effect_instance)
+                              :filter(function(val) return val.type_id == "BLEED" end)
+                              :totable()
+
+            if #bleeds > 0 then
+                return "Deal " .. highlight(10) .. " damage"
+            elseif ctx.round % 3 == 0 then
+                return "Inflict bleed"
+            else
+                return "Deal " .. highlight(5) .. " damage"
+            end
+
+            return nil
+        end,
         callbacks = {
             on_turn = function(ctx)
                 -- Count bleed stacks
@@ -104,7 +135,7 @@ register_enemy(
 
                 if #bleeds > 0 then -- If bleeding do more damage
                     deal_damage(ctx.guid, PLAYER_ID, 10)
-                elseif ctx.round % 2 == 0 then -- Try to bleed every 2 rounds with 3 dmg
+                elseif ctx.round % 3 == 0 then -- Try to bleed every 2 rounds with 3 dmg
                     if deal_damage(ctx.guid, PLAYER_ID, 3) > 0 then
                         give_status_effect("BLEED", PLAYER_ID, 2)
                     end

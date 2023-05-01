@@ -411,7 +411,9 @@ func (m Model) fightCardViewHeight() int {
 func (m Model) fightEnemyInspectView() string {
 	enemy := m.Session.GetOpponents(game.PlayerActorID)[m.selectedOpponent]
 
-	status := "Status Effects:\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
+	intend := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Intend:") + "\n\n" + m.Session.GetActorIntend(enemy.GUID) + "\n\n"
+
+	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Status Effects:") + "\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
 		return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
 	}), "\n\n")
 
@@ -419,7 +421,7 @@ func (m Model) fightEnemyInspectView() string {
 		lipgloss.NewStyle().Border(lipgloss.ThickBorder(), true).Padding(1, 2).BorderForeground(style.BaseRedDarker).Render(
 			lipgloss.JoinHorizontal(lipgloss.Top,
 				lipgloss.NewStyle().Border(lipgloss.NormalBorder(), false, true, false, false).BorderForeground(style.BaseGrayDarker).Padding(0, 2, 2, 0).Render(components.Actor(m.Session, enemy, m.Session.GetEnemy(enemy.TypeID), true, true, false)),
-				lipgloss.NewStyle().Margin(0, 0, 0, 3).Width(30).Render(status),
+				lipgloss.NewStyle().Margin(0, 0, 0, 3).Width(30).Render(intend+status),
 			),
 		),
 		lipgloss.WithWhitespaceChars("?"), lipgloss.WithWhitespaceForeground(style.BaseGrayDarker),
@@ -428,7 +430,20 @@ func (m Model) fightEnemyInspectView() string {
 
 func (m Model) fightEnemyView() string {
 	enemyBoxes := lo.Map(m.Session.GetOpponents(game.PlayerActorID), func(actor game.Actor, i int) string {
-		return components.Actor(m.Session, actor, m.Session.GetEnemy(actor.TypeID), true, true, m.inOpponentSelection && i == m.selectedOpponent || m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse))
+		intend := m.Session.GetActorIntend(actor.GUID)
+		if len(intend) > 0 {
+			intend = "\n" + lipgloss.NewStyle().Italic(true).Foreground(style.BaseGray).Render(intend)
+		}
+
+		return components.Actor(
+			m.Session,
+			actor,
+			m.Session.GetEnemy(actor.TypeID),
+			true,
+			true,
+			m.inOpponentSelection && i == m.selectedOpponent || m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse),
+			intend,
+		)
 	})
 
 	enemyBoxes = lo.Map(enemyBoxes, func(item string, i int) string {

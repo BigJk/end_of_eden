@@ -74,7 +74,7 @@ func tester(index int, wg *sync.WaitGroup) {
 
 	for time.Now().Unix() < endTime {
 		s := game.NewSession(game.WithMods(mods))
-		ops := 5 + rand.Intn(100)
+		ops := 5 + rand.Intn(1000)
 		stack = [][]string{}
 		s.SetOnLuaError(func(file string, line int, callback string, typeId string, err error) {
 			fmt.Println("File     :", file)

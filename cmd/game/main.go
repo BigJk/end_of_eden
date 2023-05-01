@@ -105,7 +105,7 @@ func main() {
 
 	// If test flags are present we load up a session with the given cards, enemies and artifacts.
 	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 || len(*testGameState) > 0 {
-		session := game.NewSession(game.WithLogging(log.Default()), game.WithMods(settings.LoadedSettings.Mods))
+		session := game.NewSession(game.WithLogging(log.Default()), game.WithMods(settings.LoadedSettings.Mods), lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil))
 		session.SetGameState(game.GameStateFight)
 		session.GetPlayer().Cards.Clear()
 

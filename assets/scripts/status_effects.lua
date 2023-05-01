@@ -32,7 +32,7 @@ register_status_effect("VULNERABLE", {
         return "Takes " .. highlight(ctx.stacks * 25) .. "% more damage"
     end,
     can_stack = true,
-    decay = DECAY_ALL,
+    decay = DECAY_ONE,
     rounds = 1,
     callbacks = {
         on_damage_calc = function(ctx)
@@ -157,7 +157,7 @@ register_status_effect("BLEED", {
         return nil
     end,
     can_stack = false,
-    decay = DECAY_ALL,
+    decay = DECAY_ONE,
     rounds = 2,
     callbacks = {
         on_turn = function(ctx)

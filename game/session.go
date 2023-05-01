@@ -570,7 +570,7 @@ func (s *Session) FinishFight() bool {
 		if len(s.currentEvent) > 0 {
 			s.SetGameState(GameStateEvent)
 		} else if s.stagesCleared%10 == 0 {
-			s.SetEvent("CHOICE")
+			s.SetEvent("MERCHANT")
 		} else {
 			s.SetGameState(GameStateRandom)
 		}
@@ -961,7 +961,10 @@ func (s *Session) GetStatusEffectState(guid string) string {
 
 // GetStatusEffectInstance returns status effect instance by guid.
 func (s *Session) GetStatusEffectInstance(guid string) StatusEffectInstance {
-	return s.instances[guid].(StatusEffectInstance)
+	if val, ok := s.instances[guid].(StatusEffectInstance); ok {
+		return val
+	}
+	return StatusEffectInstance{}
 }
 
 // RemoveAllStatusEffects clears all present status effects.
@@ -1063,7 +1066,7 @@ func (s *Session) RemoveStatusEffect(guid string) {
 // GetActorStatusEffects returns the guids of all the status effects a certain actor owns.
 func (s *Session) GetActorStatusEffects(guid string) []string {
 	if actor, ok := s.actors[guid]; ok {
-		actor.StatusEffects.ToSlice()
+		return actor.StatusEffects.ToSlice()
 	}
 
 	return []string{}
@@ -1547,6 +1550,18 @@ func (s *Session) UpdateActor(id string, update func(actor *Actor) bool) {
 	}
 }
 
+func (s *Session) GetActorIntend(guid string) string {
+	if enemy := s.GetEnemy(s.actors[guid].TypeID); enemy != nil {
+		res, err := enemy.Intend.Call(CreateContext("type_id", enemy.ID, "guid", guid, "round", s.currentFight.Round))
+		if err != nil {
+			s.logLuaError("Intend", enemy.ID, err)
+		} else if res, ok := res.(string); ok {
+			return res
+		}
+	}
+	return ""
+}
+
 func (s *Session) ActorAddMaxHP(id string, val int) {
 	s.UpdateActor(id, func(actor *Actor) bool {
 		actor.MaxHP += val
@@ -1856,7 +1871,7 @@ actors.%s: {
 			diag += fmt.Sprintf("instances.%s { \ntext: ||txt\n%s\n||\n}\n", inst.GUID, fmt.Sprintf("Level = %d", inst.Level))
 			diag += fmt.Sprintf("instances.%s -> %s\n", inst.GUID, "resources.cards."+inst.TypeID+": TypeId {style.animated: true}")
 		case StatusEffectInstance:
-			diag += fmt.Sprintf("instances.%s { \ntext: ||txt\n%s\n||\n}\n", inst.GUID, fmt.Sprintf("Level = %d\nRounds Left = %d", inst.Stacks, inst.RoundsLeft))
+			diag += fmt.Sprintf("instances.%s { \ntext: ||txt\n%s\n||\n}\n", inst.GUID, fmt.Sprintf("Stacks = %d\nRounds Left = %d", inst.Stacks, inst.RoundsLeft))
 			diag += fmt.Sprintf("instances.%s -> %s\n", inst.GUID, "resources.status."+inst.TypeID+": TypeId {style.animated: true}")
 		}
 	}
