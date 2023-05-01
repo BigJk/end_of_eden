@@ -27,7 +27,7 @@ func main() {
 	baseSeed := flag.Int64("seed", 0, "random seed")
 	modsString := flag.String("mods", "", "mods to load and test, separated by ',' (e.g. mod1,mod2,mod3)")
 	flag.Parse()
-	
+
 	if *routines == 0 {
 		flag.PrintDefaults()
 		return

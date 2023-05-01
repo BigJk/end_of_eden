@@ -77,7 +77,7 @@ func ToLua(state *lua.LState, val any) lua.LValue {
 	}
 }
 
-var noProtect = os.Getenv("PG_NO_PROTECT") == "1"
+var noProtect = os.Getenv("EOE_NO_PROTECT") == "1"
 
 // BindToLua will create a OwnedCallback from a lua function and state.
 func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
