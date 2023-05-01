@@ -122,3 +122,5 @@ register_story_teller("STAGE_3", {
         return GAME_STATE_FIGHT
     end
 })
+
+table = { "Hlelo" }
