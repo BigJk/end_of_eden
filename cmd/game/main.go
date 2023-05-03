@@ -32,6 +32,7 @@ func main() {
 	testEnemies := flag.String("enemies", "", "test enemies")
 	testArtifacts := flag.String("artifacts", "", "test artifacts")
 	testGameState := flag.String("game_state", "", "test game state")
+	testEvent := flag.String("event", "", "test event")
 	help := flag.Bool("help", false, "show help")
 	flag.Parse()
 
@@ -104,7 +105,7 @@ func main() {
 	baseModel = root.New(zones, mainmenu.NewModel(zones))
 
 	// If test flags are present we load up a session with the given cards, enemies and artifacts.
-	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 || len(*testGameState) > 0 {
+	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 || len(*testGameState) > 0 || len(*testEvent) > 0 {
 		session := game.NewSession(game.WithLogging(log.Default()), game.WithMods(settings.LoadedSettings.Mods), lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil))
 		session.SetGameState(game.GameStateFight)
 		session.GetPlayer().Cards.Clear()
@@ -135,6 +136,11 @@ func main() {
 		})
 
 		session.SetupFight()
+
+		if len(*testEvent) > 0 {
+			session.SetGameState(game.GameStateEvent)
+			session.SetEvent(*testEvent)
+		}
 
 		if len(*testGameState) > 0 {
 			session.SetGameState(game.GameState(*testGameState))

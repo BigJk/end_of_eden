@@ -123,4 +123,14 @@ var Operations = map[string]func(rnd *rand.Rand, s *game.Session) string{
 		s.BuyRemoveCard(cardId)
 		return fmt.Sprintf("Buy removing card '%s'", cardId)
 	},
+	"UpgradeCard": func(rnd *rand.Rand, s *game.Session) string {
+		cardId := Shuffle(rnd, lo.Flatten([][]string{{""}, s.GetInstances()}))[0]
+		s.UpgradeCard(cardId)
+		return fmt.Sprintf("Upgrading card '%s'", cardId)
+	},
+	"UpgradeRandomCard": func(rnd *rand.Rand, s *game.Session) string {
+		guid := Shuffle(rnd, lo.Flatten([][]string{{""}, s.GetInstances(), s.GetActors()}))[0]
+		s.UpgradeRandomCard(guid)
+		return fmt.Sprintf("Upgrade random card '%s'", guid)
+	},
 }

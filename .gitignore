@@ -2,6 +2,7 @@
 debug.log
 logs/
 .ssh/
+samples/
 *.save
 settings.json
 mods/example_mod_*

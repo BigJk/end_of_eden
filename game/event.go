@@ -6,8 +6,9 @@ import (
 
 // EventChoice represents a possible choice in the Event.
 type EventChoice struct {
-	Description string
-	Callback    luhelp.OwnedCallback
+	Description   string
+	DescriptionFn luhelp.OwnedCallback
+	Callback      luhelp.OwnedCallback
 }
 
 // Event represents a encounter-able event.

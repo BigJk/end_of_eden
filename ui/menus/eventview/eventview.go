@@ -15,6 +15,7 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/samber/lo"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -126,8 +127,6 @@ func (m Model) eventUpdateSize(width, height int, init bool) Model {
 	if init {
 		m.viewport = viewport.New(util.Min(width, 100), height-verticalMarginHeight)
 		m.viewport.YPosition = headerHeight
-		m.viewport.HighPerformanceRendering = false
-
 		m = m.eventUpdateContent()
 	} else {
 		m.viewport.Width = util.Min(width, 100)
@@ -149,13 +148,55 @@ func (m Model) eventUpdateContent() Model {
 		return m
 	}
 
+	italicColor := style.BaseRedDarkerHex
+	italicBold := true
+
+	darkStyle := glamour.DarkStyleConfig
+	darkStyle.Emph.Color = &italicColor
+	darkStyle.Emph.Bold = &italicBold
+
 	r, _ := glamour.NewTermRenderer(
-		glamour.WithStyles(glamour.DarkStyleConfig),
+		glamour.WithStyles(darkStyle),
 		glamour.WithWordWrap(m.viewport.Width),
 	)
-	res, _ := r.Render(m.session.GetEvent().Description)
 
-	m.viewport.SetContent(res)
+	chunks := []string{}
+	mds := []bool{}
+	lines := strings.Split(m.session.GetEvent().Description, "\n")
+
+	for i := range lines {
+		if strings.HasPrefix(lines[i], "!!") {
+			file := lines[i][2:]
+			res, err := os.ReadFile("./assets/images/" + file)
+			if err != nil {
+				continue
+			}
+
+			chunks = append(chunks, lipgloss.NewStyle().
+				Border(lipgloss.ThickBorder(), true).
+				BorderForeground(style.BaseRedDarker).
+				Padding(0, 1).Render(
+				lipgloss.NewStyle().MaxWidth(m.viewport.Width-4).Render(string(res[:len(res)-1]))),
+				"",
+			)
+			mds = append(mds, false, true)
+		} else {
+			if len(chunks) == 0 {
+				chunks = append(chunks, "")
+				mds = append(mds, true)
+			}
+
+			chunks[len(chunks)-1] += lines[i] + "\n"
+		}
+	}
+
+	m.viewport.SetContent(lipgloss.JoinVertical(lipgloss.Left, lo.Map(chunks, func(item string, i int) string {
+		if mds[i] {
+			res, _ := r.Render(item)
+			return res
+		}
+		return item
+	})...))
 	m.curEvent = eventId
 	return m
 }
@@ -185,11 +226,11 @@ func (m Model) eventChoices() []string {
 		return nil
 	}
 
-	choices := lo.Map(m.session.GetEvent().Choices, func(item game.EventChoice, index int) string {
-		if m.selectedChoice == index {
-			return choiceSelectedStyle.Width(util.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", index+1, item.Description), util.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
+	choices := lo.Map(m.session.GetEvent().Choices, func(item game.EventChoice, i int) string {
+		if m.selectedChoice == i {
+			return choiceSelectedStyle.Width(util.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", i+1, m.session.GetEventChoiceDescription(i)), util.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
 		}
-		return choiceStyle.Width(util.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", index+1, item.Description), util.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
+		return choiceStyle.Width(util.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", i+1, m.session.GetEventChoiceDescription(i)), util.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
 	})
 
 	return lo.Map(choices, func(item string, index int) string {

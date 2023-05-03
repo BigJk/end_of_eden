@@ -327,6 +327,12 @@ fun = require "fun"
 		return 0
 	}))
 
+	d.Function("actor_add_hp", "Increases the hp value of a actor by a number. Can be negative value to decrease it. This won't trigger any on_damage callbacks", "", "guid : String", "amount : Number")
+	l.SetGlobal("actor_add_hp", l.NewFunction(func(state *lua.LState) int {
+		session.ActorAddHP(state.ToString(1), int(state.ToNumber(2)))
+		return 0
+	}))
+
 	d.Function("add_actor_by_enemy", "Creates a new enemy fighting against the player. Example ``add_actor_by_enemy(\"RUST_MITE\")``.", "", "enemyId : String")
 	l.SetGlobal("add_actor_by_enemy", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(session.AddActorFromEnemy(state.ToString(1))))

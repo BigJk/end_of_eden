@@ -7,9 +7,14 @@ import (
 
 // Colors
 
+const (
+	BaseRedHex       = "#ef233c"
+	BaseRedDarkerHex = "#9b2226"
+)
+
 var (
-	BaseRed        = lipgloss.Color("#ef233c")
-	BaseRedDarker  = lipgloss.Color("#9b2226")
+	BaseRed        = lipgloss.Color(BaseRedHex)
+	BaseRedDarker  = lipgloss.Color(BaseRedDarkerHex)
 	BaseRedDarkest = lipgloss.Color("#2b1b1c")
 	BaseWhite      = lipgloss.Color("#ffffff")
 	BaseGray       = lipgloss.Color("#cccccc")

@@ -239,7 +239,7 @@ register_card("VINE_VOLLEY", {
         return nil
     end,
     max_level = 0,
-    color = "#d8a448",
+    color = "#588157",
     need_target = true,
     point_cost = 1,
     price = 100,

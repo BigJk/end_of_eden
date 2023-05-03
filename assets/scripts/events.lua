@@ -21,20 +21,18 @@ The merchant is always looking for a good deal, and they're not above haggling w
             end
         }
     },
-    on_end = function(choice)
+    on_end = function(ctx)
         return nil
     end
 })
 
 register_event("START", {
     name = "Waking up...",
-    description = [[!!inner_workspace.ans
+    description = [[!!cryo_start.ans
 
 You wake up in a dimly lit room, the faint glow of a red emergency light casting an eerie hue over the surroundings. The air is musty and stale, the metallic scent of the cryo-chamber still lingering in your nostrils. You feel groggy and disoriented, your mind struggling to process what's happening.
 
 As you try to sit up, you notice that your body is stiff and unresponsive. It takes a few moments for your muscles to warm up and regain their strength. Looking around, you see that the walls are made of a dull gray metal, covered in scratches and scuff marks. There's a faint humming sound coming from somewhere, indicating that the facility is still operational.
-
-!!nuked_city.ans
 
 You try to remember how you ended up here, but your memories are hazy and fragmented. The last thing you recall is a blinding flash of light and a deafening boom. You must have been caught in one of the nuclear explosions that devastated the world.
 
@@ -173,6 +171,45 @@ The air is thick with humidity and the sounds of the jungle are overwhelming. St
     choices = {
         {
             description = "Go...",
+            callback = function()
+                return nil
+            end
+        }
+    },
+    on_end = function()
+        return GAME_STATE_RANDOM
+    end
+})
+
+register_event("TALKING_ALIEN", {
+    name = "Talking Being",
+    description = [[!!alien_talking.ans
+
+Suddenly, a massive vine with a gaping, tooth-filled maw emerges from the shadows. It towers over you, its presence imposing and otherworldly.
+
+*"Hello, little one,"* the creature speaks in a deep, rumbling voice. *"I have been watching you. I see potential in you. I offer you a gift, something that will aid you on your journey."*
+
+You take a step back, unsure if you can trust this strange being.
+
+*"My blood,"* the creature says. *"It is not like any substance you have encountered before. It will grant you extraordinary abilities. But it demands a price. Some of your blood, in exchange for this gift."*
+
+The creature assures you that there are dangers to wielding such power and that it will change you in ways you cannot yet imagine. But the offer is tempting. Will you accept and risk the unknown, or do you refuse and potentially miss out on a powerful ally?
+
+**The decision is yours...**]],
+    choices = {
+        {
+            description_fn = function()
+                return "Offer blood... " .. text_italic("(deals " .. highlight(get_player().hp * 0.2) .. " damage)")
+            end,
+            callback = function(ctx)
+                actor_add_hp(PLAYER_ID, -get_player().hp * 0.2)
+                give_card("VINE_VOLLEY", PLAYER_ID)
+                give_card("VINE_VOLLEY", PLAYER_ID)
+                give_card("VINE_VOLLEY", PLAYER_ID)
+                return nil
+            end
+        }, {
+            description = "Leave...",
             callback = function()
                 return nil
             end

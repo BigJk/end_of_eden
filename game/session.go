@@ -592,26 +592,26 @@ func (s *Session) FinishEvent(choice int) {
 
 	// If choice was selected and valid we try to use the next game state from the choice.
 	if choice >= 0 && choice < len(event.Choices) {
-		nextState, _ := event.Choices[choice].Callback()
+		nextState, _ := event.Choices[choice].Callback(CreateContext("type_id", event.ID, "choice", choice+1))
 
 		// If the choice dictates a new state we take that
 		if nextState != nil {
 			if len(nextState.(string)) > 0 {
 				s.SetGameState(GameState(nextState.(string)))
 			}
-			_, _ = event.OnEnd(choice + 1)
+			_, _ = event.OnEnd(CreateContext("type_id", event.ID, "choice", choice+1))
 			return
 		}
 
 		// Otherwise we allow OnEnd to dictate the new state
-		nextState, _ = event.OnEnd(choice + 1)
+		nextState, _ = event.OnEnd(CreateContext("type_id", event.ID, "choice", choice+1))
 		if nextState != nil && len(nextState.(string)) > 0 {
 			s.SetGameState(GameState(nextState.(string)))
 		}
 		return
 	}
 
-	nextState, _ := event.OnEnd(nil)
+	nextState, _ := event.OnEnd(CreateContext("type_id", event.ID, "choice", nil))
 	if nextState != nil && len(nextState.(string)) > 0 {
 		s.SetGameState(GameState(nextState.(string)))
 	}
@@ -645,6 +645,30 @@ func (s *Session) HadEventsAny(ids []string) bool {
 // GetEventHistory returns the ordered list of all events encountered so far.
 func (s *Session) GetEventHistory() []string {
 	return s.eventHistory
+}
+
+func (s *Session) GetEventChoiceDescription(i int) string {
+	event := s.GetEvent()
+	if event == nil || i < 0 || i >= len(event.Choices) {
+		return ""
+	}
+
+	if event.Choices[i].DescriptionFn == nil {
+		return event.Choices[i].Description
+	}
+
+	res, err := event.Choices[i].DescriptionFn.Call(CreateContext("type_id", event.ID, "choice", i))
+	if err != nil {
+		s.logLuaError("DescriptionFn", event.ID, err)
+		return event.Choices[i].Description
+	}
+
+	if res, ok := res.(string); ok {
+		return res
+	}
+
+	s.logLuaError("DescriptionFn", event.ID, errors.New("didn't return a string"))
+	return event.Choices[i].Description
 }
 
 //
@@ -1581,6 +1605,13 @@ func (s *Session) GetActorIntend(guid string) string {
 func (s *Session) ActorAddMaxHP(id string, val int) {
 	s.UpdateActor(id, func(actor *Actor) bool {
 		actor.MaxHP += val
+		return true
+	})
+}
+
+func (s *Session) ActorAddHP(id string, val int) {
+	s.UpdateActor(id, func(actor *Actor) bool {
+		actor.HP += val
 		return true
 	})
 }
