@@ -467,6 +467,12 @@ fun = require "fun"
 		return 1
 	}))
 
+	d.Function("upgrade_random_card", "Upgrade a random card without paying for it.", "Bool", "actorGuid : String")
+	l.SetGlobal("upgrade_random_card", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LBool(session.UpgradeRandomCard(state.ToString(1))))
+		return 1
+	}))
+
 	// Damage & Heal
 
 	d.Category("Damage & Heal", "Functions that deal damage or heal.", 10)

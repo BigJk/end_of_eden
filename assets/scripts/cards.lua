@@ -19,7 +19,7 @@ register_card("KILL", {
             return nil
         end
     }
-});
+})
 
 register_card("MELEE_HIT", {
     name = "Melee Hit",
@@ -38,7 +38,7 @@ register_card("MELEE_HIT", {
             return nil
         end
     }
-});
+})
 
 register_card("RUPTURE", {
     name = "Rupture",
@@ -57,7 +57,7 @@ register_card("RUPTURE", {
             return nil
         end
     }
-});
+})
 
 register_card("BLOCK", {
     name = "Block",
@@ -76,7 +76,7 @@ register_card("BLOCK", {
             return nil
         end
     }
-});
+})
 
 register_card("BLOCK_SPIKES", {
     name = "Block Spikes",
@@ -126,7 +126,7 @@ register_card("BLOCK_SPIKES", {
             return nil
         end
     }
-});
+})
 
 register_card("SHIELD_BASH", {
     name = "Shield Bash",
@@ -148,7 +148,7 @@ register_card("SHIELD_BASH", {
             return nil
         end
     }
-});
+})
 
 register_card("FEAR", {
     name = "Fear",
@@ -167,7 +167,7 @@ register_card("FEAR", {
             return nil
         end
     }
-});
+})
 
 register_card("RADIANT_SEED", {
     name = "Radiant Seed",
@@ -190,7 +190,7 @@ register_card("RADIANT_SEED", {
             return nil
         end
     }
-});
+})
 
 register_card("BERSERKER_RAGE", {
     name = "Berserker Rage",
@@ -211,4 +211,71 @@ register_card("BERSERKER_RAGE", {
             return nil
         end
     }
-});
+})
+
+register_card("COMBINED_SHOT", {
+    name = "Combined Shot",
+    description = "Deal " .. highlight(5) .. " (+5 for each level) damage for each enemy.",
+    state = function(ctx)
+        return "Deal " .. highlight((5 + ctx.level * 5) * #get_opponent_guids(ctx.owner)) .. " damage for each enemy."
+    end,
+    max_level = 1,
+    color = "#d8a448",
+    need_target = true,
+    point_cost = 1,
+    price = 150,
+    callbacks = {
+        on_cast = function(ctx)
+            deal_damage(ctx.caster, ctx.target, (5 + ctx.level * 5) * #get_opponent_guids(ctx.owner))
+            return nil
+        end
+    }
+})
+
+register_card("VINE_VOLLEY", {
+    name = "Vine Volley",
+    description = "Deal " .. highlight("3x" .. tostring(3)) .. " damage.",
+    state = function(ctx)
+        return nil
+    end,
+    max_level = 0,
+    color = "#d8a448",
+    need_target = true,
+    point_cost = 1,
+    price = 100,
+    callbacks = {
+        on_cast = function(ctx)
+            deal_damage(ctx.caster, ctx.target, 3)
+            deal_damage(ctx.caster, ctx.target, 3)
+            deal_damage(ctx.caster, ctx.target, 3)
+            return nil
+        end
+    }
+})
+
+register_card("RECYCLE", {
+    name = "Recycle",
+    description = "Deal " .. highlight(12) .. " damage. If " .. highlight("fatal") .. " upgrade random card. " .. highlight("Exhaust") ..
+        ".",
+    state = function(ctx)
+        return nil
+    end,
+    max_level = 0,
+    color = "#d8a448",
+    need_target = true,
+    exhaust = true,
+    point_cost = 2,
+    price = 200,
+    callbacks = {
+        on_cast = function(ctx)
+            local op_before = #get_opponent_guids(ctx.caster)
+            deal_damage(ctx.caster, ctx.target, 12)
+
+            if op_before > #get_opponent_guids(ctx.caster) then
+                upgrade_random_card(ctx.caster)
+            end
+
+            return nil
+        end
+    }
+})

@@ -1382,6 +1382,22 @@ func (s *Session) UpgradeCard(guid string) bool {
 	return true
 }
 
+func (s *Session) UpgradeRandomCard(owner string) bool {
+	upgradeable := lo.Filter(s.GetActor(owner).Cards.ToSlice(), func(item string, index int) bool {
+		card, instance := s.GetCard(item)
+		if instance.IsNone() {
+			return false
+		}
+		return instance.Level != card.MaxLevel
+	})
+
+	if len(upgradeable) == 0 {
+		return false
+	}
+
+	return s.UpgradeCard(lo.Shuffle(upgradeable)[0])
+}
+
 //
 // Damage & Heal Function
 //

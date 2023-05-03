@@ -23,12 +23,16 @@ import (
 type Model struct {
 	ui.MenuBase
 
+	image   string
 	zones   *zone.Manager
 	choices ChoicesModel
 }
 
 func NewModel(zones *zone.Manager) Model {
+	img, _ := os.ReadFile("./assets/images/title.ans")
+
 	model := Model{
+		image:   string(img),
 		zones:   zones,
 		choices: NewChoicesModel(zones),
 	}
@@ -46,7 +50,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Size = msg
 		updated, cmd := m.choices.Update(tea.WindowSizeMsg{
 			Width:  msg.Width,
-			Height: msg.Height - (strings.Count(ui.Title, "\n") + style.TitleStyle.GetVerticalFrameSize() + 1),
+			Height: msg.Height - lipgloss.Height(m.image) - 1,
 		})
 		m.choices = updated.(ChoicesModel)
 		return m, cmd
@@ -113,5 +117,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinVertical(lipgloss.Top, style.TitleStyle.Render(ui.Title), m.choices.View())
+	titleImage := lipgloss.NewStyle().
+		Border(lipgloss.InnerHalfBlockBorder(), false, false, true, false).
+		BorderForeground(style.BaseRedDarker).
+		Margin(0, 0, 0, 2).
+		Render("\n" + lipgloss.NewStyle().MaxWidth(m.Size.Width-3).MaxHeight(lipgloss.Height(m.image)-1).Render(m.image))
+
+	return lipgloss.JoinVertical(lipgloss.Top,
+		titleImage,
+		m.choices.View())
 }
