@@ -10,6 +10,7 @@ import (
 	"github.com/BigJk/end_of_eden/ui/menus/mods"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
+	"github.com/BigJk/imeji"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
@@ -29,10 +30,10 @@ type Model struct {
 }
 
 func NewModel(zones *zone.Manager) Model {
-	img, _ := os.ReadFile("./assets/images/title.ans")
+	img, _ := imeji.FileString("./assets/images/title.png", imeji.WithTrueColor(), imeji.WithResize(180, 9))
 
 	model := Model{
-		image:   string(img),
+		image:   img,
 		zones:   zones,
 		choices: NewChoicesModel(zones),
 	}

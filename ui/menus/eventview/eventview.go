@@ -8,6 +8,7 @@ import (
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/BigJk/end_of_eden/util"
+	"github.com/BigJk/imeji"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
@@ -166,17 +167,29 @@ func (m Model) eventUpdateContent() Model {
 
 	for i := range lines {
 		if strings.HasPrefix(lines[i], "!!") {
+
 			file := lines[i][2:]
-			res, err := os.ReadFile("./assets/images/" + file)
-			if err != nil {
-				continue
+			var res string
+
+			if strings.HasSuffix(file, ".ans") {
+				ansRes, err := os.ReadFile("./assets/images/" + file)
+				if err != nil {
+					continue
+				}
+				res = string(ansRes)
+			} else {
+				imgRes, err := imeji.FileString("./assets/images/"+file, imeji.WithMaxWidth(100), imeji.WithTrueColor())
+				if err != nil {
+					continue
+				}
+				res = imgRes
 			}
 
 			chunks = append(chunks, lipgloss.NewStyle().
 				Border(lipgloss.ThickBorder(), true).
 				BorderForeground(style.BaseRedDarker).
 				Padding(0, 1).Render(
-				lipgloss.NewStyle().MaxWidth(m.viewport.Width-4).Render(string(res[:len(res)-1]))),
+				lipgloss.NewStyle().MaxWidth(m.viewport.Width-4).Render(res[:len(res)-1])),
 				"",
 			)
 			mds = append(mds, false, true)

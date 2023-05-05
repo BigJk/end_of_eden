@@ -28,7 +28,7 @@ The merchant is always looking for a good deal, and they're not above haggling w
 
 register_event("START", {
     name = "Waking up...",
-    description = [[!!cryo_start.ans
+    description = [[!!cryo_start.png
 
 You wake up in a dimly lit room, the faint glow of a red emergency light casting an eerie hue over the surroundings. The air is musty and stale, the metallic scent of the cryo-chamber still lingering in your nostrils. You feel groggy and disoriented, your mind struggling to process what's happening.
 
@@ -110,15 +110,7 @@ You take a deep breath of the fresh air, feeling the warmth of the sun on your f
 
 register_event("THE_WASTELAND", {
     name = "The Wasteland",
-    description = [[
-```
-        |==|  ~
- _.,-*~'^'~*-,._      (       ~         _.,-*~'^'~*-,._  ~      (())
-|               '*-,._       __   _.,-*'               '-,._    | x|
-|                     '*-,._/.,-*'                          '*-,|x_|,-*,
-|                                                                      |
-`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'`'
-```
+    description = [[!!dark_city1.png
 
 You finally find a way leading to the outside, and with a deep breath, you step out into the unforgiving wasteland.
 
@@ -138,16 +130,9 @@ The scorching sun beats down on you as the sand whips against your skin, a remin
 
 register_event("THE_CORE", {
     name = "The Wasteland",
-    description = [[
-```
-  ________            ______
- /_  __/ /_  ___     / ____/___  ________
-  / / / __ \/ _ \   / /   / __ \/ ___/ _ \
- / / / / / /  __/  / /___/ /_/ / /  /  __/
-/_/ /_/ /_/\___/   \____/\____/_/   \___/ ...
-
-```
-You finally find a way you thought would lead to the outside, only to discover that you're still inside the massive facility known as "The Core."
+    description = [[!!underground1.png
+    
+You finally find a way you thought would lead to the outside, only to discover that you're still inside the massive facility known as *"The Core."*
 
 As you step out of the cryo facility, the eerie silence is broken by the sound of metal scraping against metal and distant whirring of malfunctioning machinery. The flickering lights and sparks from faulty wires cast a sickly glow on the cold metal walls. You realize that this place is not as deserted as you initially thought, and the unsettling feeling in your gut only grows stronger as you make your way through the dimly lit corridors, surrounded by the echoes of your own footsteps and the sound of flickering computer screens.]],
     choices = {
@@ -165,7 +150,9 @@ As you step out of the cryo facility, the eerie silence is broken by the sound o
 
 register_event("BIO_KINGDOM", {
     name = "Bio Kingdom",
-    description = [[You finally find a way leading to the outside, and step out of the cryo facility into a world you no longer recognize.
+    description = [[!!plant_enviroment.png
+
+You finally find a way leading to the outside, and step out of the cryo facility into a world you no longer recognize.
 
 The air is thick with humidity and the sounds of the jungle are overwhelming. Strange, mutated plants tower over you, their vines twisting and tangling around each other in a macabre dance. The colors of the leaves and flowers are sickly, a greenish hue that reminds you of illness rather than life. The ruins of buildings are visible in the distance, swallowed up by the overgrowth. You can hear the chirping and buzzing of insects, but it's mixed with something else - something that sounds almost like whispers or moans. The "jungle" seems to be alive, but not in any way that you would have imagined.]],
     choices = {
@@ -181,9 +168,9 @@ The air is thick with humidity and the sounds of the jungle are overwhelming. St
     end
 })
 
-register_event("TALKING_ALIEN", {
+register_event("", {
     name = "Talking Being",
-    description = [[!!alien_talking.ans
+    description = [[!!alien2.png
 
 Suddenly, a massive vine with a gaping, tooth-filled maw emerges from the shadows. It towers over you, its presence imposing and otherworldly.
 
