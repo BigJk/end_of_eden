@@ -3,7 +3,6 @@ package components
 import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
-	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/samber/lo"
@@ -23,7 +22,7 @@ func StatusEffect(session *game.Session, guid string) string {
 }
 
 func StatusEffects(session *game.Session, actor game.Actor) string {
-	return strings.Join(lo.Map(util.SortStringsStable(actor.StatusEffects.ToSlice()), func(guid string, index int) string {
+	return strings.Join(lo.Map(actor.StatusEffects.ToSlice(), func(guid string, index int) string {
 		status := session.GetStatusEffect(guid)
 		if status == nil {
 			return ""

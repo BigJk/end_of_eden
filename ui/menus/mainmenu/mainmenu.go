@@ -3,6 +3,7 @@ package mainmenu
 import (
 	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/image"
 	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/menus/about"
@@ -30,7 +31,7 @@ type Model struct {
 }
 
 func NewModel(zones *zone.Manager) Model {
-	img, _ := imeji.FileString("./assets/images/title.png", imeji.WithTrueColor(), imeji.WithResize(180, 9))
+	img, _ := image.Fetch("title.png", imeji.WithResize(180, 9))
 
 	model := Model{
 		image:   img,

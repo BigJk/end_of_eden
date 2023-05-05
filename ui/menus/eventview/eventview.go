@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/image"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
@@ -178,7 +179,7 @@ func (m Model) eventUpdateContent() Model {
 				}
 				res = string(ansRes)
 			} else {
-				imgRes, err := imeji.FileString("./assets/images/"+file, imeji.WithMaxWidth(100), imeji.WithTrueColor())
+				imgRes, err := image.Fetch(file, imeji.WithMaxWidth(100))
 				if err != nil {
 					continue
 				}
