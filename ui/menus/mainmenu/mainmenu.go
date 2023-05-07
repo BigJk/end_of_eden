@@ -95,11 +95,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.choices = m.choices.Clear()
-		return gameview.New(m, m.zones, game.NewSession(
+		return m, root.Push(gameview.New(m, m.zones, game.NewSession(
 			game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
 			game.WithMods(settings.LoadedSettings.Mods),
 			lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
-		)), cmd
+		)))
 	case ChoiceAbout:
 		audio.Play("btn_menu")
 

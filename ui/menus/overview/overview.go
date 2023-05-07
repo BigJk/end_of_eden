@@ -40,6 +40,7 @@ const (
 	ChoiceLogs      = Choice("LOGS")
 	ChoiceArtifacts = Choice("ARTIFACTS")
 	ChoiceCards     = Choice("CARDS")
+	ChoiceQuit      = Choice("QUIT")
 )
 
 type choiceItem struct {
@@ -79,6 +80,7 @@ func New(parent tea.Model, zones *zone.Manager, session *game.Session) MenuModel
 		choiceItem{zones, "Logs", "Check what happened.", ChoiceLogs},
 		choiceItem{zones, "Artifacts", "Inspect your artifacts.", ChoiceArtifacts},
 		choiceItem{zones, "Cards", "Inspect your cards.", ChoiceCards},
+		choiceItem{zones, "Quit", "Return to menu.", ChoiceQuit},
 	}
 
 	delegation := list.NewDefaultDelegate()
@@ -180,6 +182,10 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case tea.KeyTab:
 			m.listFocus = !m.listFocus
+		case tea.KeyEnter:
+			if m.list.SelectedItem().(choiceItem).key == ChoiceQuit {
+				return nil, nil
+			}
 		}
 	case tea.MouseMsg:
 		if msg.Type == tea.MouseLeft {

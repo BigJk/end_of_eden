@@ -26,7 +26,7 @@ type item struct {
 
 func (i item) Title() string {
 	if !i.active {
-		return i.mod.Name
+		return i.mod.Name + style.RedDarkerText.Render(" by ") + style.GrayText.Render(i.mod.Author)
 	}
 
 	return lipgloss.NewStyle().Italic(true).Foreground(style.BaseGreen).Render("Active") + " " + style.RedText.Render(i.mod.Name) + style.RedDarkerText.Render(" by ") + style.GrayText.Render(i.mod.Author)
