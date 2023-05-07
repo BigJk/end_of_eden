@@ -65,7 +65,7 @@ func main() {
 
 	// Init audio
 	if *audioFlag {
-		fmt.Println(loadStyle.Render("Initializing audio. Please wait..."))
+		fmt.Println(loadStyle.Render("Initializing Audio. Please wait..."))
 		audio.InitAudio()
 		audio.PlayMusic("planet_mining")
 		fmt.Println(loadStyle.Render("Done!"))

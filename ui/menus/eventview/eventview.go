@@ -71,6 +71,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if val, err := strconv.Atoi(msg.String()); err == nil {
 			m.selectedChoice = val - 1
+			audio.Play("interface_move", -1.5)
 		}
 
 		switch msg.Type {
@@ -78,6 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m = m.tryFinishEvent()
 		case tea.KeyTab:
 			m.selectedChoice = (m.selectedChoice + 1) % len(m.session.GetEvent().Choices)
+			audio.Play("interface_move", -1.5)
 		}
 	case tea.MouseMsg:
 		m.LastMouse = msg
@@ -92,6 +94,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							break
 						} else {
 							m.selectedChoice = i
+							audio.Play("interface_move", -1.5)
 						}
 					}
 				}
@@ -162,8 +165,8 @@ func (m Model) eventUpdateContent() Model {
 		glamour.WithWordWrap(m.viewport.Width),
 	)
 
-	chunks := []string{}
-	mds := []bool{}
+	var chunks []string
+	var mds []bool
 	lines := strings.Split(m.session.GetEvent().Description, "\n")
 
 	for i := range lines {
