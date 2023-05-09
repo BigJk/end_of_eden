@@ -4,6 +4,7 @@ import (
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/menus/lua_error"
+	"github.com/BigJk/end_of_eden/ui/overlay"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
@@ -17,21 +18,47 @@ func Push(model tea.Model) tea.Cmd {
 	}
 }
 
+type ToolTip struct {
+	ID      string
+	Content string
+	X       int
+	Y       int
+}
+
+type ToolTipMsg ToolTip
+
+func TooltipCreate(tip ToolTip) tea.Cmd {
+	return func() tea.Msg {
+		return ToolTipMsg(tip)
+	}
+}
+
+type ToolTipDeleteMsg string
+
+func TooltipDelete(id string) tea.Cmd {
+	return func() tea.Msg {
+		return ToolTipDeleteMsg(id)
+	}
+}
+
 type Model struct {
-	zones *zone.Manager
-	stack []tea.Model
-	size  tea.WindowSizeMsg
+	zones    *zone.Manager
+	stack    []tea.Model
+	size     tea.WindowSizeMsg
+	tooltips map[string]ToolTip
 }
 
 func New(zones *zone.Manager, root tea.Model) Model {
 	return Model{
-		zones: zones,
-		stack: []tea.Model{root},
+		zones:    zones,
+		stack:    []tea.Model{root},
+		tooltips: map[string]ToolTip{},
 	}
 }
 
 func (m Model) PushModel(model tea.Model) Model {
 	m.stack = append(m.stack, model)
+	m.tooltips = map[string]ToolTip{}
 	return m
 }
 
@@ -56,6 +83,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
+	case ToolTipMsg:
+		m.tooltips[msg.ID] = ToolTip(msg)
+	case ToolTipDeleteMsg:
+		delete(m.tooltips, string(msg))
 	case PushModelMsg:
 		m = m.PushModel(msg)
 	}
@@ -82,7 +113,14 @@ func (m Model) View() string {
 	if len(m.stack) == 0 {
 		return "stack empty!"
 	}
-	return m.zones.Scan(m.stack[len(m.stack)-1].View())
+
+	view := m.zones.Scan(m.stack[len(m.stack)-1].View())
+
+	for _, v := range m.tooltips {
+		view = overlay.PlaceOverlay(v.X, v.Y, v.Content, view)
+	}
+
+	return view
 }
 
 func CheckLuaErrors(zones *zone.Manager, s *game.Session) tea.Cmd {

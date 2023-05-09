@@ -36,6 +36,7 @@ type Model struct {
 	inOpponentSelection bool
 	inEnemyView         bool
 	animations          []tea.Model
+	ctrlDown            bool
 
 	event    tea.Model
 	merchant tea.Model
@@ -118,6 +119,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.selectedCard = lo.Clamp(m.selectedCard-1, 0, len(m.Session.GetFight().Hand)-1)
 		case tea.KeyRight:
 			m.selectedCard = lo.Clamp(m.selectedCard+1, 0, len(m.Session.GetFight().Hand)-1)
+		case tea.KeyCtrlDown:
+			m.ctrlDown = true
+		case tea.KeyCtrlU:
+			m.ctrlDown = false
+		}
+
+		// Show tooltip
+		if msg.String() == "x" {
+			for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
+				if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse) {
+					cmds = append(cmds, root.TooltipCreate(root.ToolTip{
+						ID:      "ENEMY",
+						Content: m.fightEnemyInspectTooltipView(),
+						X:       m.LastMouse.X,
+						Y:       m.LastMouse.Y,
+					}))
+				}
+			}
 		}
 	//
 	// Mouse
@@ -126,6 +145,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LastMouse = msg
 
 		if msg.Type == tea.MouseLeft {
+			// Kill all enemy tooltips
+			cmds = append(cmds, root.TooltipDelete("ENEMY"))
+
 			switch m.Session.GetGameState() {
 			case game.GameStateFight:
 				if m.zones.Get(ZoneEndTurn).InBounds(msg) {
@@ -142,8 +164,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(msg) {
 							if msg.Type == tea.MouseLeft && m.selectedOpponent == i {
 								m = m.tryCast()
-							} else {
-								m.selectedOpponent = i
 							}
 						}
 					}
@@ -406,6 +426,20 @@ func (m Model) fightEnemyViewHeight() int {
 
 func (m Model) fightCardViewHeight() int {
 	return m.Size.Height - m.fightEnemyViewHeight() - 1 - 4 - 4
+}
+
+func (m Model) fightEnemyInspectTooltipView() string {
+	enemy := m.Session.GetOpponents(game.PlayerActorID)[m.selectedOpponent]
+
+	intend := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Intend:") + "\n\n" + m.Session.GetActorIntend(enemy.GUID) + "\n\n"
+
+	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Status Effects:") + "\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
+		return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
+	}), "\n\n")
+
+	return lipgloss.NewStyle().Border(lipgloss.ThickBorder(), true).Padding(1, 2).BorderForeground(style.BaseRedDarker).Render(
+		lipgloss.NewStyle().Width(30).Render(intend + status),
+	)
 }
 
 func (m Model) fightEnemyInspectView() string {
