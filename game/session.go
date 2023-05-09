@@ -1307,8 +1307,12 @@ func (s *Session) PlayerCastHand(i int, target string) error {
 
 	cardId := s.currentFight.Hand[i]
 
-	// Only cast a card if points are available and subtract them.
+	// Only cast a card if castable and points are available and subtract them.
 	if card, _ := s.GetCard(cardId); card != nil {
+		if !card.Callbacks[CallbackOnCast].Present() {
+			return errors.New("card is not castable")
+		}
+
 		if s.currentFight.CurrentPoints < card.PointCost {
 			return errors.New("not enough points")
 		}

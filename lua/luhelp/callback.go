@@ -14,3 +14,7 @@ func (cb OwnedCallback) Call(args ...any) (any, error) {
 
 	return cb(args...)
 }
+
+func (cb OwnedCallback) Present() bool {
+	return cb != nil
+}
