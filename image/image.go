@@ -7,6 +7,7 @@ import (
 	"github.com/muesli/termenv"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // TODO: Better decoupling in relation to session
@@ -33,6 +34,19 @@ func Fetch(name string, options ...imeji.Option) (string, error) {
 
 	if os.Getenv("EOE_IMG_SIMPLE") == "1" {
 		options = append(options, imeji.WithPattern(charmaps.BlocksBasic))
+	}
+
+	if len(os.Getenv("EOE_IMG_PATTERN")) > 0 {
+		patternStr := strings.Split(os.Getenv("EOE_IMG_PATTERN"), ",")
+
+		var pattern [][]charmaps.Pattern
+		for i := range patternStr {
+			if val, ok := charmaps.CharMaps[strings.TrimSpace(strings.ToLower(patternStr[i]))]; ok {
+				pattern = append(pattern, val)
+			}
+		}
+
+		options = append(options, imeji.WithPattern(pattern...))
 	}
 
 	switch termenv.DefaultOutput().Profile {
