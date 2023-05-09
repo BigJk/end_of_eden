@@ -90,12 +90,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m = m.tryCast()
 			}
 		case tea.KeyEscape:
+			cmds = append(cmds, root.TooltipClear())
+
 			// Switch to menu
 			if m.inOpponentSelection || m.inEnemyView {
 				m.inOpponentSelection = false
 				m.inEnemyView = false
 			} else {
-				return overview.New(m, m.zones, m.Session), nil
+				return overview.New(m, m.zones, m.Session), tea.Batch(cmds...)
 			}
 		case tea.KeyTab:
 			switch m.Session.GetGameState() {
@@ -129,7 +131,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "x" {
 			for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
 				if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse) {
-					cmds = append(cmds, root.TooltipCreate(root.ToolTip{
+					cmds = append(cmds, root.TooltipCreate(root.Tooltip{
 						ID:      "ENEMY",
 						Content: m.fightEnemyInspectTooltipView(),
 						X:       m.LastMouse.X,
@@ -145,8 +147,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LastMouse = msg
 
 		if msg.Type == tea.MouseLeft {
-			// Kill all enemy tooltips
-			cmds = append(cmds, root.TooltipDelete("ENEMY"))
+			cmds = append(cmds, root.TooltipClear())
 
 			switch m.Session.GetGameState() {
 			case game.GameStateFight:

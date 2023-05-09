@@ -10,55 +10,24 @@ import (
 	"github.com/samber/lo"
 )
 
-type PushModelMsg tea.Model
-
-func Push(model tea.Model) tea.Cmd {
-	return func() tea.Msg {
-		return PushModelMsg(model)
-	}
-}
-
-type ToolTip struct {
-	ID      string
-	Content string
-	X       int
-	Y       int
-}
-
-type ToolTipMsg ToolTip
-
-func TooltipCreate(tip ToolTip) tea.Cmd {
-	return func() tea.Msg {
-		return ToolTipMsg(tip)
-	}
-}
-
-type ToolTipDeleteMsg string
-
-func TooltipDelete(id string) tea.Cmd {
-	return func() tea.Msg {
-		return ToolTipDeleteMsg(id)
-	}
-}
-
 type Model struct {
 	zones    *zone.Manager
 	stack    []tea.Model
 	size     tea.WindowSizeMsg
-	tooltips map[string]ToolTip
+	tooltips map[string]Tooltip
 }
 
 func New(zones *zone.Manager, root tea.Model) Model {
 	return Model{
 		zones:    zones,
 		stack:    []tea.Model{root},
-		tooltips: map[string]ToolTip{},
+		tooltips: map[string]Tooltip{},
 	}
 }
 
 func (m Model) PushModel(model tea.Model) Model {
 	m.stack = append(m.stack, model)
-	m.tooltips = map[string]ToolTip{}
+	m.tooltips = map[string]Tooltip{}
 	return m
 }
 
@@ -83,10 +52,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
-	case ToolTipMsg:
-		m.tooltips[msg.ID] = ToolTip(msg)
-	case ToolTipDeleteMsg:
+	case TooltipMsg:
+		m.tooltips[msg.ID] = Tooltip(msg)
+	case TooltipDeleteMsg:
 		delete(m.tooltips, string(msg))
+	case TooltipClearMsg:
+		m.tooltips = map[string]Tooltip{}
 	case PushModelMsg:
 		m = m.PushModel(msg)
 	}
