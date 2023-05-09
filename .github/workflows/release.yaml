@@ -47,11 +47,11 @@ jobs:
           go-version: '^1.20'
       - name: Build
         run: |
-             cd cmd/game & go build -o end_of_eden
+             go build ./cmd/game -o end_of_eden
              export BIN=end_of_eden-$(basename ${GITHUB_REF})-macos-amd64
              mkdir $BIN
              cp ./end_of_eden $BIN/end_of_eden
-             cp -r ../../assets $BIN/assets/
+             cp -r ./assets $BIN/assets/
              zip -r $BIN.zip $BIN
       - name: Release
         uses: softprops/action-gh-release@v1
