@@ -4,6 +4,7 @@ on:
 
 jobs:
   release-linux-amd64:
+    permissions: write-all
     name: release linux/amd64
     runs-on: ubuntu-latest
     env:
@@ -20,36 +21,43 @@ jobs:
           goos: linux
           goarch: amd64
   release-macos-amd64:
+    permissions: write-all
     name: release macos/amd64
     runs-on: ubuntu-latest
     env:
       CGO_ENABLED: 1
+      CC: "x86_64-apple-darwin15-clang"
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          pre_command: "apt-update && apt-get install gcc-multilib"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
           goos: darwin
           goarch: amd64
   release-macos-arm64:
-    name: release macos/amd64
+    permissions: write-all
+    name: release macos/arm64
     runs-on: ubuntu-latest
     env:
       CGO_ENABLED: 1
+      CC: "aarch64-linux-gnu-gcc"
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          pre_command: "apt-update && apt-get install gcc-aarch64-linux-gnu libc6-dev-arm64-cross"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
-          goos: linux
+          goos: darwin
           goarch: arm64
   release-windows-amd64:
+    permissions: write-all
     name: release windows/amd64
     runs-on: ubuntu-latest
     steps:
