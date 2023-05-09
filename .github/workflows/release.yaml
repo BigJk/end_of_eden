@@ -32,7 +32,7 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pre_command: "apt-update && apt-get install gcc-multilib"
+          pre_command: "apt-get update && apt-get install gcc-multilib"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -50,7 +50,7 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pre_command: "apt-update && apt-get install gcc-aarch64-linux-gnu libc6-dev-arm64-cross"
+          pre_command: "apt-get update && apt-get install gcc-aarch64-linux-gnu libc6-dev-arm64-cross"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
