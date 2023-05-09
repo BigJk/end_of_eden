@@ -1,5 +1,5 @@
 <p align="center">
-  <img align="center" src="./github/header.png" />
+  <img align="center" src=".github/header.png" />
 </p>
 
 [![Discord](https://img.shields.io/discord/1099310842564059168?label=discord)](https://discord.gg/XpDvfvVuB2)
@@ -14,8 +14,8 @@
 
 # Screenshots
 
-![Screenshot](./github/screenshot.png)
-![Screenshot](./github/screenshot_merchant.png)
+![Screenshot](.github/screenshot.png)
+![Screenshot](.github/screenshot_merchant.png)
 
 
 # How to play
