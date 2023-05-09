@@ -13,10 +13,8 @@ jobs:
       matrix:
         # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
         goos: [linux, windows, darwin]
-        goarch: ["386", amd64, arm64]
+        goarch: [amd64, arm64]
         exclude:
-          - goarch: "386"
-            goos: darwin
           - goarch: arm64
             goos: windows
     steps:
@@ -24,7 +22,7 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pre_command: "apt-get update && apt-get install --no-install-recommends -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross gcc-multilib libc6-dev-i386 linux-libc-dev:i386 gcc-mingw-w64-x86-64 libasound2-dev gcc-mingw-w64-i686"
+          pre_command: "apt-get update && apt-get install --no-install-recommends -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross gcc-multilib gcc-mingw-w64-x86-64 libasound2-dev gcc-mingw-w64-i686"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
