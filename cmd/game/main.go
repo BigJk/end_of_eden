@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/BigJk/end_of_eden/clipboard"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
@@ -13,7 +14,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
-	"golang.design/x/clipboard"
 	"log"
 	"os"
 	"strings"
@@ -57,9 +57,7 @@ func main() {
 	// Init clipboard
 	fmt.Println(loadStyle.Render("Initializing Clipboard. Please wait..."))
 	{
-		if err := clipboard.Init(); err != nil {
-			panic(err)
-		}
+		clipboard.Init()
 	}
 	fmt.Println(loadStyle.Render("Done!"))
 
