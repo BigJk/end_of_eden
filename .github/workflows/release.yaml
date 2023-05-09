@@ -2,6 +2,9 @@ on:
   release:
     types: [created]
 
+env:
+  CGO_ENABLED: 1
+
 jobs:
   releases-matrix:
     name: Release Go Binary
