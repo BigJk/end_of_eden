@@ -1,6 +1,7 @@
 package mainmenu
 
 import (
+	"fmt"
 	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/image"
@@ -75,6 +76,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
 				lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 			)
+			image.ResetSearchPaths()
+			image.AddSearchPaths(lo.Map(session.GetLoadedMods(), func(item string, index int) string {
+				return fmt.Sprintf("./mods/%s/images/", item)
+			})...)
 
 			err = session.GobDecode(saved)
 			if err != nil {
@@ -93,6 +98,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err != nil {
 			panic(err)
 		}
+
+		image.ResetSearchPaths()
+		image.AddSearchPaths(lo.Map(settings.LoadedSettings.Mods, func(item string, index int) string {
+			return fmt.Sprintf("./mods/%s/images/", item)
+		})...)
 
 		m.choices = m.choices.Clear()
 		return m, root.Push(gameview.New(m, m.zones, game.NewSession(

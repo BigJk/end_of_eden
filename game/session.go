@@ -268,6 +268,10 @@ func (s *Session) GetResources() *ResourcesManager {
 	return s.resources
 }
 
+func (s *Session) GetLoadedMods() []string {
+	return s.loadedMods
+}
+
 //
 // Internal
 //

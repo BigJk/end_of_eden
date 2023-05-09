@@ -16,3 +16,21 @@ register_enemy(
             }
         }
 )
+
+register_event("TEST_EVENT", {
+    name = "Test Test",
+    description = [[!!mod_test.png
+
+Testing loading a image from mod folder.]],
+    choices = {
+        {
+            description = "Go...",
+            callback = function()
+                return nil
+            end
+        }
+    },
+    on_end = function()
+        return GAME_STATE_RANDOM
+    end
+})

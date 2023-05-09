@@ -1,11 +1,29 @@
 package image
 
 import (
+	"errors"
 	"github.com/BigJk/imeji"
 	"github.com/BigJk/imeji/charmaps"
 	"github.com/muesli/termenv"
 	"os"
+	"path/filepath"
 )
+
+// TODO: Better decoupling in relation to session
+
+var searchPaths []string
+
+func init() {
+	ResetSearchPaths()
+}
+
+func AddSearchPaths(paths ...string) {
+	searchPaths = append(searchPaths, paths...)
+}
+
+func ResetSearchPaths() {
+	searchPaths = []string{"./assets/images/"}
+}
 
 // Fetch fetches an image from ./assets/images and converts it to an ansi string.
 //
@@ -29,9 +47,11 @@ func Fetch(name string, options ...imeji.Option) (string, error) {
 		options = append(options, imeji.WithTrueColor())
 	}
 
-	res, err := imeji.FileString("./assets/images/"+name, options...)
-	if err != nil {
-		return "", err
+	for i := range searchPaths {
+		res, err := imeji.FileString(filepath.Join(searchPaths[i], name), options...)
+		if err == nil {
+			return res, nil
+		}
 	}
-	return res, nil
+	return "", errors.New("could not load image")
 }
