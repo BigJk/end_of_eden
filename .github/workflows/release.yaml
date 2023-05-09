@@ -47,7 +47,7 @@ jobs:
           go-version: '^1.20'
       - name: Build
         run: |
-             go build ./cmd/game -o end_of_eden
+             go build -o end_of_eden ./cmd/game
              export BIN=end_of_eden-$(basename ${GITHUB_REF})-macos-amd64
              mkdir $BIN
              cp ./end_of_eden $BIN/end_of_eden
