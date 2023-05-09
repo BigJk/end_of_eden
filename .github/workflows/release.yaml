@@ -40,18 +40,19 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
       - name: Fetch Go
-      - uses: actions/setup-go@v4
+        uses: actions/setup-go@v4
         with:
           go-version: '^1.20'
       - name: Build
-      - run: "cd cmd/game & go build -o end_of_eden"
-      - run: "export BIN=end_of_eden-$(basename ${GITHUB_REF})-macos-amd64"
-      - run: "mkdir $BIN"
-      - run: "cp ./end_of_eden $BIN/end_of_eden"
-      - run: "cp -r ../../assets $BIN/assets/"
-      - run: "zip -r $BIN.zip $BIN"
+      - run: |
+             cd cmd/game & go build -o end_of_eden
+             export BIN=end_of_eden-$(basename ${GITHUB_REF})-macos-amd64
+             mkdir $BIN
+             cp ./end_of_eden $BIN/end_of_eden
+             cp -r ../../assets $BIN/assets/
+             zip -r $BIN.zip $BIN
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
