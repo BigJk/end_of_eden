@@ -93,8 +93,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							m = m.tryFinishEvent()
 							break
 						} else {
+							if m.selectedChoice != i {
+								audio.Play("interface_move", -1.5)
+							}
 							m.selectedChoice = i
-							audio.Play("interface_move", -1.5)
 						}
 					}
 				}
