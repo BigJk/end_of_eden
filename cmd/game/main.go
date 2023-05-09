@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/BigJk/end_of_eden/clipboard"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
@@ -51,13 +50,6 @@ func main() {
 		if err := settings.LoadSettings(); err != nil {
 			panic(err)
 		}
-	}
-	fmt.Println(loadStyle.Render("Done!"))
-
-	// Init clipboard
-	fmt.Println(loadStyle.Render("Initializing Clipboard. Please wait..."))
-	{
-		clipboard.Init()
 	}
 	fmt.Println(loadStyle.Render("Done!"))
 
