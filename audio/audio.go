@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/BigJk/end_of_eden/settings"
 	"github.com/faiface/beep/mp3"
@@ -24,75 +25,85 @@ const baseVolume = -1
 var mtx = sync.Mutex{}
 var sounds = map[string]*beep.Buffer{}
 var enabled = false
+var allLoaded = false
+var queuedSong = ""
 var music = &beep.Ctrl{
 	Streamer: beep.Loop(-1, emptySound{}),
 	Paused:   false,
 }
 
 func InitAudio() {
-	wg := sync.WaitGroup{}
+	go func() {
+		wg := &sync.WaitGroup{}
 
-	_ = filepath.Walk("./assets/audio", func(path string, info fs.FileInfo, err error) error {
-		if err != nil {
+		_ = filepath.Walk("./assets/audio", func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+
+				var streamer beep.StreamSeekCloser
+				var format beep.Format
+
+				if !info.IsDir() {
+					if strings.HasSuffix(path, ".mp3") {
+						f, err := os.Open(path)
+						if err != nil {
+							log.Println("Audio error:", err)
+							return
+						}
+
+						streamer, format, err = mp3.Decode(f)
+						if err != nil {
+							log.Println("Audio error:", err)
+							return
+						}
+					} else if strings.HasSuffix(path, ".wav") {
+						f, err := os.Open(path)
+						if err != nil {
+							log.Println("Audio error:", err)
+							return
+						}
+
+						streamer, format, err = wav.Decode(f)
+						if err != nil {
+							log.Println("Audio error:", err)
+							return
+						}
+					}
+				}
+
+				if streamer != nil {
+					buf := beep.NewBuffer(beep.Format{
+						SampleRate:  sampleRate,
+						NumChannels: 2,
+						Precision:   2,
+					})
+
+					if format.SampleRate == sampleRate {
+						buf.Append(streamer)
+					} else {
+						buf.Append(beep.Resample(3, format.SampleRate, sampleRate, streamer))
+					}
+
+					mtx.Lock()
+					sounds[strings.Split(filepath.Base(path), ".")[0]] = buf
+					mtx.Unlock()
+				}
+			}()
+
 			return nil
-		}
+		})
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Wait()
 
-			var streamer beep.StreamSeekCloser
-			var format beep.Format
-
-			if !info.IsDir() {
-				if strings.HasSuffix(path, ".mp3") {
-					f, err := os.Open(path)
-					if err != nil {
-						log.Println("Audio error:", err)
-						return
-					}
-
-					streamer, format, err = mp3.Decode(f)
-					if err != nil {
-						log.Println("Audio error:", err)
-						return
-					}
-				} else if strings.HasSuffix(path, ".wav") {
-					f, err := os.Open(path)
-					if err != nil {
-						log.Println("Audio error:", err)
-						return
-					}
-
-					streamer, format, err = wav.Decode(f)
-					if err != nil {
-						log.Println("Audio error:", err)
-						return
-					}
-				}
-			}
-
-			if streamer != nil {
-				buf := beep.NewBuffer(beep.Format{
-					SampleRate:  sampleRate,
-					NumChannels: 2,
-					Precision:   2,
-				})
-
-				if format.SampleRate == sampleRate {
-					buf.Append(streamer)
-				} else {
-					buf.Append(beep.Resample(3, format.SampleRate, sampleRate, streamer))
-				}
-
-				mtx.Lock()
-				sounds[strings.Split(filepath.Base(path), ".")[0]] = buf
-				mtx.Unlock()
-			}
-		}()
-
-		return nil
-	})
+		mtx.Lock()
+		allLoaded = true
+		mtx.Unlock()
+	}()
 
 	bufferSize := 200
 	if runtime.GOOS == "windows" {
@@ -103,8 +114,6 @@ func InitAudio() {
 	if err := speaker.Init(sampleRate, bufferSize); err != nil {
 		panic(err)
 	}
-
-	wg.Wait()
 
 	speaker.Play(music)
 
@@ -143,6 +152,26 @@ func PlayMusic(key string) {
 
 	if settings.LoadedSettings.Volume == 0 {
 		return
+	}
+
+	// If not all audio files are loaded, yet we will remember which song was requested
+	// and play them when the loading is done.
+	if !allLoaded {
+		if len(queuedSong) == 0 {
+			go func() {
+				for !allLoaded {
+					time.Sleep(time.Millisecond * 100)
+				}
+
+				mtx.Lock()
+				PlayMusic(queuedSong)
+				mtx.Unlock()
+			}()
+		}
+
+		mtx.Lock()
+		queuedSong = key
+		mtx.Unlock()
 	}
 
 	if val, ok := sounds[key]; ok {
