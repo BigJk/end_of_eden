@@ -57,4 +57,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ bin }}.zip
+          files: end_of_eden-${{ github.ref_name }}-macos-amd64.zip
