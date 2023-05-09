@@ -13,15 +13,15 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pre_command: "apt-get update && apt-get install --no-install-recommends -y libasound2-dev"
+          pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
           goos: linux
           goarch: amd64
   release-macos-amd64:
-    name: release linux/amd64
-    runs-on: macos-latest
+    name: release macos/amd64
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1
@@ -33,8 +33,8 @@ jobs:
           goos: darwin
           goarch: amd64
   release-macos-arm64:
-    name: release linux/amd64
-    runs-on: macos-latest
+    name: release macos/amd64
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1
@@ -46,8 +46,8 @@ jobs:
           goos: linux
           goarch: arm64
   release-windows-amd64:
-    name: release linux/amd64
-    runs-on: windows-latest
+    name: release windows/amd64
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1
