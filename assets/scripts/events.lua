@@ -168,7 +168,7 @@ The air is thick with humidity and the sounds of the jungle are overwhelming. St
     end
 })
 
-register_event("", {
+register_event("TALKING_BEING", {
     name = "Talking Being",
     description = [[!!alien2.png
 
@@ -193,6 +193,32 @@ The creature assures you that there are dangers to wielding such power and that 
                 give_card("VINE_VOLLEY", PLAYER_ID)
                 give_card("VINE_VOLLEY", PLAYER_ID)
                 give_card("VINE_VOLLEY", PLAYER_ID)
+                return nil
+            end
+        }, {
+            description = "Leave...",
+            callback = function()
+                return nil
+            end
+        }
+    },
+    on_end = function()
+        return GAME_STATE_RANDOM
+    end
+})
+
+register_event("RECYCLE_DEVICE", {
+    name = "Talking Being",
+    description = [[!!artifact_chest.png
+
+...]],
+    choices = {
+        {
+            description_fn = function()
+                return "Take Device... (" .. registered.card["RECYCLE"].description .. ")"
+            end,
+            callback = function(ctx)
+                give_card("RECYCLE", PLAYER_ID)
                 return nil
             end
         }, {
