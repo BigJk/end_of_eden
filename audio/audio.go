@@ -1,3 +1,6 @@
+//go:build !no_audio
+// +build !no_audio
+
 package audio
 
 import (
