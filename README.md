@@ -20,10 +20,31 @@
 
 # How to play
 
-- You can play end_of_eden in
-  - Console: ``end_of_eden``
-  - Browser: ``end_of_eden_browser``
-  - Over SSH: ``end_of_eden_ssh``
+## Download
+
+Download the latest game version here: https://github.com/BigJk/end_of_eden/releases
+
+## Docker
+
+### Pull Image
+
+```
+docker pull ghcr.io/bigjk/end_of_eden:master
+```
+
+### Base Game
+
+You can run the base game through docker, but audio is not supported. You also have to specify the terminal capabilities via environment flags. 
+
+````
+docker run --name end_of_eden -e TERM=xterm-256color -e COLORTERM=truecolor -it ghcr.io/bigjk/end_of_eden:master /app/end_of_eden --audio=false
+````
+
+### SSH Server
+
+````
+docker run --name end_of_eden -p 8275:8273 -it ghcr.io/bigjk/end_of_eden:master /app/end_of_eden_ssh
+````
 
 ## Console
 
