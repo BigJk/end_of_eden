@@ -7,6 +7,9 @@ func (cb OwnedCallback) MarshalJSON() ([]byte, error) {
 	return []byte("function"), nil
 }
 
+// Call executes the callback with the given arguments. If the callback is nil
+// it will return nil, nil. If the callback returns an error it will be returned
+// as the error of this function.
 func (cb OwnedCallback) Call(args ...any) (any, error) {
 	if cb == nil {
 		return nil, nil
@@ -15,6 +18,7 @@ func (cb OwnedCallback) Call(args ...any) (any, error) {
 	return cb(args...)
 }
 
+// Present returns true if the callback is not nil.
 func (cb OwnedCallback) Present() bool {
 	return cb != nil
 }

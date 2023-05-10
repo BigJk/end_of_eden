@@ -34,6 +34,7 @@ func baseToLua(val any) lua.LValue {
 
 var intType = reflect.TypeOf(int(0))
 
+// ToLua converts a go value to a lua value.
 func ToLua(state *lua.LState, val any) lua.LValue {
 	if val == nil {
 		return lua.LNil
@@ -128,6 +129,7 @@ func BindToLua(state *lua.LState, value lua.LValue) OwnedCallback {
 	}
 }
 
+// ToString converts a lua value to a string.
 func ToString(val lua.LValue, mapper *Mapper) string {
 	switch val.Type() {
 	case lua.LTString:

@@ -1,6 +1,7 @@
 //go:build !no_audio
 // +build !no_audio
 
+// audio package handles all audio playback. It uses the beep library to play audio files.
 package audio
 
 import (
@@ -35,6 +36,7 @@ var music = &beep.Ctrl{
 	Paused:   false,
 }
 
+// InitAudio initializes the audio system. Loads all audio files from the assets/audio folder.
 func InitAudio() {
 	go func() {
 		wg := &sync.WaitGroup{}
@@ -123,6 +125,7 @@ func InitAudio() {
 	enabled = true
 }
 
+// Play plays a sound effect. If the sound effect is not loaded, nothing will happen.
 func Play(key string, volumeModifier ...float64) {
 	if !enabled {
 		return
@@ -148,6 +151,7 @@ func Play(key string, volumeModifier ...float64) {
 	}
 }
 
+// PlayMusic plays a music track. If the music track is not loaded, nothing will happen.
 func PlayMusic(key string) {
 	if !enabled {
 		return

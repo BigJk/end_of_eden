@@ -9,6 +9,9 @@ import (
 
 var data = map[string][]string{}
 
+// InitGen loads all data from the assets/gen folder. This function should be called on startup.
+// The data is stored in a map with the type as key and a slice of strings, which are the lines
+// of the file, as value.
 func InitGen() {
 	files, err := os.ReadDir("./assets/gen")
 	if err != nil {
@@ -26,10 +29,12 @@ func InitGen() {
 	}
 }
 
+// Get returns all data for the given type.
 func Get(t string) []string {
 	return data[t]
 }
 
+// GetRandom returns a random entry for the given type.
 func GetRandom(t string) string {
 	selected := data[t]
 	if len(selected) == 0 {

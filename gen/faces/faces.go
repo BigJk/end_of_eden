@@ -10,10 +10,12 @@ import (
 	"strings"
 )
 
+// FaceGenerator is a generator for faces.
 type FaceGenerator struct {
 	data map[int][][]string
 }
 
+// Gen generates a face with the given id.
 func (gen *FaceGenerator) Gen(id int) string {
 	var face []string
 
@@ -47,6 +49,7 @@ func (gen *FaceGenerator) Gen(id int) string {
 	return strings.Join(face, "\n")
 }
 
+// GenRand generates a random face.
 func (gen *FaceGenerator) GenRand() string {
 	if gen == nil || gen.data == nil || len(gen.data) == 0 {
 		return ""
@@ -54,6 +57,7 @@ func (gen *FaceGenerator) GenRand() string {
 	return gen.Gen(lo.Shuffle(lo.Keys(gen.data))[0])
 }
 
+// New creates a new FaceGenerator.
 func New(dataFolder string) (*FaceGenerator, error) {
 	gen := &FaceGenerator{
 		data: map[int][][]string{},
@@ -83,8 +87,10 @@ func New(dataFolder string) (*FaceGenerator, error) {
 	return gen, nil
 }
 
+// Global is the global generator.
 var Global *FaceGenerator
 
+// InitGlobal initializes the global generator.
 func InitGlobal(dataFolder string) error {
 	gen, err := New(dataFolder)
 	if err != nil {
