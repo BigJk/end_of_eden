@@ -18,13 +18,13 @@
 ![Screenshot](.github/screenshot_merchant.png)
 
 
-# How to play
+# :video_game: How to play
 
-## Download
+## :file_folder: Download
 
 Download the latest game version here: https://github.com/BigJk/end_of_eden/releases
 
-## Docker
+## :whale: Docker
 
 ### Pull Image
 
@@ -34,11 +34,21 @@ docker pull ghcr.io/bigjk/end_of_eden:master
 
 ### Base Game
 
-You can run the base game through docker, but audio is not supported. You also have to specify the terminal capabilities via environment flags. 
+You can run the base game through docker, but audio is not supported. You also have to specify the terminal capabilities via environment flags. The following example uses the ``xterm-256color`` terminal and enables true color support.
 
 ````
 docker run --name end_of_eden -e TERM=xterm-256color -e COLORTERM=truecolor -it ghcr.io/bigjk/end_of_eden:master /app/end_of_eden --audio=false
 ````
+
+Possible options for the ``TERM`` environment variable are:
+- ``xterm-256color``
+- ``xterm``
+- ``screen-256color``
+- ``screen``
+- ``vt100``
+and more...
+
+``COLORTERM`` defines if the terminal supports true color. If you are using a modern terminal its probably safe to set this to ``truecolor``. Other options are ``24bit``, ``16mil`` and ``8bit``.
 
 ### SSH Server
 
@@ -69,7 +79,7 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 ## Building
 
 - You need golang ``>= 1.20`` installed
-- Build binary: ``cd ./cmd/game && go build``
+- Build binary: ``go build -o end_of_eden ./cmd/game/``
 - Run without building binary: ``go run ./cmd/game/``
 - **Important:** The games working directory needs to be where the ``./assets`` folder is available!
 
