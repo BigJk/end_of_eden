@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+// ExposeDebug exposes a debug interface on the given port. This interface can be used to execute lua code on the server.
+// This is a very dangerous function, which should only be used for debugging purposes. It should never be exposed to the public.
 func ExposeDebug(port int, session *Session, l *lua.LState, log *log.Logger) func() error {
 	e := echo.New()
 	mtx := sync.Mutex{}

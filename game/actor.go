@@ -26,6 +26,7 @@ func (a Actor) IsNone() bool {
 	return len(a.GUID) == 0
 }
 
+// Sanitize ensures that the actor has all the required fields.
 func (a Actor) Sanitize() Actor {
 	if a.Artifacts == nil {
 		a.Artifacts = NewStringSet()

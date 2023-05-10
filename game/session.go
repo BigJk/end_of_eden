@@ -47,10 +47,17 @@ const (
 )
 
 const (
+	// DefaultUpgradeCost is the default cost for upgrading a card.
 	DefaultUpgradeCost = 65
-	DefaultRemoveCost  = 50
-	PointsPerRound     = 3
-	DrawSize           = 3
+
+	// DefaultRemoveCost is the default cost for removing a card.
+	DefaultRemoveCost = 50
+
+	// PointsPerRound is the amount of points the player gets per round.
+	PointsPerRound = 3
+
+	// DrawSize is the amount of cards the player draws per round.
+	DrawSize = 3
 )
 
 // FightState represents the current state of the fight in regard to the
@@ -65,6 +72,7 @@ type FightState struct {
 	Exhausted     []string
 }
 
+// MerchantState represents the current state of the merchant.
 type MerchantState struct {
 	Face      string
 	Text      string
@@ -72,6 +80,7 @@ type MerchantState struct {
 	Artifacts []string
 }
 
+// LuaError represents an error that occured in lua.
 type LuaError struct {
 	File     string
 	Line     int
@@ -166,18 +175,21 @@ func WithLogging(logger *log.Logger) func(s *Session) {
 	}
 }
 
+// WithMods sets the mods that should be loaded.
 func WithMods(mods []string) func(s *Session) {
 	return func(s *Session) {
 		s.loadedMods = mods
 	}
 }
 
+// WithOnLuaError sets the function that will be called when a lua error happens.
 func WithOnLuaError(fn func(file string, line int, callback string, typeId string, err error)) func(s *Session) {
 	return func(s *Session) {
 		s.onLuaError = fn
 	}
 }
 
+// SetOnLuaError sets the function that will be called when a lua error happens.
 func (s *Session) SetOnLuaError(fn func(file string, line int, callback string, typeId string, err error)) {
 	if fn == nil {
 		s.onLuaError = func(file string, line int, callback string, typeId string, err error) {}
@@ -186,6 +198,7 @@ func (s *Session) SetOnLuaError(fn func(file string, line int, callback string, 
 	}
 }
 
+// LuaDocs returns the documentation of the lua state.
 func (s *Session) LuaDocs() *ludoc.Docs {
 	return s.luaDocs
 }
@@ -200,6 +213,8 @@ func (s *Session) Close() {
 	s.luaState.Close()
 }
 
+// LuaErrors returns a channel that will receive all lua errors that happen during the session.
+// Only a single channel is used for all errors, so be wary when using this in multiple goroutines.
 func (s *Session) LuaErrors() chan LuaError {
 	return s.luaErrors
 }
@@ -264,10 +279,12 @@ func (s *Session) GobDecode(data []byte) error {
 	return nil
 }
 
+// GetResources returns the resources manager.
 func (s *Session) GetResources() *ResourcesManager {
 	return s.resources
 }
 
+// GetLoadedMods returns the list of loaded mods.
 func (s *Session) GetLoadedMods() []string {
 	return s.loadedMods
 }
@@ -523,6 +540,9 @@ func (s *Session) FinishPlayerTurn() {
 	s.TriggerOnPlayerTurn()
 }
 
+// EnemyTurn lets all enemies act. This will also trigger the OnTurn callbacks of all status effects and
+// artifacts. If a status effect or artifact returns true, the enemy turn will be skipped. This is used
+// for example by the "FEAR" status effect.
 func (s *Session) EnemyTurn() {
 	for k, v := range s.actors {
 		if k == PlayerActorID || v.IsNone() {
@@ -877,6 +897,7 @@ func (s *Session) LetTellerDecide() {
 // Instances
 //
 
+// GetInstances returns all instances in the session.
 func (s *Session) GetInstances() []string {
 	return lo.Keys(s.instances)
 }
@@ -886,6 +907,9 @@ func (s *Session) GetInstance(guid string) any {
 	return s.instances[guid]
 }
 
+// TraverseArtifactsStatus traverses all artifacts and status effects in the session and calls the given functions
+// for each instance. The instances are sorted by their order value. The order value is based on the order that is
+// specified in the game data. This allows the game data to control the order of effects.
 func (s *Session) TraverseArtifactsStatus(guids []string, artifact func(instance ArtifactInstance, artifact *Artifact), status func(instance StatusEffectInstance, statusEffect *StatusEffect)) {
 	sort.SliceStable(guids, func(i, j int) bool {
 		oa := util.Max(s.GetArtifactOrder(guids[i]), s.GetStatusEffectOrder(guids[i]))
@@ -1210,7 +1234,7 @@ func (s *Session) GiveArtifact(typeId string, owner string) string {
 	return instance.GUID
 }
 
-// RemoveArtifact removes a artifact by guid.
+// RemoveArtifact removes an artifact by guid.
 func (s *Session) RemoveArtifact(guid string) {
 	instance := s.instances[guid].(ArtifactInstance)
 	if _, err := s.resources.Artifacts[instance.TypeID].Callbacks[CallbackOnRemove].Call(CreateContext("type_id", instance.TypeID, "guid", guid, "owner", instance.Owner)); err != nil {
@@ -1224,6 +1248,8 @@ func (s *Session) RemoveArtifact(guid string) {
 // Card Functions
 //
 
+// GetCard returns a card, and instance by guid or type id. If a type id is given
+// only the Card will be returned. If the card is not found, nil is returned.
 func (s *Session) GetCard(guid string) (*Card, CardInstance) {
 	// check if guid is actually typeId
 	if val, ok := s.resources.Cards[guid]; ok {
@@ -1243,6 +1269,7 @@ func (s *Session) GetCard(guid string) (*Card, CardInstance) {
 	return nil, CardInstance{}
 }
 
+// GiveCard gives a card to an actor. Returns the guid of the new card.
 func (s *Session) GiveCard(typeId string, owner string) string {
 	if _, ok := s.resources.Cards[typeId]; !ok {
 		return ""
@@ -1258,12 +1285,14 @@ func (s *Session) GiveCard(typeId string, owner string) string {
 	return instance.GUID
 }
 
+// RemoveCard removes a card by guid.
 func (s *Session) RemoveCard(guid string) {
 	instance := s.instances[guid].(CardInstance)
 	s.actors[instance.Owner].Cards.Remove(instance.GUID)
 	delete(s.instances, guid)
 }
 
+// CastCard calls the OnCast callback for a card, casting it.
 func (s *Session) CastCard(guid string, target string) bool {
 	if card, instance := s.GetCard(guid); card != nil {
 		res, err := card.Callbacks[CallbackOnCast].Call(CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level))
@@ -1277,12 +1306,14 @@ func (s *Session) CastCard(guid string, target string) bool {
 	return false
 }
 
+// GetCards returns all cards owned by a actor.
 func (s *Session) GetCards(owner string) []string {
 	guids := s.actors[owner].Cards.ToSlice()
 	sort.Strings(guids)
 	return guids
 }
 
+// GetCardState returns the state of a card.
 func (s *Session) GetCardState(guid string) string {
 	card, instance := s.GetCard(guid)
 	if card == nil {
@@ -1304,6 +1335,7 @@ func (s *Session) GetCardState(guid string) string {
 	return res.(string)
 }
 
+// PlayerCastHand casts a card from the players hand.
 func (s *Session) PlayerCastHand(i int, target string) error {
 	if i >= len(s.currentFight.Hand) {
 		return errors.New("hand empty")
@@ -1344,6 +1376,7 @@ func (s *Session) PlayerCastHand(i int, target string) error {
 	return nil
 }
 
+// PlayerDrawCard draws a card from the deck.
 func (s *Session) PlayerDrawCard(amount int) {
 	for i := 0; i < amount; i++ {
 		// Shuffle used back in
@@ -1362,10 +1395,12 @@ func (s *Session) PlayerDrawCard(amount int) {
 	}
 }
 
+// PlayerGiveActionPoints gives the player action points.
 func (s *Session) PlayerGiveActionPoints(amount int) {
 	s.currentFight.CurrentPoints += amount
 }
 
+// BuyUpgradeCard upgrades a card by its GUID.
 func (s *Session) BuyUpgradeCard(guid string) bool {
 	card, instance := s.GetCard(guid)
 	if instance.IsNone() || card.MaxLevel == 0 || instance.Level == card.MaxLevel {
@@ -1385,6 +1420,7 @@ func (s *Session) BuyUpgradeCard(guid string) bool {
 	return true
 }
 
+// BuyRemoveCard removes a card by its GUID.
 func (s *Session) BuyRemoveCard(guid string) bool {
 	_, instance := s.GetCard(guid)
 	if instance.IsNone() {
@@ -1403,6 +1439,7 @@ func (s *Session) BuyRemoveCard(guid string) bool {
 	return true
 }
 
+// UpgradeCard upgrades a card by its GUID.
 func (s *Session) UpgradeCard(guid string) bool {
 	card, instance := s.GetCard(guid)
 	if instance.IsNone() || card.MaxLevel == 0 || instance.Level == card.MaxLevel {
@@ -1414,6 +1451,7 @@ func (s *Session) UpgradeCard(guid string) bool {
 	return true
 }
 
+// UpgradeRandomCard upgrades a random card of the given owner.
 func (s *Session) UpgradeRandomCard(owner string) bool {
 	upgradeable := lo.Filter(s.GetActor(owner).Cards.ToSlice(), func(item string, index int) bool {
 		card, instance := s.GetCard(item)
@@ -1434,6 +1472,7 @@ func (s *Session) UpgradeRandomCard(owner string) bool {
 // Damage & Heal Function
 //
 
+// DealDamage deals damage to a target. If flat is true it will not trigger any callbacks which modify the damage.
 func (s *Session) DealDamage(source string, target string, damage int, flat bool) int {
 	if _, ok := s.actors[source]; !ok {
 		return 0
@@ -1510,12 +1549,16 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 	return damage
 }
 
+// DealDamageMulti will deal damage to multiple targets and return the amount of damage dealt to each target.
+// If flat is true it will not trigger any OnDamageCalc callbacks which modify the damage.
 func (s *Session) DealDamageMulti(source string, targets []string, damage int, flat bool) []int {
 	return lo.Map(targets, func(guid string, index int) int {
 		return s.DealDamage(source, guid, damage, flat)
 	})
 }
 
+// Heal will heal the target for the given amount from source to target and return the amount healed.
+// If flat is true it will not trigger any OnHealCalc callbacks which modify the heal.
 func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 	if val, ok := s.actors[target]; ok {
 		if !flat {
@@ -1572,18 +1615,22 @@ func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 // Actor Functions
 //
 
+// GetPlayer returns the player.
 func (s *Session) GetPlayer() Actor {
 	return s.actors[PlayerActorID]
 }
 
+// UpdatePlayer updates the player using a update function.
 func (s *Session) UpdatePlayer(update func(actor *Actor) bool) {
 	s.UpdateActor(PlayerActorID, update)
 }
 
+// GetActors returns all actors.
 func (s *Session) GetActors() []string {
 	return lo.Keys(s.actors)
 }
 
+// GetActor returns an actor.
 func (s *Session) GetActor(id string) Actor {
 	if val, ok := s.actors[id]; ok {
 		return val
@@ -1591,6 +1638,7 @@ func (s *Session) GetActor(id string) Actor {
 	return NewActor("")
 }
 
+// UpdateActor updates an actor.
 func (s *Session) UpdateActor(id string, update func(actor *Actor) bool) {
 	actor := s.GetActor(id)
 	if update(&actor) {
@@ -1598,6 +1646,7 @@ func (s *Session) UpdateActor(id string, update func(actor *Actor) bool) {
 	}
 }
 
+// GetActorIntend returns the intend of an actor.
 func (s *Session) GetActorIntend(guid string) string {
 	if enemy := s.GetEnemy(s.actors[guid].TypeID); enemy != nil {
 		res, err := enemy.Intend.Call(CreateContext("type_id", enemy.ID, "guid", guid, "round", s.currentFight.Round))
@@ -1610,6 +1659,7 @@ func (s *Session) GetActorIntend(guid string) string {
 	return ""
 }
 
+// ActorAddMaxHP adds max hp to an actor.
 func (s *Session) ActorAddMaxHP(id string, val int) {
 	s.UpdateActor(id, func(actor *Actor) bool {
 		actor.MaxHP += val
@@ -1617,6 +1667,7 @@ func (s *Session) ActorAddMaxHP(id string, val int) {
 	})
 }
 
+// ActorAddHP adds HP to an actor.
 func (s *Session) ActorAddHP(id string, val int) {
 	s.UpdateActor(id, func(actor *Actor) bool {
 		actor.HP += val
@@ -1624,10 +1675,12 @@ func (s *Session) ActorAddHP(id string, val int) {
 	})
 }
 
+// AddActor adds an actor to the session.
 func (s *Session) AddActor(actor Actor) {
 	s.actors[actor.GUID] = actor
 }
 
+// AddActorFromEnemy adds an actor to the session from an enemy base.
 func (s *Session) AddActorFromEnemy(id string) string {
 	if base, ok := s.resources.Enemies[id]; ok {
 		actor := NewActor(NewGuid(id))
@@ -1652,6 +1705,7 @@ func (s *Session) AddActorFromEnemy(id string) string {
 	return ""
 }
 
+// RemoveActor removes an actor from the session.
 func (s *Session) RemoveActor(id string) {
 	var deleteInstances []string
 
@@ -1676,6 +1730,7 @@ func (s *Session) RemoveActor(id string) {
 	delete(s.actors, id)
 }
 
+// RemoveNonPlayer removes all actors that are not the player.
 func (s *Session) RemoveNonPlayer() {
 	var deleteActors []string
 	for _, a := range s.actors {
@@ -1689,6 +1744,7 @@ func (s *Session) RemoveNonPlayer() {
 	}
 }
 
+// GetOpponentCount returns the number of opponents from the given viewpoint.
 func (s *Session) GetOpponentCount(viewpoint string) int {
 	switch viewpoint {
 	// From the viewpoint of the player we can have multiple enemies.
@@ -1702,6 +1758,7 @@ func (s *Session) GetOpponentCount(viewpoint string) int {
 	}
 }
 
+// GetOpponentByIndex returns the opponent at the given index from the given viewpoint.
 func (s *Session) GetOpponentByIndex(viewpoint string, i int) Actor {
 	switch viewpoint {
 	// From the viewpoint of the player we can have multiple enemies.
@@ -1725,12 +1782,14 @@ func (s *Session) GetOpponentByIndex(viewpoint string, i int) Actor {
 	}
 }
 
+// GetOpponents returns the opponents from the given viewpoint.
 func (s *Session) GetOpponents(viewpoint string) []Actor {
 	return lo.Map(s.GetOpponentGUIDs(viewpoint), func(guid string, index int) Actor {
 		return s.actors[guid]
 	})
 }
 
+// GetOpponentGUIDs returns the guids of the opponents from the given viewpoint.
 func (s *Session) GetOpponentGUIDs(viewpoint string) []string {
 	switch viewpoint {
 	// From the viewpoint of the player we can have multiple enemies.
@@ -1746,6 +1805,7 @@ func (s *Session) GetOpponentGUIDs(viewpoint string) []string {
 	}
 }
 
+// GetEnemy returns the enemy with the given type id.
 func (s *Session) GetEnemy(typeId string) *Enemy {
 	return s.resources.Enemies[typeId]
 }
@@ -1754,6 +1814,7 @@ func (s *Session) GetEnemy(typeId string) *Enemy {
 // Gold
 //
 
+// GivePlayerGold gives the player the given amount of gold.
 func (s *Session) GivePlayerGold(amount int) {
 	if amount <= 0 {
 		return
@@ -1775,6 +1836,7 @@ func (s *Session) GivePlayerGold(amount int) {
 // Misc Callback
 //
 
+// TriggerOnDamageCalc triggers the OnDamageCalc callback for all artifacts and status effects
 func (s *Session) TriggerOnDamageCalc(guids []string, source string, target string, damage int) int {
 	s.TraverseArtifactsStatus(guids,
 		func(instance ArtifactInstance, art *Artifact) {
@@ -1801,6 +1863,7 @@ func (s *Session) TriggerOnDamageCalc(guids []string, source string, target stri
 	return damage
 }
 
+// TriggerOnDamage triggers the OnDamage callback for all artifacts and status effects.
 func (s *Session) TriggerOnDamage(guids []string, source string, target string, damage int) {
 	s.TraverseArtifactsStatus(guids,
 		func(instance ArtifactInstance, art *Artifact) {
@@ -1818,6 +1881,7 @@ func (s *Session) TriggerOnDamage(guids []string, source string, target string, 
 	)
 }
 
+// TriggerOnActorDie trigger the OnActorDie callback on all artifacts and status effects.
 func (s *Session) TriggerOnActorDie(guids []string, source string, target string, damage int) {
 	s.TraverseArtifactsStatus(guids,
 		func(instance ArtifactInstance, art *Artifact) {
@@ -1835,6 +1899,7 @@ func (s *Session) TriggerOnActorDie(guids []string, source string, target string
 	)
 }
 
+// TriggerOnPlayerTurn trigger the OnPlayerTurn callback for all artifacts and status effects.
 func (s *Session) TriggerOnPlayerTurn() {
 	s.TraverseArtifactsStatus(lo.Keys(s.instances),
 		func(instance ArtifactInstance, artifact *Artifact) {
@@ -1862,6 +1927,7 @@ func (s *Session) TriggerOnPlayerTurn() {
 // Misc Functions
 //
 
+// Log adds a log entry to the session.
 func (s *Session) Log(t LogType, msg string) {
 	s.Logs = append(s.Logs, LogEntry{
 		Time:    time.Now(),
@@ -1870,10 +1936,12 @@ func (s *Session) Log(t LogType, msg string) {
 	})
 }
 
+// Fetch retrieves a value from the session context.
 func (s *Session) Fetch(key string) any {
 	return s.ctxData[key]
 }
 
+// Store stores a value in the session context.
 func (s *Session) Store(key string, value any) {
 	s.ctxData[key] = value
 }
