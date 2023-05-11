@@ -16,7 +16,7 @@ jobs:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev"
-          asset_name: '${{BINARY_NAME}}-term-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}'
+          asset_name: '${{env.BINARY_NAME}}-term-${{env.RELEASE_TAG}}-${{env.GOOS}}-${{env.GOARCH}'
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -35,7 +35,7 @@ jobs:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev gcc libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev"
-          asset_name: '${{BINARY_NAME}}-gl-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}}'
+          asset_name: '${{env.BINARY_NAME}}-gl-${{env.RELEASE_TAG}}-${{env.GOOS}}-${{env.GOARCH}}'
           project_path: "./cmd/game_win"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -51,7 +51,7 @@ jobs:
         with:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: '${{BINARY_NAME}}-term-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}}'
+          asset_name: '${{env.BINARY_NAME}}-term-${{env.RELEASE_TAG}}-${{env.GOOS}}-${{env.GOARCH}}'
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -67,7 +67,7 @@ jobs:
         with:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: '${{BINARY_NAME}}-gl-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}}'
+          asset_name: '${{env.BINARY_NAME}}-gl-${{env.RELEASE_TAG}}-${{env.GOOS}}-${{env.GOARCH}}'
           project_path: "./cmd/game_win"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
