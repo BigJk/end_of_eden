@@ -5,7 +5,7 @@ on:
 jobs:
   release-linux-term-amd64:
     permissions: write-all
-    name: release linux/amd64
+    name: release linux/amd64 term
     runs-on: ubuntu-latest
     env:
       CGO_ENABLED: 1
@@ -16,7 +16,7 @@ jobs:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev"
-          asset_name: "${BINARY_NAME}-term-${RELEASE_TAG}-${GOOS}-${GOARCH}"
+          asset_name: '${{BINARY_NAME}}-term-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}'
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -24,7 +24,7 @@ jobs:
           goarch: amd64
   release-linux-gl-amd64:
     permissions: write-all
-    name: release linux/amd64
+    name: release linux/amd64 gl
     runs-on: ubuntu-latest
     env:
       CGO_ENABLED: 1
@@ -35,7 +35,7 @@ jobs:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev gcc libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev"
-          asset_name: "${BINARY_NAME}-gl-${RELEASE_TAG}-${GOOS}-${GOARCH}"
+          asset_name: '${{BINARY_NAME}}-gl-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}}'
           project_path: "./cmd/game_win"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -43,7 +43,7 @@ jobs:
           goarch: amd64
   release-windows-term-amd64:
     permissions: write-all
-    name: release windows/amd64
+    name: release windows/amd64 term
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -51,7 +51,7 @@ jobs:
         with:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: "${BINARY_NAME}-term-${RELEASE_TAG}-${GOOS}-${GOARCH}"
+          asset_name: '${{BINARY_NAME}}-term-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}}'
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -59,7 +59,7 @@ jobs:
           goarch: amd64
   release-windows-gl-amd64:
     permissions: write-all
-    name: release windows/amd64
+    name: release windows/amd64 gl
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -67,7 +67,7 @@ jobs:
         with:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: "${BINARY_NAME}-gl-${RELEASE_TAG}-${GOOS}-${GOARCH}"
+          asset_name: '${{BINARY_NAME}}-gl-${{RELEASE_TAG}}-${{GOOS}}-${{GOARCH}}'
           project_path: "./cmd/game_win"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
@@ -75,7 +75,7 @@ jobs:
           goarch: amd64
   release-macos-term-amd64:
     permissions: write-all
-    name: release macos/amd64
+    name: release macos/amd64 term
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -99,7 +99,7 @@ jobs:
           files: end_of_eden-term-${{ github.ref_name }}-macos-amd64.zip
   release-macos-gl-amd64:
     permissions: write-all
-    name: release macos/amd64
+    name: release macos/amd64 gl
     runs-on: macos-latest
     steps:
       - name: Checkout
