@@ -54,6 +54,8 @@ func initSystems(hasAudio bool) {
 
 func main() {
 	audioFlag := flag.Bool("audio", true, "disable audio")
+	fontSize := flag.Float64("font_size", 16, "font size")
+	dpiScaling := flag.Float64("dpi", 1, "scales the dpi up")
 	width := flag.Int("width", 120, "window width in cells")
 	height := flag.Int("height", 40, "window height in cells")
 	help := flag.Bool("help", false, "show help")
@@ -70,8 +72,8 @@ func main() {
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
 	initSystems(*audioFlag)
 
-	gameInput := NewConcurrentRW()
-	gameOutput := NewConcurrentRW()
+	gameInput := termgl.NewConcurrentRW()
+	gameOutput := termgl.NewConcurrentRW()
 
 	go gameInput.Run()
 	go gameOutput.Run()
@@ -96,9 +98,10 @@ func main() {
 	})
 
 	// Start game frontend
-	normal := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Regular.ttf", 72*2, 12/2)
-	bold := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*2, 12/2)
-	italic := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", 72*2, 12/2)
+	dpi := *dpiScaling
+	normal := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Regular.ttf", 72*dpi, *fontSize/dpi)
+	bold := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
+	italic := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", 72*dpi, *fontSize/dpi)
 
 	game := termgl.NewGame(*width, *height, normal, bold, italic, gameOutput, prog)
 	sw, sh := game.Layout(0, 0)
