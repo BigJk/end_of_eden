@@ -3,7 +3,7 @@ on:
     types: [created]
 
 jobs:
-  release-linux-amd64:
+  release-linux-term-amd64:
     permissions: write-all
     name: release linux/amd64
     runs-on: ubuntu-latest
@@ -16,12 +16,32 @@ jobs:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev"
+          asset_name: "${BINARY_NAME}-term-${RELEASE_TAG}-${GOOS}-${GOARCH}"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
           goos: linux
           goarch: amd64
-  release-windows-amd64:
+  release-linux-gl-amd64:
+    permissions: write-all
+    name: release linux/amd64
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: 1
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1
+        with:
+          md5sum: FALSE
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev gcc libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev"
+          asset_name: "${BINARY_NAME}-gl-${RELEASE_TAG}-${GOOS}-${GOARCH}"
+          project_path: "./cmd/game_win"
+          binary_name: "end_of_eden"
+          extra_files: "./assets/"
+          goos: linux
+          goarch: amd64
+  release-windows-term-amd64:
     permissions: write-all
     name: release windows/amd64
     runs-on: ubuntu-latest
@@ -31,12 +51,29 @@ jobs:
         with:
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          asset_name: "${BINARY_NAME}-term-${RELEASE_TAG}-${GOOS}-${GOARCH}"
           project_path: "./cmd/game"
           binary_name: "end_of_eden"
           extra_files: "./assets/"
           goos: windows
           goarch: amd64
-  release-macos-amd64:
+  release-windows-gl-amd64:
+    permissions: write-all
+    name: release windows/amd64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1
+        with:
+          md5sum: FALSE
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          asset_name: "${BINARY_NAME}-gl-${RELEASE_TAG}-${GOOS}-${GOARCH}"
+          project_path: "./cmd/game_win"
+          binary_name: "end_of_eden"
+          extra_files: "./assets/"
+          goos: windows
+          goarch: amd64
+  release-macos-term-amd64:
     permissions: write-all
     name: release macos/amd64
     runs-on: macos-latest
@@ -50,7 +87,7 @@ jobs:
       - name: Build
         run: |
              go build -o end_of_eden ./cmd/game
-             export BIN=end_of_eden-$(basename ${GITHUB_REF})-macos-amd64
+             export BIN=end_of_eden-term-$(basename ${GITHUB_REF})-macos-amd64
              mkdir $BIN
              cp ./end_of_eden $BIN/end_of_eden
              cp -r ./assets $BIN/assets/
@@ -59,4 +96,32 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: end_of_eden-${{ github.ref_name }}-macos-amd64.zip
+          files: end_of_eden-term-${{ github.ref_name }}-macos-amd64.zip
+  release-macos-gl-amd64:
+    permissions: write-all
+    name: release macos/amd64
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Fetch XCode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - name: Fetch Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '^1.20'
+      - name: Build
+        run: |
+          go build -o end_of_eden ./cmd/game_win
+          export BIN=end_of_eden-gl-$(basename ${GITHUB_REF})-macos-amd64
+          mkdir $BIN
+          cp ./end_of_eden $BIN/end_of_eden
+          cp -r ./assets $BIN/assets/
+          zip -r $BIN.zip $BIN
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: end_of_eden-gl-${{ github.ref_name }}-macos-amd64.zip
