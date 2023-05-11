@@ -17,14 +17,20 @@
 ![Screenshot](.github/screenshot.png)
 ![Screenshot](.github/screenshot_merchant.png)
 
+# Status
+
+The game is still in early development. There are still a lot of content missing and the game is not balanced at all. If you want to help out, feel free to open a issue or pull request or even better join the [discord](https://discord.gg/XpDvfvVuB2).
 
 # :video_game: How to play
 
 ## :file_folder: Download
 
-Download the latest game version here: https://github.com/BigJk/end_of_eden/releases
+- Download the latest game version for your OS here https://github.com/BigJk/end_of_eden/releases
+- **Attention:** Keep in mind that the game requires a modern terminal to run properly. See [Console](#console) for more information.
 
 ## :whale: Docker
+
+If you are a advanced user you can also run the game through docker.
 
 ### Pull Image
 
@@ -63,7 +69,7 @@ A modern console is required to support all the features like full mouse control
 ### Tested Terminals
 | Terminal                                              |   OS    | Status             | Note                                                            |
 |-------------------------------------------------------|---------|--------------------|-----------------------------------------------------------------|
-| **[terminal](https://github.com/microsoft/terminal)** | windows | :white_check_mark: |                                                                 |
+| **[terminal](https://github.com/microsoft/terminal)** | windows | :white_check_mark: | recommended on windows                                          |
 | **cmd**                                               | windows | :warning:          | no mouse motion support, mouse clicks and everything else works |
 | **[iterm2](https://iterm2.com/)**                     | osx     | :white_check_mark: |                                                                 |
 
