@@ -96,8 +96,8 @@ func main() {
 	// Start game frontend
 	dpi := *dpiScaling
 	normal := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Regular.ttf", 72*dpi, *fontSize/dpi)
-	bold := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
-	italic := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", 72*dpi, *fontSize/dpi)
+	bold := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", 72*dpi, *fontSize/dpi)
+	italic := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
 
 	game := termgl.NewGame(*width, *height, normal, bold, italic, gameOutput, prog, color.RGBA{
 		R: 34,
