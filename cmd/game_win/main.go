@@ -15,6 +15,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/hajimehoshi/ebiten/v2"
 	zone "github.com/lrstanley/bubblezone"
+	"image/color"
 	"os"
 )
 
@@ -103,7 +104,12 @@ func main() {
 	bold := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
 	italic := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", 72*dpi, *fontSize/dpi)
 
-	game := termgl.NewGame(*width, *height, normal, bold, italic, gameOutput, prog)
+	game := termgl.NewGame(*width, *height, normal, bold, italic, gameOutput, prog, color.RGBA{
+		R: 34,
+		G: 36,
+		B: 41,
+		A: 255,
+	})
 	sw, sh := game.Layout(0, 0)
 
 	ebiten.SetScreenFilterEnabled(false)

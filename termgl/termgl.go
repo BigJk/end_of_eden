@@ -5,14 +5,45 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/muesli/ansi"
 	"golang.org/x/image/font"
 	"image"
 	"image/color"
 	"io"
+	"strings"
 	"sync"
 )
+
+var mappedKeys = map[ebiten.Key]tea.KeyType{
+	ebiten.KeyEnter:      tea.KeyEnter,
+	ebiten.KeyTab:        tea.KeyTab,
+	ebiten.KeySpace:      tea.KeySpace,
+	ebiten.KeyBackspace:  tea.KeyBackspace,
+	ebiten.KeyDelete:     tea.KeyDelete,
+	ebiten.KeyHome:       tea.KeyHome,
+	ebiten.KeyEnd:        tea.KeyEnd,
+	ebiten.KeyPageUp:     tea.KeyPgUp,
+	ebiten.KeyArrowUp:    tea.KeyUp,
+	ebiten.KeyArrowDown:  tea.KeyDown,
+	ebiten.KeyArrowLeft:  tea.KeyLeft,
+	ebiten.KeyArrowRight: tea.KeyRight,
+	ebiten.KeyEscape:     tea.KeyEscape,
+}
+
+var mappedRunes = map[ebiten.Key][]rune{
+	ebiten.Key1: {'1'},
+	ebiten.Key2: {'2'},
+	ebiten.Key3: {'3'},
+	ebiten.Key4: {'4'},
+	ebiten.Key5: {'5'},
+	ebiten.Key6: {'6'},
+	ebiten.Key7: {'7'},
+	ebiten.Key8: {'8'},
+	ebiten.Key9: {'9'},
+	ebiten.Key0: {'0'},
+}
 
 type FontWeight byte
 
@@ -54,8 +85,7 @@ type Game struct {
 	mouseCellX int
 	mouseCellY int
 
-	mouseLeftPressed bool
-
+	defaultBg color.Color
 	curFg     color.Color
 	curBg     color.Color
 	curWeight FontWeight
@@ -63,7 +93,12 @@ type Game struct {
 	routine sync.Once
 }
 
-func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fontItalic font.Face, tty io.Reader, prog *tea.Program) *Game {
+// NewGame creates a new terminal game with the given dimensions and font faces.
+func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fontItalic font.Face, tty io.Reader, prog *tea.Program, defaultBg color.Color) *Game {
+	if defaultBg == nil {
+		defaultBg = color.Black
+	}
+
 	bounds, _, _ := fontNormal.GlyphBounds([]rune("█")[0])
 	size := bounds.Max.Sub(bounds.Min)
 
@@ -78,7 +113,7 @@ func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fo
 			grid[y][x] = GridCell{
 				Char:   ' ',
 				Fg:     color.White,
-				Bg:     color.Black,
+				Bg:     defaultBg,
 				Weight: FontWeightNormal,
 			}
 		}
@@ -94,6 +129,7 @@ func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fo
 		faceNormal:  fontNormal,
 		faceBold:    fontBold,
 		faceItalic:  fontItalic,
+		defaultBg:   defaultBg,
 		grid:        grid,
 		tty:         tty,
 		bgColors:    image.NewRGBA(image.Rect(0, 0, width*cellWidth, height*cellHeight)),
@@ -104,9 +140,10 @@ func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fo
 	return game
 }
 
+// ResetSGR resets the SGR attributes to their default values.
 func (g *Game) ResetSGR() {
 	g.curFg = color.White
-	g.curBg = color.Black
+	g.curBg = g.defaultBg
 	g.curWeight = FontWeightNormal
 }
 
@@ -119,51 +156,43 @@ func (g *Game) SetBgPixels(x, y int, c color.Color) {
 	}
 }
 
-func (g *Game) HandleCSI(csi any) {
+func (g *Game) handleCSI(csi any) {
 	switch seq := csi.(type) {
 	case CursorUpSeq:
-		fmt.Println("CursorUpSeq", seq.Count)
 		g.cursorY -= seq.Count
 		if g.cursorY < 0 {
 			g.cursorY = 0
 		}
 	case CursorDownSeq:
-		fmt.Println("CursorDownSeq", seq.Count)
 		g.cursorY += seq.Count
 		if g.cursorY >= g.cellsHeight {
 			g.cursorY = g.cellsHeight - 1
 		}
 	case CursorForwardSeq:
-		fmt.Println("CursorForwardSeq", seq.Count)
 		g.cursorX += seq.Count
 		if g.cursorX >= g.cellsWidth {
 			g.cursorX = g.cellsWidth - 1
 		}
 	case CursorBackSeq:
-		fmt.Println("CursorBackSeq", seq.Count)
 		g.cursorX -= seq.Count
 		if g.cursorX < 0 {
 			g.cursorX = 0
 		}
 	case CursorNextLineSeq:
-		fmt.Println("CursorNextLineSeq", seq.Count)
 		g.cursorY += seq.Count
 		if g.cursorY >= g.cellsHeight {
 			g.cursorY = g.cellsHeight - 1
 		}
 		g.cursorX = 0
 	case CursorPreviousLineSeq:
-		fmt.Println("CursorPreviousLineSeq", seq.Count)
 		g.cursorY -= seq.Count
 		if g.cursorY < 0 {
 			g.cursorY = 0
 		}
 		g.cursorX = 0
 	case CursorHorizontalSeq:
-		fmt.Println("CursorHorizontalSeq", seq.Count)
 		g.cursorX = seq.Count - 1
 	case CursorPositionSeq:
-		fmt.Println("CursorPositionSeq", seq.Row, seq.Col)
 		g.cursorX = seq.Col - 1
 		g.cursorY = seq.Row - 1
 
@@ -179,7 +208,6 @@ func (g *Game) HandleCSI(csi any) {
 			g.cursorY = g.cellsHeight - 1
 		}
 	case EraseDisplaySeq:
-		fmt.Println("EraseDisplaySeq", seq.Type)
 		if seq.Type != 2 {
 			return // only support 2 (erase entire display)
 		}
@@ -188,30 +216,31 @@ func (g *Game) HandleCSI(csi any) {
 			for j := 0; j < g.cellsHeight; j++ {
 				g.grid[j][i].Char = ' '
 				g.grid[j][i].Fg = color.White
-				g.grid[j][i].Bg = color.Black
+				g.grid[j][i].Bg = g.defaultBg
 			}
 		}
 	case EraseLineSeq:
-		fmt.Println("EraseLineSeq", seq.Type)
-
 		switch seq.Type {
 		case 0: // erase from cursor to end of line
 			for i := g.cursorX; i < g.cellsWidth-g.cursorX; i++ {
 				g.grid[g.cursorY][g.cursorX+i].Char = ' '
 				g.grid[g.cursorY][g.cursorX+i].Fg = color.White
-				g.grid[g.cursorY][g.cursorX+i].Bg = color.Black
+				g.grid[g.cursorY][g.cursorX+i].Bg = g.defaultBg
+				g.SetBgPixels(g.cursorX+i, g.cursorY, g.defaultBg)
 			}
 		case 1: // erase from start of line to cursor
 			for i := 0; i < g.cursorX; i++ {
 				g.grid[g.cursorY][i].Char = ' '
 				g.grid[g.cursorY][i].Fg = color.White
-				g.grid[g.cursorY][i].Bg = color.Black
+				g.grid[g.cursorY][i].Bg = g.defaultBg
+				g.SetBgPixels(i, g.cursorY, g.defaultBg)
 			}
 		case 2: // erase entire line
 			for i := 0; i < g.cellsWidth; i++ {
 				g.grid[g.cursorY][i].Char = ' '
 				g.grid[g.cursorY][i].Fg = color.White
-				g.grid[g.cursorY][i].Bg = color.Black
+				g.grid[g.cursorY][i].Bg = g.defaultBg
+				g.SetBgPixels(i, g.cursorY, g.defaultBg)
 			}
 		}
 	case ScrollUpSeq:
@@ -231,35 +260,26 @@ func (g *Game) HandleCSI(csi any) {
 	}
 }
 
-func (g *Game) HandleSGR(sgr any) {
+func (g *Game) handleSGR(sgr any) {
 	switch seq := sgr.(type) {
 	case SGRReset:
-		fmt.Println("SGRReset")
-		g.curFg = color.White
-		g.curBg = color.Black
-		g.curWeight = FontWeightNormal
+		g.ResetSGR()
 	case SGRBold:
-		fmt.Println("SGRBold")
 		g.curWeight = FontWeightBold
 	case SGRItalic:
-		fmt.Println("SGRItalic")
 		g.curWeight = FontWeightItalic
 	case SGRUnsetBold:
-		fmt.Println("SGRUnsetBold")
 		g.curWeight = FontWeightNormal
 	case SGRUnsetItalic:
-		fmt.Println("SGRUnsetItalic")
 		g.curWeight = FontWeightNormal
 	case SGRFgTrueColor:
-		fmt.Println("SGRFgTrueColor", seq.R, seq.G, seq.B)
 		g.curFg = color.RGBA{seq.R, seq.G, seq.B, 255}
 	case SGRBgTrueColor:
-		fmt.Println("SGRBgTrueColor", seq.R, seq.G, seq.B)
 		g.curBg = color.RGBA{seq.R, seq.G, seq.B, 255}
 	}
 }
 
-func (g *Game) ParseSequences(str string, printExtra bool) int {
+func (g *Game) parseSequences(str string, printExtra bool) int {
 	runes := []rune(str)
 
 	lastFound := 0
@@ -270,7 +290,7 @@ func (g *Game) ParseSequences(str string, printExtra bool) int {
 			if sgr, ok := parseSGR(sgr); ok {
 				lastFound = i
 				for i := range sgr {
-					g.HandleSGR(sgr[i])
+					g.handleSGR(sgr[i])
 				}
 			}
 		} else if csi, ok := extractCSI(string(runes[i:])); ok {
@@ -278,7 +298,7 @@ func (g *Game) ParseSequences(str string, printExtra bool) int {
 
 			if csi, ok := parseCSI(csi); ok {
 				lastFound = i
-				g.HandleCSI(csi)
+				g.handleCSI(csi)
 			}
 		} else if printExtra {
 			g.PrintChar(runes[i], g.curFg, g.curBg, g.curWeight)
@@ -295,6 +315,7 @@ func (g *Game) RecalculateBackgrounds() {
 	}
 }
 
+// PrintChar prints a character to the screen.
 func (g *Game) PrintChar(r rune, fg, bg color.Color, weight FontWeight) {
 	if r == '\n' {
 		g.cursorX = 0
@@ -321,7 +342,7 @@ func (g *Game) PrintChar(r rune, fg, bg color.Color, weight FontWeight) {
 			for i := 0; i < g.cellsWidth; i++ {
 				g.grid[len(g.grid)-1][i].Char = ' '
 				g.grid[len(g.grid)-1][i].Fg = color.White
-				g.grid[len(g.grid)-1][i].Bg = color.Black
+				g.grid[len(g.grid)-1][i].Bg = g.defaultBg
 			}
 		}
 		g.cursorY = g.cellsHeight - 1
@@ -359,7 +380,7 @@ func (g *Game) Update() error {
 				g.Lock()
 				{
 					line := string(buf[:n])
-					g.ParseSequences(line, true)
+					g.parseSequences(line, true)
 				}
 				g.Unlock()
 			}
@@ -385,9 +406,7 @@ func (g *Game) Update() error {
 		})
 	}
 
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && !g.mouseLeftPressed {
-		g.mouseLeftPressed = true
-	} else if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && g.mouseLeftPressed {
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		g.prog.Send(tea.MouseMsg{
 			X:      g.mouseCellX,
 			Y:      g.mouseCellY,
@@ -398,7 +417,32 @@ func (g *Game) Update() error {
 			Button: tea.MouseButtonLeft,
 			Type:   tea.MouseLeft,
 		})
-		g.mouseLeftPressed = false
+	}
+
+	var keys []ebiten.Key
+	keys = inpututil.AppendJustReleasedKeys(keys)
+
+	for _, k := range keys {
+		runes := []rune(strings.ToLower(k.String()))
+		if val, ok := mappedRunes[k]; ok {
+			runes = val
+		}
+		g.prog.Send(tea.KeyMsg{
+			Type:  tea.KeyRunes,
+			Runes: runes,
+			Alt:   ebiten.IsKeyPressed(ebiten.KeyAlt),
+		})
+	}
+
+	for k, v := range mappedKeys {
+		if inpututil.IsKeyJustReleased(k) {
+			runes := []rune(strings.ToLower(k.String()))
+			g.prog.Send(tea.KeyMsg{
+				Type:  v,
+				Runes: runes,
+				Alt:   ebiten.IsKeyPressed(ebiten.KeyAlt),
+			})
+		}
 	}
 
 	return nil
