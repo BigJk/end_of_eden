@@ -106,10 +106,13 @@ func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fo
 	cellHeight := size.Y.Round()
 	cellOffsetY := -bounds.Min.Y.Round()
 
-	grid := make([][]GridCell, height)
-	for y := 0; y < height; y++ {
-		grid[y] = make([]GridCell, width)
-		for x := 0; x < width; x++ {
+	cellsWidth := width / cellWidth
+	cellsHeight := height / cellHeight
+
+	grid := make([][]GridCell, cellsHeight)
+	for y := 0; y < cellsHeight; y++ {
+		grid[y] = make([]GridCell, cellsWidth)
+		for x := 0; x < cellsWidth; x++ {
 			grid[y][x] = GridCell{
 				Char:   ' ',
 				Fg:     color.White,
@@ -120,8 +123,8 @@ func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fo
 	}
 
 	game := &Game{
-		cellsWidth:  width,
-		cellsHeight: height,
+		cellsWidth:  cellsWidth,
+		cellsHeight: cellsHeight,
 		cellWidth:   cellWidth,
 		cellHeight:  cellHeight,
 		cellOffsetY: cellOffsetY,
@@ -132,8 +135,13 @@ func NewGame(width int, height int, fontNormal font.Face, fontBold font.Face, fo
 		defaultBg:   defaultBg,
 		grid:        grid,
 		tty:         tty,
-		bgColors:    image.NewRGBA(image.Rect(0, 0, width*cellWidth, height*cellHeight)),
+		bgColors:    image.NewRGBA(image.Rect(0, 0, cellsWidth*cellWidth, cellsHeight*cellHeight)),
 	}
+
+	prog.Send(tea.WindowSizeMsg{
+		Width:  cellsWidth - 1,
+		Height: cellsHeight,
+	})
 
 	game.ResetSGR()
 
@@ -406,19 +414,71 @@ func (g *Game) Update() error {
 		})
 	}
 
+	// Mouse buttons.
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		g.prog.Send(tea.MouseMsg{
 			X:      g.mouseCellX,
 			Y:      g.mouseCellY,
-			Shift:  false,
-			Alt:    false,
-			Ctrl:   false,
+			Shift:  ebiten.IsKeyPressed(ebiten.KeyShift),
+			Alt:    ebiten.IsKeyPressed(ebiten.KeyAlt),
+			Ctrl:   ebiten.IsKeyPressed(ebiten.KeyControl),
 			Action: tea.MouseActionRelease,
 			Button: tea.MouseButtonLeft,
 			Type:   tea.MouseLeft,
 		})
 	}
 
+	// Mouse wheel.
+	wx, wy := ebiten.Wheel()
+	if wx > 0 {
+		g.prog.Send(tea.MouseMsg{
+			X:      g.mouseCellX,
+			Y:      g.mouseCellY,
+			Shift:  ebiten.IsKeyPressed(ebiten.KeyShift),
+			Alt:    ebiten.IsKeyPressed(ebiten.KeyAlt),
+			Ctrl:   ebiten.IsKeyPressed(ebiten.KeyControl),
+			Action: tea.MouseActionRelease,
+			Button: tea.MouseButtonWheelRight,
+			Type:   tea.MouseWheelRight,
+		})
+	} else if wx < 0 {
+		g.prog.Send(tea.MouseMsg{
+			X:      g.mouseCellX,
+			Y:      g.mouseCellY,
+			Shift:  ebiten.IsKeyPressed(ebiten.KeyShift),
+			Alt:    ebiten.IsKeyPressed(ebiten.KeyAlt),
+			Ctrl:   ebiten.IsKeyPressed(ebiten.KeyControl),
+			Action: tea.MouseActionRelease,
+			Button: tea.MouseButtonWheelLeft,
+			Type:   tea.MouseWheelLeft,
+		})
+	}
+
+	if wy > 0 {
+		g.prog.Send(tea.MouseMsg{
+			X:      g.mouseCellX,
+			Y:      g.mouseCellY,
+			Shift:  ebiten.IsKeyPressed(ebiten.KeyShift),
+			Alt:    ebiten.IsKeyPressed(ebiten.KeyAlt),
+			Ctrl:   ebiten.IsKeyPressed(ebiten.KeyControl),
+			Action: tea.MouseActionRelease,
+			Button: tea.MouseButtonWheelUp,
+			Type:   tea.MouseWheelUp,
+		})
+	} else if wy < 0 {
+		g.prog.Send(tea.MouseMsg{
+			X:      g.mouseCellX,
+			Y:      g.mouseCellY,
+			Shift:  ebiten.IsKeyPressed(ebiten.KeyShift),
+			Alt:    ebiten.IsKeyPressed(ebiten.KeyAlt),
+			Ctrl:   ebiten.IsKeyPressed(ebiten.KeyControl),
+			Action: tea.MouseActionRelease,
+			Button: tea.MouseButtonWheelDown,
+			Type:   tea.MouseWheelDown,
+		})
+	}
+
+	// Key presses.
 	var keys []ebiten.Key
 	keys = inpututil.AppendJustReleasedKeys(keys)
 

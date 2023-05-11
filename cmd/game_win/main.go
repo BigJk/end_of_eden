@@ -57,8 +57,8 @@ func main() {
 	audioFlag := flag.Bool("audio", true, "disable audio")
 	fontSize := flag.Float64("font_size", 16, "font size")
 	dpiScaling := flag.Float64("dpi", 1, "scales the dpi up")
-	width := flag.Int("width", 120, "window width in cells")
-	height := flag.Int("height", 40, "window height in cells")
+	width := flag.Int("width", 1300, "window width")
+	height := flag.Int("height", 975, "window height")
 	help := flag.Bool("help", false, "show help")
 	flag.Parse()
 
@@ -92,11 +92,6 @@ func main() {
 			os.Exit(1)
 		}
 	}()
-
-	prog.Send(tea.WindowSizeMsg{
-		Width:  *width - 1,
-		Height: *height,
-	})
 
 	// Start game frontend
 	dpi := *dpiScaling

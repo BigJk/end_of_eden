@@ -83,6 +83,7 @@ func parseSGR(s string) ([]any, bool) {
 			case "23":
 				res = append(res, SGRUnsetItalic{})
 			default:
+				// TODO: Only true color is supported for now.
 				if strings.HasPrefix(s, "38;2;") {
 					var r, g, b byte
 					_, err := fmt.Sscanf(s, "38;2;%d;%d;%d", &r, &g, &b)
