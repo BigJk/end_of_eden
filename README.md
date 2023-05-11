@@ -23,10 +23,12 @@ The game is still in early development. There are still a lot of content missing
 
 # :video_game: How to play
 
+The game can be played in two ways. You can download the ``_term`` or ``_gl`` version. You can see which type you download from the file name (``end_of_eden_term`` vs ``end_of_eden_gl``). The ``_term`` version is the base game and runs in your terminal. The ``_gl`` version is the same game but running in a dedicated window, so no console magic is needed just a plain old game window. If you are not familiar with the terminal, you can try out the ``_gl`` version.
+
 ## :file_folder: Download
 
 - Download the latest game version for your OS here https://github.com/BigJk/end_of_eden/releases
-- **Attention:** Keep in mind that the game requires a modern terminal to run properly. See [Console](#console) for more information.
+- **Attention:** Keep in mind that the ``_term`` version of the game requires a modern terminal to run properly. See [Console](#console) for more information.
 
 ## :whale: Docker
 
