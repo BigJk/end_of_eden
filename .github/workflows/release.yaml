@@ -83,7 +83,7 @@ jobs:
       - name: Build
         run: |
              go build -o end_of_eden ./cmd/game
-             export BIN=end_of_eden-term-$(basename ${GITHUB_REF})-macos-amd64
+             export BIN=end_of_eden_term-$(basename ${GITHUB_REF})-macos-amd64
              mkdir $BIN
              cp ./end_of_eden $BIN/end_of_eden
              cp -r ./assets $BIN/assets/
@@ -111,7 +111,7 @@ jobs:
       - name: Build
         run: |
           go build -o end_of_eden ./cmd/game_win
-          export BIN=end_of_eden-gl-$(basename ${GITHUB_REF})-macos-amd64
+          export BIN=end_of_eden_gl-$(basename ${GITHUB_REF})-macos-amd64
           mkdir $BIN
           cp ./end_of_eden $BIN/end_of_eden
           cp -r ./assets $BIN/assets/
