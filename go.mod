@@ -2,14 +2,14 @@ module github.com/BigJk/end_of_eden
 
 go 1.20
 
-replace github.com/charmbracelet/bubbletea v0.23.2 => github.com/charmbracelet/bubbletea v0.23.3-0.20230307193447-807465ab271e
+replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/bubbletea v0.23.3-0.20230307193447-807465ab271e
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
 	github.com/BigJk/imeji v0.0.2
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.15.0
-	github.com/charmbracelet/bubbletea v0.23.2
+	github.com/charmbracelet/bubbletea v0.24.0
 	github.com/charmbracelet/glamour v0.6.0
 	github.com/charmbracelet/harmonica v0.2.0
 	github.com/charmbracelet/lipgloss v0.7.1
@@ -35,13 +35,14 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/yuin/gopher-lua v1.1.0
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
-	golang.org/x/image v0.6.0
+	golang.org/x/image v0.7.0
 	golang.org/x/sys v0.7.0
 	oss.terrastruct.com/d2 v0.4.1
 )
 
 require (
 	cdr.dev/slog v1.4.2-0.20221206192828-e4803b10ae17 // indirect
+	github.com/BigJk/crt v0.0.1 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.5.0 // indirect
@@ -52,7 +53,7 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/caarlos0/sshmarshal v0.1.0 // indirect
 	github.com/charmbracelet/keygen v0.3.0 // indirect
-	github.com/containerd/console v1.0.3 // indirect
+	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/dop251/goja v0.0.0-20230122112309-96b1610dd4f7 // indirect

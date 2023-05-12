@@ -3,20 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/BigJk/crt"
+	teadapter "github.com/BigJk/crt/bubbletea"
 	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
 	"github.com/BigJk/end_of_eden/settings"
-	"github.com/BigJk/end_of_eden/termgl"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/hajimehoshi/ebiten/v2"
 	zone "github.com/lrstanley/bubblezone"
 	"image/color"
-	"os"
 )
 
 var loadStyle = lipgloss.NewStyle().Bold(true).Italic(true).Foreground(style.BaseGray)
@@ -60,6 +59,7 @@ func main() {
 	width := flag.Int("width", 1300, "window width")
 	height := flag.Int("height", 975, "window height")
 	help := flag.Bool("help", false, "show help")
+	crtShader := flag.Bool("crt", true, "enable crt shader")
 	flag.Parse()
 
 	if *help {
@@ -73,44 +73,27 @@ func main() {
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
 	initSystems(*audioFlag)
 
-	gameInput := termgl.NewConcurrentRW()
-	gameOutput := termgl.NewConcurrentRW()
+	dpi := *dpiScaling
+	fonts, err := crt.LoadFaces("./assets/fonts/IosevkaTermNerdFontMono-Regular.ttf", "./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", "./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
+	if err != nil {
+		panic(err)
+	}
 
-	go gameInput.Run()
-	go gameOutput.Run()
-
-	// Start game backend
 	var baseModel tea.Model
 	zones := zone.New()
 	baseModel = root.New(zones, mainmenu.NewModel(zones))
-
-	prog := tea.NewProgram(baseModel, tea.WithAltScreen(), tea.WithMouseAllMotion(), tea.WithInput(gameInput), tea.WithOutput(gameOutput), tea.WithANSICompressor())
-
-	go func() {
-		if _, err := prog.Run(); err != nil {
-			fmt.Printf("Alas, there's been an error: %v", err)
-			os.Exit(1)
-		}
-	}()
-
-	// Start game frontend
-	dpi := *dpiScaling
-	normal := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Regular.ttf", 72*dpi, *fontSize/dpi)
-	bold := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", 72*dpi, *fontSize/dpi)
-	italic := termgl.LoadFace("./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
-
-	game := termgl.NewGame(*width, *height, normal, bold, italic, gameOutput, prog, color.RGBA{
+	win, err := teadapter.Window(*width, *height, fonts, baseModel, color.RGBA{
 		R: 34,
 		G: 36,
 		B: 41,
 		A: 255,
-	})
-	sw, sh := game.Layout(0, 0)
+	}, tea.WithAltScreen())
+	if err != nil {
+		panic(err)
+	}
 
-	ebiten.SetScreenFilterEnabled(false)
-	ebiten.SetWindowSize(sw, sh)
-	ebiten.SetWindowTitle("End Of Eden")
-	if err := ebiten.RunGame(game); err != nil {
+	win.CRTShader(*crtShader)
+	if err := win.Run("End Of Eden"); err != nil {
 		panic(err)
 	}
 }
