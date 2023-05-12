@@ -60,8 +60,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m = m.modDown(m.list.SelectedItem().(item).key)
 		case "u":
 			m = m.modUp(m.list.SelectedItem().(item).key)
-		case "enter":
-			m = m.modSetActive(m.list.SelectedItem().(item).key, !m.list.SelectedItem().(item).active)
 		case "q":
 			fallthrough
 		case "esc":
@@ -73,6 +71,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fallthrough
 		case tea.KeyUp:
 			audio.Play("interface_move", -1.5)
+		case tea.KeyEnter:
+			m = m.modSetActive(m.list.SelectedItem().(item).key, !m.list.SelectedItem().(item).active)
 		}
 	case tea.WindowSizeMsg:
 		m.Size = msg
