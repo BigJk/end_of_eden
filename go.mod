@@ -6,6 +6,7 @@ replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/b
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
+	github.com/BigJk/crt v0.0.3-0.20230512154550-e7dd7bbee9cf
 	github.com/BigJk/imeji v0.0.2
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.15.0
@@ -35,14 +36,12 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/yuin/gopher-lua v1.1.0
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
-	golang.org/x/image v0.7.0
 	golang.org/x/sys v0.7.0
 	oss.terrastruct.com/d2 v0.4.1
 )
 
 require (
 	cdr.dev/slog v1.4.2-0.20221206192828-e4803b10ae17 // indirect
-	github.com/BigJk/crt v0.0.1 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.5.0 // indirect
@@ -90,6 +89,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/exp/shiny v0.0.0-20230321023759-10a507213a29 // indirect
+	golang.org/x/image v0.7.0 // indirect
 	golang.org/x/mobile v0.0.0-20230301163155-e0f57694e12c // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/BigJk/crt"
 	teadapter "github.com/BigJk/crt/bubbletea"
+	"github.com/BigJk/crt/shader"
 	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
@@ -14,8 +15,12 @@ import (
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/hajimehoshi/ebiten/v2"
 	zone "github.com/lrstanley/bubblezone"
 	"image/color"
+	"math"
+	"os"
+	"time"
 )
 
 var loadStyle = lipgloss.NewStyle().Bold(true).Italic(true).Foreground(style.BaseGray)
@@ -60,6 +65,7 @@ func main() {
 	height := flag.Int("height", 975, "window height")
 	help := flag.Bool("help", false, "show help")
 	crtShader := flag.Bool("crt", true, "enable crt shader")
+	maxFps := flag.Int("fps", 30, "max fps")
 	flag.Parse()
 
 	if *help {
@@ -92,7 +98,57 @@ func main() {
 		panic(err)
 	}
 
-	win.CRTShader(*crtShader)
+	if *crtShader {
+		res, _ := os.ReadFile("./assets/shader/grain.go")
+		grain, err := ebiten.NewShader(res)
+
+		if err != nil {
+			panic(err)
+		}
+
+		crtLotte, err := shader.NewCrtLotte()
+		if err != nil {
+			panic(err)
+		}
+
+		crtLotte.Uniforms["WarpX"] = float32(0)
+		crtLotte.Uniforms["WarpY"] = float32(0)
+
+		w, h := win.Layout(0, 0)
+		s := &shader.BaseShader{
+			Shader: grain,
+			Uniforms: map[string]any{
+				"ScreenSize": []float32{float32(w), float32(h)},
+				"Tick":       float32(0),
+				"Strength":   float32(0.05),
+			},
+		}
+
+		// TODO: This is a bad hack to get the shader to change its state!
+		go func() {
+			cur := float32(0)
+			warp := 0.0
+			for {
+				time.Sleep(time.Millisecond * 50)
+
+				cur += 1
+				warp += 0.005
+
+				win.Lock()
+				{
+					s.Uniforms["Tick"] = cur
+					crtLotte.Uniforms["WarpX"] = float32(math.Abs(math.Sin(warp)*0.01) * 0.5)
+					crtLotte.Uniforms["WarpY"] = float32(math.Abs(math.Sin(warp)*0.01) * 0.5)
+				}
+				win.Unlock()
+			}
+		}()
+
+		win.ShowTPS(true)
+		win.SetShader(crtLotte, s)
+	}
+
+	ebiten.SetTPS(*maxFps)
 	if err := win.Run("End Of Eden"); err != nil {
 		panic(err)
 	}
