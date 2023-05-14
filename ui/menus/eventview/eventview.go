@@ -3,6 +3,7 @@ package eventview
 import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/fs"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/image"
 	"github.com/BigJk/end_of_eden/ui"
@@ -17,7 +18,6 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/samber/lo"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -178,7 +178,7 @@ func (m Model) eventUpdateContent() Model {
 			var res string
 
 			if strings.HasSuffix(file, ".ans") {
-				ansRes, err := os.ReadFile("./assets/images/" + file)
+				ansRes, err := fs.ReadFile("./assets/images/" + file)
 				if err != nil {
 					continue
 				}

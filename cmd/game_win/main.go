@@ -1,14 +1,14 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"github.com/BigJk/crt"
 	teadapter "github.com/BigJk/crt/bubbletea"
 	"github.com/BigJk/crt/shader"
 	"github.com/BigJk/end_of_eden/audio"
-	"github.com/BigJk/end_of_eden/gen"
-	"github.com/BigJk/end_of_eden/gen/faces"
+	"github.com/BigJk/end_of_eden/fs"
 	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	"github.com/BigJk/end_of_eden/ui/root"
@@ -19,8 +19,16 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"image/color"
 	"math"
-	"os"
 	"time"
+)
+
+var (
+	//go:embed IosevkaTermNerdFontMono-Regular.ttf
+	FontNormal []byte
+	//go:embed IosevkaTermNerdFontMono-Bold.ttf
+	FontBold []byte
+	//go:embed IosevkaTermNerdFontMono-Italic.ttf
+	FontItalic []byte
 )
 
 var loadStyle = lipgloss.NewStyle().Bold(true).Italic(true).Foreground(style.BaseGray)
@@ -44,7 +52,7 @@ func initSystems(hasAudio bool) {
 	}
 
 	// Init generators
-	fmt.Println(loadStyle.Render("Initializing Proc-Gen. Please wait..."))
+	/*fmt.Println(loadStyle.Render("Initializing Proc-Gen. Please wait..."))
 	{
 		// Init face generator
 		if err := faces.InitGlobal("./assets/gen/faces"); err != nil {
@@ -54,7 +62,7 @@ func initSystems(hasAudio bool) {
 		// Init other gens
 		gen.InitGen()
 	}
-	fmt.Println(loadStyle.Render("Done!"))
+	fmt.Println(loadStyle.Render("Done!"))*/
 }
 
 func main() {
@@ -64,7 +72,7 @@ func main() {
 	width := flag.Int("width", 1300, "window width")
 	height := flag.Int("height", 975, "window height")
 	help := flag.Bool("help", false, "show help")
-	crtShader := flag.Bool("crt", true, "enable crt shader")
+	crtShader := flag.Bool("crt", false, "enable crt shader")
 	maxFps := flag.Int("fps", 30, "max fps")
 	flag.Parse()
 
@@ -80,7 +88,7 @@ func main() {
 	initSystems(*audioFlag)
 
 	dpi := *dpiScaling
-	fonts, err := crt.LoadFaces("./assets/fonts/IosevkaTermNerdFontMono-Regular.ttf", "./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", "./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
+	fonts, err := crt.LoadFacesBytes(FontNormal, FontBold, FontItalic, 72*dpi, *fontSize/dpi)
 	if err != nil {
 		panic(err)
 	}
@@ -99,7 +107,7 @@ func main() {
 	}
 
 	if *crtShader {
-		res, _ := os.ReadFile("./assets/shader/grain.go")
+		res, _ := fs.ReadFile("./assets/shader/grain.go")
 		grain, err := ebiten.NewShader(res)
 
 		if err != nil {

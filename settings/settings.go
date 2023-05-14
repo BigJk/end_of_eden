@@ -1,7 +1,11 @@
+//go:build !js
+// +build !js
+
 package settings
 
 import (
 	"encoding/json"
+	"github.com/BigJk/end_of_eden/fs"
 	"os"
 )
 
@@ -16,7 +20,7 @@ var LoadedSettings Settings
 
 // LoadSettings loads the game settings from settings.json or creates a new one with the default values.
 func LoadSettings() error {
-	data, err := os.ReadFile("./settings.json")
+	data, err := fs.ReadFile("./settings.json")
 	if err != nil {
 		LoadedSettings.Volume = 1
 		LoadedSettings.Mods = []string{}

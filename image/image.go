@@ -1,13 +1,20 @@
 package image
 
 import (
+	"bytes"
 	"errors"
+	"github.com/BigJk/end_of_eden/fs"
 	"github.com/BigJk/imeji"
 	"github.com/BigJk/imeji/charmaps"
 	"github.com/muesli/termenv"
+	"image"
 	"os"
 	"path/filepath"
 	"strings"
+
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 )
 
 // TODO: Better decoupling in relation to session
@@ -64,7 +71,17 @@ func Fetch(name string, options ...imeji.Option) (string, error) {
 	}
 
 	for i := range searchPaths {
-		res, err := imeji.FileString(filepath.Join(searchPaths[i], name), options...)
+		data, err := fs.ReadFile(filepath.Join(searchPaths[i], name))
+		if err != nil {
+			continue
+		}
+
+		img, _, err := image.Decode(bytes.NewBuffer(data))
+		if err != nil {
+			continue
+		}
+
+		res, err := imeji.ImageString(img, options...)
 		if err == nil {
 			return res, nil
 		}

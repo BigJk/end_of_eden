@@ -2,13 +2,18 @@ module github.com/BigJk/end_of_eden
 
 go 1.20
 
-replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/bubbletea v0.23.3-0.20230307193447-807465ab271e
+//replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/bubbletea v0.23.3-0.20230307193447-807465ab271e
+
+replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/BigJk/bubbletea v0.0.0-20230514074532-5e8e5105b553
+
+replace github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 => github.com/BigJk/console v0.0.0-20230513075401-4eedcbad049e
+
+replace github.com/atotto/clipboard v0.1.4 => github.com/BigJk/clipboard v0.0.0-20230514080810-a7e7bd3670a5
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
-	github.com/BigJk/crt v0.0.3-0.20230512154550-e7dd7bbee9cf
+	github.com/BigJk/crt v0.0.4-0.20230514075230-16369858bb8b
 	github.com/BigJk/imeji v0.0.2
-	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.24.0
 	github.com/charmbracelet/glamour v0.6.0
@@ -48,6 +53,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/anthonynsimon/bild v0.13.0 // indirect
+	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/caarlos0/sshmarshal v0.1.0 // indirect

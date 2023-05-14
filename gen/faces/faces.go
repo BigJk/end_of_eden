@@ -2,9 +2,9 @@ package faces
 
 import (
 	"fmt"
+	"github.com/BigJk/end_of_eden/fs"
 	"github.com/samber/lo"
 	"math/rand"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -63,7 +63,7 @@ func New(dataFolder string) (*FaceGenerator, error) {
 		data: map[int][][]string{},
 	}
 	for i := 0; i < 7; i++ {
-		bytes, err := os.ReadFile(filepath.Join(dataFolder, fmt.Sprintf("/Face%d.txt", i)))
+		bytes, err := fs.ReadFile(filepath.Join(dataFolder, fmt.Sprintf("/Face%d.txt", i)))
 		if err != nil {
 			return nil, err
 		}

@@ -3,6 +3,7 @@ package mainmenu
 import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/fs"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/image"
 	"github.com/BigJk/end_of_eden/settings"
@@ -17,10 +18,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
+	"io"
 	"log"
 	"os"
-	"strings"
-	"time"
 )
 
 type Model struct {
@@ -66,14 +66,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ChoiceContinue:
 		audio.Play("btn_menu")
 
-		if saved, err := os.ReadFile("./session.save"); err == nil {
-			f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		if saved, err := fs.ReadFile("./session.save"); err == nil {
+			/*f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 			if err != nil {
 				panic(err)
-			}
+			}*/
 
 			session := game.NewSession(
-				game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
+				game.WithLogging(log.New(io.Discard, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
 				lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 			)
 			image.ResetSearchPaths()
@@ -93,11 +93,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ChoiceNewGame:
 		audio.Play("btn_menu")
 
-		_ = os.Mkdir("./logs", 0777)
+		/*_ = os.Mkdir("./logs", 0777)
 		f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
 			panic(err)
-		}
+		}*/
 
 		image.ResetSearchPaths()
 		image.AddSearchPaths(lo.Map(settings.LoadedSettings.Mods, func(item string, index int) string {
@@ -106,7 +106,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.choices = m.choices.Clear()
 		return m, root.Push(gameview.New(m, m.zones, game.NewSession(
-			game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
+			game.WithLogging(log.New(io.Discard, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
 			game.WithMods(settings.LoadedSettings.Mods),
 			lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 		)))
