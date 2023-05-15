@@ -6,3 +6,4 @@ samples/
 *.save
 settings.json
 mods/example_mod_*
+*.toml
