@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/BigJk/crt"
 	teadapter "github.com/BigJk/crt/bubbletea"
@@ -17,6 +16,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/hajimehoshi/ebiten/v2"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/spf13/viper"
 	"image/color"
 	"math"
 	"os"
@@ -58,29 +58,33 @@ func initSystems(hasAudio bool) {
 }
 
 func main() {
-	audioFlag := flag.Bool("audio", true, "disable audio")
-	fontSize := flag.Float64("font_size", 16, "font size")
-	dpiScaling := flag.Float64("dpi", 1, "scales the dpi up")
-	width := flag.Int("width", 1300, "window width")
-	height := flag.Int("height", 975, "window height")
-	help := flag.Bool("help", false, "show help")
-	crtShader := flag.Bool("crt", true, "enable crt shader")
-	maxFps := flag.Int("fps", 30, "max fps")
-	flag.Parse()
+	viper.SetConfigName("settings_win")
+	viper.AddConfigPath(".")
 
-	if *help {
-		fmt.Println("End Of Eden :: Game")
-		fmt.Println()
+	viper.SetDefault("audio", true)
+	viper.SetDefault("font_size", 16)
+	viper.SetDefault("font_normal", "BigBlueTermPlusNerdFont-Regular.ttf")
+	viper.SetDefault("font_italic", "BigBlueTermPlusNerdFont-Regular.ttf")
+	viper.SetDefault("font_bold", "BigBlueTermPlusNerdFont-Regular.ttf")
+	viper.SetDefault("dpi", 1)
+	viper.SetDefault("width", 1300)
+	viper.SetDefault("height", 975)
+	viper.SetDefault("crt", true)
+	viper.SetDefault("fps", 30)
 
-		flag.PrintDefaults()
-		return
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			_ = viper.SafeWriteConfigAs("./settings_win.toml")
+		} else {
+			panic(err)
+		}
 	}
 
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
-	initSystems(*audioFlag)
+	initSystems(viper.GetBool("audio"))
 
-	dpi := *dpiScaling
-	fonts, err := crt.LoadFaces("./assets/fonts/IosevkaTermNerdFontMono-Regular.ttf", "./assets/fonts/IosevkaTermNerdFontMono-Bold.ttf", "./assets/fonts/IosevkaTermNerdFontMono-Italic.ttf", 72*dpi, *fontSize/dpi)
+	dpi := viper.GetFloat64("dpi")
+	fonts, err := crt.LoadFaces("./assets/fonts/"+viper.GetString("font_normal"), "./assets/fonts/"+viper.GetString("font_bold"), "./assets/fonts/"+viper.GetString("font_italic"), 72*dpi, viper.GetFloat64("font_size")/dpi)
 	if err != nil {
 		panic(err)
 	}
@@ -88,7 +92,7 @@ func main() {
 	var baseModel tea.Model
 	zones := zone.New()
 	baseModel = root.New(zones, mainmenu.NewModel(zones))
-	win, err := teadapter.Window(*width, *height, fonts, baseModel, color.RGBA{
+	win, err := teadapter.Window(viper.GetInt("width"), viper.GetInt("height"), fonts, baseModel, color.RGBA{
 		R: 34,
 		G: 36,
 		B: 41,
@@ -98,7 +102,7 @@ func main() {
 		panic(err)
 	}
 
-	if *crtShader {
+	if viper.GetBool("crt") {
 		res, _ := os.ReadFile("./assets/shader/grain.go")
 		grain, err := ebiten.NewShader(res)
 
@@ -148,7 +152,7 @@ func main() {
 		win.SetShader(crtLotte, s)
 	}
 
-	ebiten.SetTPS(*maxFps)
+	ebiten.SetTPS(viper.GetInt("fps"))
 	if err := win.Run("End Of Eden"); err != nil {
 		panic(err)
 	}

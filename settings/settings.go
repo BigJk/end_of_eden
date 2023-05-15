@@ -1,14 +1,14 @@
 package settings
 
 import (
-	"encoding/json"
+	"github.com/pelletier/go-toml/v2"
 	"os"
 )
 
 // Settings represents the loaded game settings.
 type Settings struct {
-	Volume float64  `json:"volume"`
-	Mods   []string `json:"mods"`
+	Volume float64  `toml:"volume"`
+	Mods   []string `toml:"mods"`
 }
 
 // LoadedSettings represents the loaded game settings.
@@ -16,7 +16,7 @@ var LoadedSettings Settings
 
 // LoadSettings loads the game settings from settings.json or creates a new one with the default values.
 func LoadSettings() error {
-	data, err := os.ReadFile("./settings.json")
+	data, err := os.ReadFile("./settings.toml")
 	if err != nil {
 		LoadedSettings.Volume = 1
 		LoadedSettings.Mods = []string{}
@@ -26,15 +26,15 @@ func LoadSettings() error {
 		return nil
 	}
 
-	return json.Unmarshal(data, &LoadedSettings)
+	return toml.Unmarshal(data, &LoadedSettings)
 }
 
 // SaveSettings saves the settings to settings.json.
 func SaveSettings() error {
-	data, err := json.MarshalIndent(LoadedSettings, "", "\t")
+	data, err := toml.Marshal(LoadedSettings)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile("./settings.json", data, 0666)
+	return os.WriteFile("./settings.toml", data, 0666)
 }
