@@ -6,7 +6,7 @@ replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/b
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
-	github.com/BigJk/crt v0.0.3-0.20230512154550-e7dd7bbee9cf
+	github.com/BigJk/crt v0.0.4
 	github.com/BigJk/imeji v0.0.2
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.15.0
@@ -31,8 +31,10 @@ require (
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.1
 	github.com/olahol/melody v1.1.3
+	github.com/pelletier/go-toml/v2 v2.0.6
 	github.com/samber/lo v1.38.1
 	github.com/sanity-io/litter v1.5.5
+	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.2
 	github.com/yuin/gopher-lua v1.1.0
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
@@ -42,6 +44,7 @@ require (
 
 require (
 	cdr.dev/slog v1.4.2-0.20221206192828-e4803b10ae17 // indirect
+	cloud.google.com/go/logging v1.7.0 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.5.0 // indirect
@@ -81,7 +84,6 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
@@ -90,7 +92,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.15.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -107,6 +108,7 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gonum.org/v1/plot v0.12.0 // indirect
+	google.golang.org/genproto v0.0.0-20230222225845-10f96fb3dbec // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	oss.terrastruct.com/util-go v0.0.0-20230320053557-dcb5aac7d972 // indirect
