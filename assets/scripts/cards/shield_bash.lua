@@ -1,10 +1,10 @@
 register_card("SHIELD_BASH", {
     name = "Shield Bash",
     description = "Deal 4 (+2 for each upgrade) damage to the enemy and gain " .. highlight("block") ..
-            " status effect equal to the damage dealt.",
+        " status effect equal to the damage dealt.",
     state = function(ctx)
         return "Deal " .. highlight(4 + ctx.level * 2) .. " damage to the enemy and gain " .. highlight("block") ..
-                " status effect equal to the damage dealt."
+                   " status effect equal to the damage dealt."
     end,
     max_level = 1,
     color = "#ff5722",

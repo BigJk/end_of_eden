@@ -1,8 +1,8 @@
-stage_1 = { fights = { { "RUST_MITE", "RUST_MITE", "RUST_MITE" }, { "SHADOW_ASSASSIN", "SHADOW_ASSASSIN" }, { "SHADOW_ASSASSIN" } } }
+stage_1_the_core = { fights = { { "RUST_MITE", "RUST_MITE", "RUST_MITE" }, { "CLEAN_BOT", "CLEAN_BOT" } } }
 
 register_story_teller("STAGE_1", {
     active = function(ctx)
-        if had_events_any(stage_1_init_events) then
+        if had_event("THE_CORE") then
             return 1
         end
         return 0
@@ -19,7 +19,7 @@ register_story_teller("STAGE_1", {
             set_event(create_artifact_choice({ random_artifact(get_merchant_gold_max()), random_artifact(get_merchant_gold_max()) }))
         end
 
-        local choice = stage_1.fights[math.random(#stage_2.fights)]
+        local choice = stage_1_the_core.fights[math.random(#stage_1_the_core.fights)]
         for _, v in ipairs(choice) do
             add_actor_by_enemy(v)
         end

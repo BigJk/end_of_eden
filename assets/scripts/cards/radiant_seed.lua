@@ -3,7 +3,7 @@ register_card("RADIANT_SEED", {
     description = "Inflict 10 (+2 for each upgrade) damage to all enemies, but also causes 5 (-2 for each upgrade) damage to the caster.",
     state = function(ctx)
         return "Inflict " .. highlight(10 + ctx.level * 2) .. " damage to all enemies, but also causes " .. highlight(5 - ctx.level * 2) ..
-                " damage to the caster."
+                   " damage to the caster."
     end,
     max_level = 1,
     color = "#82c93e",

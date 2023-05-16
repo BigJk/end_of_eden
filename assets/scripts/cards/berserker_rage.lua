@@ -3,7 +3,7 @@ register_card("BERSERKER_RAGE", {
     description = "Gain " .. highlight("3 energy") .. ", but take 30% (-10% per level) of your HP as damage.",
     state = function(ctx)
         return "Gain " .. highlight("3 energy") .. ", but take " .. highlight(tostring(30 - ctx.level * 10) .. "%") .. " (" ..
-                tostring(get_player().hp * (0.3 - ctx.level * 0.1)) .. ") of your HP as damage."
+                   tostring(get_player().hp * (0.3 - ctx.level * 0.1)) .. ") of your HP as damage."
     end,
     max_level = 0,
     color = "#d8a448",
