@@ -62,7 +62,7 @@ func main() {
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("audio", true)
-	viper.SetDefault("font_size", 16)
+	viper.SetDefault("font_size", 12)
 	viper.SetDefault("font_normal", "BigBlueTermPlusNerdFont-Regular.ttf")
 	viper.SetDefault("font_italic", "BigBlueTermPlusNerdFont-Regular.ttf")
 	viper.SetDefault("font_bold", "BigBlueTermPlusNerdFont-Regular.ttf")
