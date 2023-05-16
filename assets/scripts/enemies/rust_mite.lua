@@ -25,3 +25,22 @@ register_enemy("RUST_MITE", {
         end
     }
 })
+
+register_status_effect("RITUAL", {
+    name = "Ritual",
+    description = "Gain strength each round",
+    look = "Rit",
+    foreground = "#bb3e03",
+    state = function(ctx)
+        return nil
+    end,
+    can_stack = true,
+    decay = DECAY_NONE,
+    rounds = 0,
+    callbacks = {
+        on_player_turn = function(ctx)
+            local guid = give_status_effect("STRENGTH", ctx.owner)
+            set_status_effect_stacks(guid, 3 + ctx.stacks)
+        end
+    }
+})

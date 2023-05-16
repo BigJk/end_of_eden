@@ -45,3 +45,21 @@ register_enemy("SHADOW_ASSASSIN", {
         end
     }
 })
+
+register_status_effect("BLEED", {
+    name = "Bleed",
+    description = "Losing some red sauce.",
+    look = "Bld",
+    foreground = "#ff0000",
+    state = function(ctx)
+        return nil
+    end,
+    can_stack = false,
+    decay = DECAY_ONE,
+    rounds = 2,
+    callbacks = {
+        on_turn = function(ctx)
+            return nil
+        end
+    }
+})
