@@ -78,65 +78,67 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Keyboard
 	//
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEnter:
-			switch m.Session.GetGameState() {
-			// Cast a card
-			case game.GameStateFight:
-				if m.selectedCard >= len(m.Session.GetFight().Hand) {
-					m.selectedCard = 0
+		if len(m.animations) == 0 {
+			switch msg.Type {
+			case tea.KeyEnter:
+				switch m.Session.GetGameState() {
+				// Cast a card
+				case game.GameStateFight:
+					if m.selectedCard >= len(m.Session.GetFight().Hand) {
+						m.selectedCard = 0
+					}
+
+					m = m.tryCast()
 				}
+			case tea.KeyEscape:
+				cmds = append(cmds, root.TooltipClear())
 
-				m = m.tryCast()
-			}
-		case tea.KeyEscape:
-			cmds = append(cmds, root.TooltipClear())
-
-			// Switch to menu
-			if m.inOpponentSelection || m.inEnemyView {
-				m.inOpponentSelection = false
-				m.inEnemyView = false
-			} else {
-				return overview.New(m, m.zones, m.Session), tea.Batch(cmds...)
-			}
-		case tea.KeyTab:
-			switch m.Session.GetGameState() {
-			// Select a card or opponent
-			case game.GameStateFight:
-				if len(m.Session.GetFight().Hand) > 0 {
-					if m.inOpponentSelection {
-						m.selectedOpponent = (m.selectedOpponent + 1) % m.Session.GetOpponentCount(game.PlayerActorID)
-					} else {
-						m.selectedCard = (m.selectedCard + 1) % len(m.Session.GetFight().Hand)
+				// Switch to menu
+				if m.inOpponentSelection || m.inEnemyView {
+					m.inOpponentSelection = false
+					m.inEnemyView = false
+				} else {
+					return overview.New(m, m.zones, m.Session), tea.Batch(cmds...)
+				}
+			case tea.KeyTab:
+				switch m.Session.GetGameState() {
+				// Select a card or opponent
+				case game.GameStateFight:
+					if len(m.Session.GetFight().Hand) > 0 {
+						if m.inOpponentSelection {
+							m.selectedOpponent = (m.selectedOpponent + 1) % m.Session.GetOpponentCount(game.PlayerActorID)
+						} else {
+							m.selectedCard = (m.selectedCard + 1) % len(m.Session.GetFight().Hand)
+						}
 					}
 				}
+			case tea.KeySpace:
+				switch m.Session.GetGameState() {
+				// End turn
+				case game.GameStateFight:
+					m = m.finishTurn()
+				}
+			case tea.KeyLeft:
+				m.selectedCard = lo.Clamp(m.selectedCard-1, 0, len(m.Session.GetFight().Hand)-1)
+			case tea.KeyRight:
+				m.selectedCard = lo.Clamp(m.selectedCard+1, 0, len(m.Session.GetFight().Hand)-1)
+			case tea.KeyCtrlDown:
+				m.ctrlDown = true
+			case tea.KeyCtrlU:
+				m.ctrlDown = false
 			}
-		case tea.KeySpace:
-			switch m.Session.GetGameState() {
-			// End turn
-			case game.GameStateFight:
-				m = m.finishTurn()
-			}
-		case tea.KeyLeft:
-			m.selectedCard = lo.Clamp(m.selectedCard-1, 0, len(m.Session.GetFight().Hand)-1)
-		case tea.KeyRight:
-			m.selectedCard = lo.Clamp(m.selectedCard+1, 0, len(m.Session.GetFight().Hand)-1)
-		case tea.KeyCtrlDown:
-			m.ctrlDown = true
-		case tea.KeyCtrlU:
-			m.ctrlDown = false
-		}
 
-		// Show tooltip
-		if msg.String() == "x" {
-			for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
-				if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse) {
-					cmds = append(cmds, root.TooltipCreate(root.Tooltip{
-						ID:      "ENEMY",
-						Content: m.fightEnemyInspectTooltipView(),
-						X:       m.LastMouse.X,
-						Y:       m.LastMouse.Y,
-					}))
+			// Show tooltip
+			if msg.String() == "x" {
+				for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
+					if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse) {
+						cmds = append(cmds, root.TooltipCreate(root.Tooltip{
+							ID:      "ENEMY",
+							Content: m.fightEnemyInspectTooltipView(),
+							X:       m.LastMouse.X,
+							Y:       m.LastMouse.Y,
+						}))
+					}
 				}
 			}
 		}
@@ -146,55 +148,57 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		m.LastMouse = msg
 
-		if msg.Type == tea.MouseLeft {
-			cmds = append(cmds, root.TooltipClear())
+		if len(m.animations) == 0 {
+			if msg.Type == tea.MouseLeft {
+				cmds = append(cmds, root.TooltipClear())
 
-			switch m.Session.GetGameState() {
-			case game.GameStateFight:
-				if m.zones.Get(ZoneEndTurn).InBounds(msg) {
-					m = m.finishTurn()
+				switch m.Session.GetGameState() {
+				case game.GameStateFight:
+					if m.zones.Get(ZoneEndTurn).InBounds(msg) {
+						m = m.finishTurn()
+					}
 				}
 			}
-		}
 
-		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
-			switch m.Session.GetGameState() {
-			case game.GameStateFight:
-				if m.inOpponentSelection {
-					for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
-						if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(msg) {
-							if msg.Type == tea.MouseLeft && m.selectedOpponent == i {
-								m = m.tryCast()
-							}
-						}
-					}
-				} else {
-					onCard := false
-					for i := 0; i < len(m.Session.GetFight().Hand); i++ {
-						if m.zones.Get(fmt.Sprintf("%s%d", ZoneCard, i)).InBounds(msg) {
-							onCard = true
-							if msg.Type == tea.MouseLeft && m.selectedCard == i {
-								m = m.tryCast()
-							} else {
-								m.selectedCard = i
-							}
-						}
-					}
-
-					if !onCard && msg.Type == tea.MouseMotion {
-						m.selectedCard = -1
-					}
-
-					if !m.inOpponentSelection && msg.Type == tea.MouseLeft {
+			if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
+				switch m.Session.GetGameState() {
+				case game.GameStateFight:
+					if m.inOpponentSelection {
 						for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
 							if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(msg) {
-								m.selectedOpponent = i
-								m.inEnemyView = true
+								if msg.Type == tea.MouseLeft && m.selectedOpponent == i {
+									m = m.tryCast()
+								}
+							}
+						}
+					} else {
+						onCard := false
+						for i := 0; i < len(m.Session.GetFight().Hand); i++ {
+							if m.zones.Get(fmt.Sprintf("%s%d", ZoneCard, i)).InBounds(msg) {
+								onCard = true
+								if msg.Type == tea.MouseLeft && m.selectedCard == i {
+									m = m.tryCast()
+								} else {
+									m.selectedCard = i
+								}
+							}
+						}
+
+						if !onCard && msg.Type == tea.MouseMotion {
+							m.selectedCard = -1
+						}
+
+						if !m.inOpponentSelection && msg.Type == tea.MouseLeft {
+							for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
+								if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(msg) {
+									m.selectedOpponent = i
+									m.inEnemyView = true
+								}
 							}
 						}
 					}
-				}
 
+				}
 			}
 		}
 	//
@@ -321,6 +325,8 @@ func (m Model) finishTurn() Model {
 
 		m.animations = append(m.animations, NewDamageAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, hp, damageActors, damageEnemies, damageData))
 	}
+
+	m.animations = append(m.animations, NewEndTurnAnimationModel(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, m.Session.GetFightRound()+1))
 
 	return m
 }
