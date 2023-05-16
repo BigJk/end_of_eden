@@ -1,6 +1,4 @@
-stage_1_the_wasteland = {
-    fights = { { "RUST_MITE", "RUST_MITE", "RUST_MITE" }, { "SHADOW_ASSASSIN", "SHADOW_ASSASSIN" }, { "SHADOW_ASSASSIN" } }
-}
+stage_1_the_wasteland = { fights = { { "SAND_STALKER" }, { "SAND_STALKER", "SAND_STALKER" } } }
 
 register_story_teller("STAGE_1", {
     active = function(ctx)
