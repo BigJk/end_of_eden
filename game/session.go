@@ -485,6 +485,11 @@ func (s *Session) FinishPlayerTurn() {
 	for _, guid := range instanceKeys {
 		switch instance := s.instances[guid].(type) {
 		case StatusEffectInstance:
+			// If it was applied this round we never remove it.
+			if instance.RoundEntered == s.currentFight.Round {
+				continue
+			}
+
 			se := s.resources.StatusEffects[instance.TypeID]
 
 			// If it can decay we reduce rounds.
@@ -1084,11 +1089,12 @@ func (s *Session) GiveStatusEffect(typeId string, owner string, stacks int) stri
 	}
 
 	instance := StatusEffectInstance{
-		TypeID:     typeId,
-		GUID:       NewGuid("STATUS"),
-		Owner:      owner,
-		RoundsLeft: status.Rounds,
-		Stacks:     stacks,
+		TypeID:       typeId,
+		GUID:         NewGuid("STATUS"),
+		Owner:        owner,
+		RoundsLeft:   status.Rounds,
+		Stacks:       stacks,
+		RoundEntered: s.currentFight.Round,
 	}
 	s.instances[instance.GUID] = instance
 	s.actors[owner].StatusEffects.Add(instance.GUID)

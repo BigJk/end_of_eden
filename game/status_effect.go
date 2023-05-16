@@ -32,9 +32,10 @@ type StatusEffect struct {
 }
 
 type StatusEffectInstance struct {
-	GUID       string
-	TypeID     string
-	Owner      string
-	Stacks     int
-	RoundsLeft int
+	GUID         string
+	TypeID       string
+	Owner        string
+	Stacks       int
+	RoundsLeft   int
+	RoundEntered int
 }
