@@ -36,7 +36,7 @@ register_card("RECYCLE", {
     need_target = true,
     exhaust = true,
     point_cost = 2,
-    price = 200,
+    price = -1,
     callbacks = {
         on_cast = function(ctx)
             local op_before = #get_opponent_guids(ctx.caster)
