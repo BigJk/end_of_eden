@@ -47,6 +47,7 @@ func main() {
 
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
 
+	// Init settings
 	fmt.Println(loadStyle.Render("Initializing Settings. Please wait..."))
 	{
 		vi := viper.Viper{
@@ -66,10 +67,10 @@ func main() {
 	if *audioFlag {
 		fmt.Println(loadStyle.Render("Initializing Audio. Please wait..."))
 		audio.InitAudio()
-		audio.PlayMusic("planet_mining")
 		fmt.Println(loadStyle.Render("Done!"))
 	}
 
+	// Init generators
 	fmt.Println(loadStyle.Render("Initializing Proc-Gen. Please wait..."))
 	{
 		// Init face generator
@@ -106,7 +107,7 @@ func main() {
 	// Setup game
 	var baseModel tea.Model
 	zones := zone.New()
-	baseModel = root.New(zones, mainmenu.NewModel(zones, uiSettings, func(values []uiset.Value) error {
+	baseModel = root.New(zones, mainmenu.NewModel(zones, settings.GetGlobal(), uiSettings, func(values []uiset.Value) error {
 		for i := range values {
 			settings.Set(values[i].Key, values[i].Val)
 		}
@@ -159,7 +160,7 @@ func main() {
 	}
 
 	// Run game
-	prog = tea.NewProgram(baseModel, tea.WithAltScreen(), tea.WithMouseAllMotion())
+	prog = tea.NewProgram(baseModel, tea.WithAltScreen(), tea.WithMouseAllMotion(), tea.WithANSICompressor())
 	if _, err := prog.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)

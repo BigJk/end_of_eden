@@ -27,21 +27,25 @@ import (
 type Model struct {
 	ui.MenuBase
 
-	image   string
-	zones   *zone.Manager
-	choices ChoicesModel
+	image    string
+	settings settings.Settings
+	zones    *zone.Manager
+	choices  ChoicesModel
 
 	settingValues []uiset.Value
 	settingSaver  uiset.Saver
 }
 
-func NewModel(zones *zone.Manager, values []uiset.Value, saver uiset.Saver) Model {
+func NewModel(zones *zone.Manager, settings settings.Settings, values []uiset.Value, saver uiset.Saver) Model {
 	img, _ := image.Fetch("title.png", imeji.WithResize(180, 9))
+
+	audio.PlayMusic("planet_mining")
 
 	model := Model{
 		image:         img,
 		zones:         zones,
-		choices:       NewChoicesModel(zones),
+		settings:      settings,
+		choices:       NewChoicesModel(zones, len(values) == 0 || saver == nil),
 		settingSaver:  saver,
 		settingValues: values,
 	}
@@ -106,14 +110,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		image.ResetSearchPaths()
-		image.AddSearchPaths(lo.Map(settings.GetStrings("mods"), func(item string, index int) string {
+		image.AddSearchPaths(lo.Map(m.settings.GetStrings("mods"), func(item string, index int) string {
 			return fmt.Sprintf("./mods/%s/images/", item)
 		})...)
 
 		m.choices = m.choices.Clear()
 		return m, root.Push(gameview.New(m, m.zones, game.NewSession(
 			game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
-			game.WithMods(settings.GetStrings("mods")),
+			game.WithMods(m.settings.GetStrings("mods")),
 			lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 		)))
 	case ChoiceAbout:
@@ -125,7 +129,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		audio.Play("btn_menu")
 
 		m.choices = m.choices.Clear()
-		return m, root.Push(mods.NewModel(m.zones))
+		return m, root.Push(mods.NewModel(m.zones, m.settings))
 	case ChoiceSettings:
 		if m.settingSaver != nil {
 			audio.Play("btn_menu")

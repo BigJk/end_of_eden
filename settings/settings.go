@@ -19,6 +19,10 @@ func init() {
 
 var global Settings
 
+func GetGlobal() Settings {
+	return global
+}
+
 func SetSettings(s Settings) {
 	global = s
 }

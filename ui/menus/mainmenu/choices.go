@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/samber/lo"
 )
 
 type Choice string
@@ -38,7 +39,7 @@ type ChoicesModel struct {
 	selected Choice
 }
 
-func NewChoicesModel(zones *zone.Manager) ChoicesModel {
+func NewChoicesModel(zones *zone.Manager, hideSettings bool) ChoicesModel {
 	choices := []list.Item{
 		choiceItem{zones, "Continue", "Ready to continue dying?", ChoiceContinue},
 		choiceItem{zones, "New Game", "Start a new try.", ChoiceNewGame},
@@ -46,6 +47,12 @@ func NewChoicesModel(zones *zone.Manager) ChoicesModel {
 		choiceItem{zones, "Settings", "Other settings won't let you survive...", ChoiceSettings},
 		choiceItem{zones, "Mods", "Make the game even more fun!", ChoiceMods},
 		choiceItem{zones, "Exit", "Got enough already?", ChoiceExit},
+	}
+
+	if hideSettings {
+		choices = lo.Filter(choices, func(value list.Item, i int) bool {
+			return value.(choiceItem).key != ChoiceSettings
+		})
 	}
 
 	delegation := list.NewDefaultDelegate()

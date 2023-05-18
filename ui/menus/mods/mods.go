@@ -37,14 +37,16 @@ func (i item) FilterValue() string { return i.mod.Name }
 type Model struct {
 	ui.MenuBase
 
-	list  list.Model
-	mods  map[string]game.Mod
-	zones *zone.Manager
+	settings settings.Settings
+	list     list.Model
+	mods     map[string]game.Mod
+	zones    *zone.Manager
 }
 
-func NewModel(zones *zone.Manager) Model {
+func NewModel(zones *zone.Manager, settings settings.Settings) Model {
 	return Model{
-		zones: zones,
+		settings: settings,
+		zones:    zones,
 	}.setup()
 }
 
@@ -117,7 +119,7 @@ func (m Model) items() []list.Item {
 	baseKeys := lo.Keys(m.mods)
 	sort.Strings(baseKeys)
 
-	keys := lo.Uniq(append(settings.GetStrings("mods"), baseKeys...))
+	keys := lo.Uniq(append(m.settings.GetStrings("mods"), baseKeys...))
 	items := lo.FilterMap(keys, func(modName string, _ int) (list.Item, bool) {
 		mod, ok := m.mods[modName]
 		if !ok {
@@ -134,28 +136,28 @@ func (m Model) items() []list.Item {
 }
 
 func (m Model) modUp(mod string) Model {
-	index := lo.IndexOf(settings.GetStrings("mods"), mod)
+	index := lo.IndexOf(m.settings.GetStrings("mods"), mod)
 	if index <= 0 {
 		return m
 	}
 
-	settings.GetStrings("mods")[index] = settings.GetStrings("mods")[index-1]
-	settings.GetStrings("mods")[index-1] = mod
-	_ = settings.SaveSettings()
+	m.settings.GetStrings("mods")[index] = m.settings.GetStrings("mods")[index-1]
+	m.settings.GetStrings("mods")[index-1] = mod
+	_ = m.settings.SaveSettings()
 
 	m.list.SetItems(m.items())
 	return m
 }
 
 func (m Model) modDown(mod string) Model {
-	index := lo.IndexOf(settings.GetStrings("mods"), mod)
-	if index < 0 || index >= len(settings.GetStrings("mods"))-1 {
+	index := lo.IndexOf(m.settings.GetStrings("mods"), mod)
+	if index < 0 || index >= len(m.settings.GetStrings("mods"))-1 {
 		return m
 	}
 
-	settings.GetStrings("mods")[index] = settings.GetStrings("mods")[index+1]
-	settings.GetStrings("mods")[index+1] = mod
-	_ = settings.SaveSettings()
+	m.settings.GetStrings("mods")[index] = m.settings.GetStrings("mods")[index+1]
+	m.settings.GetStrings("mods")[index+1] = mod
+	_ = m.settings.SaveSettings()
 
 	m.list.SetItems(m.items())
 	return m
@@ -163,20 +165,20 @@ func (m Model) modDown(mod string) Model {
 
 func (m Model) modSetActive(mod string, val bool) Model {
 	if val {
-		settings.Set("mods", append(settings.GetStrings("mods"), mod))
+		m.settings.Set("mods", append(m.settings.GetStrings("mods"), mod))
 	} else {
-		settings.Set("mods", lo.Filter(settings.GetStrings("mods"), func(item string, index int) bool {
+		m.settings.Set("mods", lo.Filter(m.settings.GetStrings("mods"), func(item string, index int) bool {
 			return item != mod
 		}))
 	}
-	_ = settings.SaveSettings()
+	_ = m.settings.SaveSettings()
 
 	m.list.SetItems(m.items())
 	return m
 }
 
 func (m Model) modActive(mod string) bool {
-	return lo.Contains(settings.GetStrings("mods"), mod)
+	return lo.Contains(m.settings.GetStrings("mods"), mod)
 }
 
 func (m Model) fetchMods() Model {

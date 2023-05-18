@@ -42,7 +42,6 @@ func initSystems(hasAudio bool) {
 	if hasAudio {
 		fmt.Println(loadStyle.Render("Initializing Audio. Please wait..."))
 		audio.InitAudio()
-		audio.PlayMusic("planet_mining")
 		fmt.Println(loadStyle.Render("Done!"))
 	}
 
@@ -107,7 +106,7 @@ func main() {
 	// Create base model
 	var baseModel tea.Model
 	zones := zone.New()
-	baseModel = root.New(zones, mainmenu.NewModel(zones, uiSettings, func(values []uiset.Value) error {
+	baseModel = root.New(zones, mainmenu.NewModel(zones, settings.GetGlobal(), uiSettings, func(values []uiset.Value) error {
 		for i := range values {
 			settings.Set(values[i].Key, values[i].Val)
 		}
