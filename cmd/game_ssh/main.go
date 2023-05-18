@@ -5,8 +5,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	"github.com/BigJk/end_of_eden/ui/root"
+	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"os"
 	"os/signal"
@@ -42,6 +44,8 @@ func main() {
 		flag.PrintDefaults()
 		return
 	}
+
+	termenv.SetDefaultOutput(termenv.NewOutput(os.Stdout, termenv.WithProfile(termenv.TrueColor)))
 
 	options := []ssh.Option{
 		wish.WithAddress(*bind),
@@ -112,11 +116,7 @@ func main() {
 func gameMiddleware() wish.Middleware {
 	newProg := func(m tea.Model, opts ...tea.ProgramOption) *tea.Program {
 		p := tea.NewProgram(m, opts...)
-		go func() {
-			for {
-				<-time.After(1 * time.Second)
-			}
-		}()
+		lipgloss.SetColorProfile(termenv.TrueColor)
 		return p
 	}
 	teaHandler := func(s ssh.Session) *tea.Program {
@@ -126,7 +126,14 @@ func gameMiddleware() wish.Middleware {
 			return nil
 		}
 		zones := zone.New()
-		return newProg(root.New(zones, mainmenu.NewModel(zones, nil, nil)), tea.WithInput(s), tea.WithOutput(s), tea.WithMouseCellMotion(), tea.WithAltScreen())
+		return newProg(
+			root.New(zones, mainmenu.NewModel(zones, settings.GetGlobal(), nil, nil)),
+			tea.WithInput(s),
+			tea.WithOutput(s),
+			tea.WithANSICompressor(),
+			tea.WithMouseAllMotion(),
+			tea.WithAltScreen(),
+		)
 	}
 	return bm.MiddlewareWithProgramHandler(teaHandler, termenv.ANSI256)
 }
