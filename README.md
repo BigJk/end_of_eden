@@ -19,6 +19,7 @@
 
 <details><summary>GL Version Screenshots</summary>
 
+
 The following screenshots are from the ``_gl`` version of the game. The ``_gl`` version is the same game but running in a dedicated window. Additionally, a crt shader is activated to give the game a more retro look.
 
 ![Screenshot](.github/screenshot_gl1.png)
@@ -33,7 +34,7 @@ The game is still in early development. There are still a lot of content missing
 
 # :video_game: How to play
 
-The game can be played in two ways. You can download the ``_term`` or ``_gl`` version. You can see which type you download from the file name (``end_of_eden_term`` vs ``end_of_eden_gl``). The ``_term`` version is the base game and runs in your terminal. The ``_gl`` version is the same game but running in a dedicated window, so no console magic is needed just a plain old game window. If you are not familiar with the terminal, you can try out the ``_gl`` version.
+The game can be played in two ways. You can download the ``_term`` or ``_gl`` version. You can see which type you download from the file name (``end_of_eden_term`` vs ``end_of_eden_gl``). The ``_term`` version is the base game and runs in your terminal. The ``_gl`` version is the same game but running in a dedicated window, so no console magic is needed just a plain old game window. If you are not familiar with the terminal, you can try out the ``_gl`` version. It also comes with a optional crt shader to give the game a more retro look. Check out the [Settings](#settings) section for more information.
 
 ## :file_folder: Download
 
@@ -43,6 +44,9 @@ The game can be played in two ways. You can download the ``_term`` or ``_gl`` ve
 ## :whale: Docker
 
 If you are a advanced user you can also run the game through docker.
+
+<details><summary>Docker Guide</summary>
+
 
 ### Pull Image
 
@@ -74,6 +78,61 @@ and more...
 docker run --name end_of_eden -p 8275:8273 -it ghcr.io/bigjk/end_of_eden:master /app/end_of_eden_ssh
 ````
 
+</details>
+
+## Settings
+
+At the moment you need to edit the settings files (except for enabling mods) manually. The settings are stored in the ``settings.toml`` in the same directory as the executable. The following settings are available:
+
+```toml
+# Audio volume
+#
+volume = 1.0
+
+# Mods that should be loaded (can be edited in game)
+#
+mods = [ "example_mod", "other_mod" ]
+```
+
+### GL Version
+
+The ``_gl`` version an additional settings file called ``settings_win.toml``. The following settings are available:
+
+```toml
+# Enable or disable audio
+#
+audio = true
+
+# Enable or disable the crt shader
+#
+crt = true
+
+# DPI scaling
+#
+dpi = 1
+
+# Font to be used for normal, italic and bold text.
+# The font needs to be relative to ./assets/fonts.
+# Using a nerd font is recommended: https://www.nerdfonts.com/font-downloads
+#
+font_normal = 'BigBlueTermPlusNerdFont-Regular.ttf'
+font_italic = 'BigBlueTermPlusNerdFont-Regular.ttf'
+font_bold = 'BigBlueTermPlusNerdFont-Regular.ttf'
+
+# Font size
+#
+font_size = 12
+
+# Max fps
+#
+fps = 30
+
+# Window size
+#
+height = 800
+width = 1100
+```
+
 ## Console
 
 A modern console is required to support all the features like full mouse control. Just start the  ``end_of_eden(.exe)`` executable in your terminal.
@@ -84,7 +143,6 @@ A modern console is required to support all the features like full mouse control
 | **[terminal](https://github.com/microsoft/terminal)** | windows | :white_check_mark: | recommended on windows                                          |
 | **cmd**                                               | windows | :warning:          | no mouse motion support, mouse clicks and everything else works |
 | **[iterm2](https://iterm2.com/)**                     | osx     | :white_check_mark: |                                                                 |
-
 
 # Tech
 
