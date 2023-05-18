@@ -2,6 +2,7 @@ package overview
 
 import (
 	"fmt"
+	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
@@ -186,6 +187,10 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.list.SelectedItem().(choiceItem).key == ChoiceQuit {
 				return nil, nil
 			}
+		case tea.KeyDown:
+			fallthrough
+		case tea.KeyUp:
+			audio.Play("interface_move", -1.5)
 		}
 	case tea.MouseMsg:
 		if msg.Type == tea.MouseLeft {
