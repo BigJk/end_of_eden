@@ -82,7 +82,7 @@ docker run --name end_of_eden -p 8275:8273 -it ghcr.io/bigjk/end_of_eden:master 
 
 ## Settings
 
-At the moment you need to edit the settings files (except for enabling mods) manually. The settings are stored in the ``settings.toml`` in the same directory as the executable. The following settings are available:
+At the moment you need to edit the settings files (except for enabling mods) manually in the ``_term`` version. The settings are stored in the ``settings.toml`` in the same directory as the executable. The following settings are available:
 
 ```toml
 # Audio volume
@@ -96,7 +96,7 @@ mods = [ "example_mod", "other_mod" ]
 
 ### GL Version
 
-The ``_gl`` version an additional settings file called ``settings_win.toml``. The following settings are available:
+The ``_gl`` version an additional settings file called ``settings_win.toml``. The following settings are available and can be modified in game via the settings menu:
 
 ```toml
 # Enable or disable audio
