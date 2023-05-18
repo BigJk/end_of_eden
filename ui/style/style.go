@@ -43,6 +43,7 @@ var (
 	BoldStyle      = lipgloss.NewStyle().Bold(true)
 	BaseText       = lipgloss.NewStyle().Foreground(BaseWhite)
 	RedText        = lipgloss.NewStyle().Foreground(BaseRed)
+	GreenText      = lipgloss.NewStyle().Foreground(BaseGreen)
 	GrayText       = lipgloss.NewStyle().Foreground(BaseGray)
 	GrayTextDarker = lipgloss.NewStyle().Foreground(BaseGrayDarker)
 	RedDarkerText  = lipgloss.NewStyle().Foreground(BaseRedDarker)

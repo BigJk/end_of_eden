@@ -10,6 +10,7 @@ import (
 	"github.com/BigJk/end_of_eden/ui/menus/about"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
 	"github.com/BigJk/end_of_eden/ui/menus/mods"
+	uiset "github.com/BigJk/end_of_eden/ui/menus/settings"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/BigJk/imeji"
@@ -29,15 +30,20 @@ type Model struct {
 	image   string
 	zones   *zone.Manager
 	choices ChoicesModel
+
+	settingValues []uiset.Value
+	settingSaver  uiset.Saver
 }
 
-func NewModel(zones *zone.Manager) Model {
+func NewModel(zones *zone.Manager, values []uiset.Value, saver uiset.Saver) Model {
 	img, _ := image.Fetch("title.png", imeji.WithResize(180, 9))
 
 	model := Model{
-		image:   img,
-		zones:   zones,
-		choices: NewChoicesModel(zones),
+		image:         img,
+		zones:         zones,
+		choices:       NewChoicesModel(zones),
+		settingSaver:  saver,
+		settingValues: values,
 	}
 
 	return model
@@ -121,6 +127,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.choices = m.choices.Clear()
 		return m, root.Push(mods.NewModel(m.zones))
 	case ChoiceSettings:
+		if m.settingSaver != nil {
+			audio.Play("btn_menu")
+
+			m.choices = m.choices.Clear()
+			return m, root.Push(uiset.NewModel(m.zones, m.settingValues, m.settingSaver))
+		}
+
+		// TODO: don't show settings item if no settings saver is set
 	case ChoiceExit:
 		return m, tea.Quit
 	}

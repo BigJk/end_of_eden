@@ -92,7 +92,7 @@ func main() {
 	// Setup game
 	var baseModel tea.Model
 	zones := zone.New()
-	baseModel = root.New(zones, mainmenu.NewModel(zones))
+	baseModel = root.New(zones, mainmenu.NewModel(zones, nil, nil))
 
 	// If test flags are present we load up a session with the given cards, enemies and artifacts.
 	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 || len(*testGameState) > 0 || len(*testEvent) > 0 {

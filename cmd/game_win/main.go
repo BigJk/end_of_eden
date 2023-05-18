@@ -10,6 +10,7 @@ import (
 	"github.com/BigJk/end_of_eden/gen/faces"
 	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
+	uiset "github.com/BigJk/end_of_eden/ui/menus/settings"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,7 +24,26 @@ import (
 	"time"
 )
 
-var loadStyle = lipgloss.NewStyle().Bold(true).Italic(true).Foreground(style.BaseGray)
+var (
+	loadStyle = lipgloss.NewStyle().Bold(true).Italic(true).Foreground(style.BaseGray)
+)
+
+type settingsSaver struct{}
+
+func (s settingsSaver) Save(values []uiset.Value) error {
+	for i := range values {
+		switch values[i].Key {
+		// This is a special case for the volume setting, because it is not stored in the settings_win.toml file.
+		case "volume":
+			settings.LoadedSettings.Volume = values[i].Val.(float64)
+			_ = settings.SaveSettings()
+		default:
+			viper.Set(values[i].Key, values[i].Val)
+		}
+	}
+
+	return viper.WriteConfigAs("./settings_win.toml")
+}
 
 func initSystems(hasAudio bool) {
 	// Init settings
@@ -90,10 +110,25 @@ func main() {
 		panic(err)
 	}
 
+	uiSettings := []uiset.Value{
+		{Key: "audio", Name: "Audio", Description: "Enable or disable audio", Type: uiset.Bool, Val: viper.GetBool("audio"), Min: nil, Max: nil},
+		{Key: "volume", Name: "Volume", Description: "Change the volume", Type: uiset.Float, Val: settings.LoadedSettings.Volume, Min: 0.0, Max: 1.0},
+		{Key: "font_size", Name: "Font Size", Description: "Change the font size", Type: uiset.Float, Val: viper.GetFloat64("font_size"), Min: 6.0, Max: 64.0},
+		{Key: "dpi", Name: "DPI", Description: "Change the DPI", Type: uiset.Float, Val: viper.GetFloat64("dpi"), Min: 1.0, Max: 5.0},
+		{Key: "width", Name: "Width", Description: "Change the window width", Type: uiset.Float, Val: viper.GetFloat64("width"), Min: 450.0, Max: 5000.0},
+		{Key: "height", Name: "Height", Description: "Change the window height", Type: uiset.Float, Val: viper.GetFloat64("height"), Min: 450.0, Max: 5000.0},
+		{Key: "crt", Name: "CRT", Description: "Enable or disable CRT shader", Type: uiset.Bool, Val: viper.GetBool("crt"), Min: nil, Max: nil},
+		{Key: "show_fps", Name: "Show FPS", Description: "Show the current FPS", Type: uiset.Bool, Val: viper.GetBool("show_fps"), Min: nil, Max: nil},
+		{Key: "fps", Name: "FPS", Description: "Change the FPS", Type: uiset.Float, Val: viper.GetFloat64("fps"), Min: 10.0, Max: 144.0},
+		{Key: "font_normal", Name: "Normal Font", Description: "Change the normal font", Type: uiset.String, Val: viper.GetString("font_normal"), Min: nil, Max: nil},
+		{Key: "font_bold", Name: "Bold Font", Description: "Change the bold font", Type: uiset.String, Val: viper.GetString("font_bold"), Min: nil, Max: nil},
+		{Key: "font_italic", Name: "Italic Font", Description: "Change the italic font", Type: uiset.String, Val: viper.GetString("font_italic"), Min: nil, Max: nil},
+	}
+
 	var baseModel tea.Model
 	zones := zone.New()
-	baseModel = root.New(zones, mainmenu.NewModel(zones))
-	win, err := teadapter.Window(viper.GetInt("width"), viper.GetInt("height"), fonts, baseModel, color.RGBA{
+	baseModel = root.New(zones, mainmenu.NewModel(zones, uiSettings, settingsSaver{}))
+	win, _, err := teadapter.Window(viper.GetInt("width"), viper.GetInt("height"), fonts, baseModel, color.RGBA{
 		R: 34,
 		G: 36,
 		B: 41,

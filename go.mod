@@ -6,7 +6,7 @@ replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/b
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
-	github.com/BigJk/crt v0.0.5
+	github.com/BigJk/crt v0.0.7
 	github.com/BigJk/imeji v0.0.2
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.15.0

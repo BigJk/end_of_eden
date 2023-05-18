@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+// TODO: Make this more generic so that we don't need extra settings for the _gl version.
+
 // Settings represents the loaded game settings.
 type Settings struct {
 	Volume float64  `toml:"volume"`

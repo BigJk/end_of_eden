@@ -126,7 +126,7 @@ func gameMiddleware() wish.Middleware {
 			return nil
 		}
 		zones := zone.New()
-		return newProg(root.New(zones, mainmenu.NewModel(zones)), tea.WithInput(s), tea.WithOutput(s), tea.WithMouseCellMotion(), tea.WithAltScreen())
+		return newProg(root.New(zones, mainmenu.NewModel(zones, nil, nil)), tea.WithInput(s), tea.WithOutput(s), tea.WithMouseCellMotion(), tea.WithAltScreen())
 	}
 	return bm.MiddlewareWithProgramHandler(teaHandler, termenv.ANSI256)
 }
