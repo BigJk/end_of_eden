@@ -80,7 +80,7 @@ type MerchantState struct {
 	Artifacts []string
 }
 
-// LuaError represents an error that occured in lua.
+// LuaError represents an error that occurred in lua.
 type LuaError struct {
 	File     string
 	Line     int
