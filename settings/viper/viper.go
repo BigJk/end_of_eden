@@ -22,7 +22,7 @@ func (v Viper) LoadSettings() error {
 }
 
 func (v Viper) SaveSettings() error {
-	return viper.WriteConfigAs("./settings.toml")
+	return viper.WriteConfigAs("./" + v.SettingsName + ".toml")
 }
 
 func (v Viper) Get(key string) any {
