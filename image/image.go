@@ -1,3 +1,5 @@
+// Package image provides a simple interface for loading images from ./assets/images
+// and mods and converting them to ansi strings.
 package image
 
 import (

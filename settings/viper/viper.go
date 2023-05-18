@@ -2,6 +2,7 @@ package viper
 
 import "github.com/spf13/viper"
 
+// Viper is a wrapper around viper that implements the Settings interface.
 type Viper struct {
 	SettingsName string
 }

@@ -10,6 +10,9 @@ import (
 	"github.com/samber/lo"
 )
 
+// Model is the root model of the game. It holds the current model stack and
+// the zone manager. The top model of the internal stack is the current model
+// and will  be rendered.
 type Model struct {
 	zones    *zone.Manager
 	stack    []tea.Model
@@ -17,6 +20,7 @@ type Model struct {
 	tooltips map[string]Tooltip
 }
 
+// New creates a new root model.
 func New(zones *zone.Manager, root tea.Model) Model {
 	return Model{
 		zones:    zones,
@@ -25,12 +29,14 @@ func New(zones *zone.Manager, root tea.Model) Model {
 	}
 }
 
+// PushModel pushes a new model on the stack.
 func (m Model) PushModel(model tea.Model) Model {
 	m.stack = append(m.stack, model)
 	m.tooltips = map[string]Tooltip{}
 	return m
 }
 
+// SetRoot sets the root (last) model of the stack.
 func (m Model) SetRoot(model tea.Model) Model {
 	if len(m.stack) == 0 {
 		return m.PushModel(model)
@@ -94,6 +100,7 @@ func (m Model) View() string {
 	return view
 }
 
+// CheckLuaErrors checks if there are any lua errors and pushes them to the stack as lua error model.
 func CheckLuaErrors(zones *zone.Manager, s *game.Session) tea.Cmd {
 	var errors []game.LuaError
 

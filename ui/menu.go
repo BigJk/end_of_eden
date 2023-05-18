@@ -15,6 +15,7 @@ type MenuBase struct {
 	LastMouse tea.MouseMsg
 }
 
+// HasSize returns true if the menu has a saved size.
 func (m MenuBase) HasSize() bool {
 	return m.Size.Width > 0
 }
