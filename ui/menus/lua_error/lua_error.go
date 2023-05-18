@@ -14,6 +14,7 @@ import (
 	"github.com/maruel/panicparse/v2/stack"
 	"github.com/samber/lo"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -136,6 +137,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		if msg.Type == tea.MouseLeft {
 			if m.zones.Get(ZoneCopy).InBounds(msg) {
+				if os.Getenv("NO_CLIPBOARD") == "1" {
+					return m, nil
+				}
+
 				_ = clipboard.WriteAll(fmt.Sprintf(ErrorFormat, "", "Lua Error!", m.err.File, m.err.Line, m.err.Callback, m.err.Type, "Error:", strings.Replace(m.err.Err.Error(), "\t", " ", -1)))
 				m.clipClicked = true
 			} else if m.zones.Get(ZoneBack).InBounds(msg) {

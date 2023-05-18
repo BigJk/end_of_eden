@@ -45,6 +45,10 @@ func main() {
 		return
 	}
 
+	if err := os.Setenv("NO_CLIPBOARD", "true"); err != nil {
+		panic(err)
+	}
+
 	termenv.SetDefaultOutput(termenv.NewOutput(os.Stdout, termenv.WithProfile(termenv.TrueColor)))
 
 	options := []ssh.Option{
