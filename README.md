@@ -17,6 +17,16 @@
 ![Screenshot](.github/screenshot.png)
 ![Screenshot](.github/screenshot_merchant.png)
 
+<details><summary>GL Version Screenshots</summary>
+
+The following screenshots are from the ``_gl`` version of the game. The ``_gl`` version is the same game but running in a dedicated window. Additionally, a crt shader is activated to give the game a more retro look.
+
+![Screenshot](.github/screenshot_gl1.png)
+![Screenshot](.github/screenshot_gl2.png)
+![Screenshot](.github/screenshot_gl3.png)
+
+</details>
+
 # Status
 
 The game is still in early development. There are still a lot of content missing and the game is not balanced at all. If you want to help out, feel free to open a issue or pull request or even better join the [discord](https://discord.gg/XpDvfvVuB2).

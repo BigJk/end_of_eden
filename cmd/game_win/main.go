@@ -70,6 +70,7 @@ func main() {
 	viper.SetDefault("width", 1300)
 	viper.SetDefault("height", 975)
 	viper.SetDefault("crt", true)
+	viper.SetDefault("show_fps", false)
 	viper.SetDefault("fps", 30)
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -148,10 +149,10 @@ func main() {
 			}
 		}()
 
-		win.ShowTPS(true)
 		win.SetShader(crtLotte, s)
 	}
 
+	win.ShowTPS(viper.GetBool("show_fps"))
 	ebiten.SetTPS(viper.GetInt("fps"))
 	if err := win.Run("End Of Eden"); err != nil {
 		panic(err)
