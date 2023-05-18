@@ -30,7 +30,7 @@ The following screenshots are from the ``_gl`` version of the game. The ``_gl`` 
 
 # Status
 
-The game is still in early development. There are still a lot of content missing and the game is not balanced at all. If you want to help out, feel free to open a issue or pull request or even better join the [discord](https://discord.gg/XpDvfvVuB2).
+The game is still in early development. There are still a lot of content missing and the game is not balanced at all. It mostly contians test content at the moment. If you want to help out, feel free to open a issue or pull request or even better join the [discord](https://discord.gg/XpDvfvVuB2).
 
 # :video_game: How to play
 
@@ -82,7 +82,9 @@ docker run --name end_of_eden -p 8275:8273 -it ghcr.io/bigjk/end_of_eden:master 
 
 ## Settings
 
-At the moment you need to edit the settings files (except for enabling mods) manually in the ``_term`` version. The settings are stored in the ``settings.toml`` in the same directory as the executable. The following settings are available:
+At the moment you need to edit the settings files (except for enabling mods) manually in the ``_term`` version. The settings are stored in the ``settings.toml`` in the same directory as the executable. 
+
+<details><summary>Available settings in settings.toml</summary>
 
 ```toml
 # Audio volume
@@ -94,9 +96,13 @@ volume = 1.0
 mods = [ "example_mod", "other_mod" ]
 ```
 
+</details>
+
 ### GL Version
 
-The ``_gl`` version an additional settings file called ``settings_win.toml``. The following settings are available and can be modified in game via the settings menu:
+The ``_gl`` version an additional settings file called ``settings_win.toml``. The settings can be modified in game via the settings menu.
+
+<details><summary>Available settings in settings_win.toml</summary>
 
 ```toml
 # Enable or disable audio
@@ -133,6 +139,8 @@ height = 800
 width = 1100
 ```
 
+</details>
+
 ## Console
 
 A modern console is required to support all the features like full mouse control. Just start the  ``end_of_eden(.exe)`` executable in your terminal.
@@ -143,8 +151,6 @@ A modern console is required to support all the features like full mouse control
 | **[terminal](https://github.com/microsoft/terminal)** | windows | :white_check_mark: | recommended on windows                                          |
 | **cmd**                                               | windows | :warning:          | no mouse motion support, mouse clicks and everything else works |
 | **[iterm2](https://iterm2.com/)**                     | osx     | :white_check_mark: |                                                                 |
-
-# Tech
 
 ## Lua & Modding
 
