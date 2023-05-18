@@ -1,42 +1,64 @@
 package settings
 
-import (
-	"github.com/pelletier/go-toml/v2"
-	"os"
-)
-
-// TODO: Make this more generic so that we don't need extra settings for the _gl version.
-
-// Settings represents the loaded game settings.
-type Settings struct {
-	Volume float64  `toml:"volume"`
-	Mods   []string `toml:"mods"`
+type Settings interface {
+	LoadSettings() error
+	SaveSettings() error
+	Get(key string) any
+	GetString(key string) string
+	GetStrings(key string) []string
+	GetInt(key string) int
+	GetFloat(key string) float64
+	GetBool(key string) bool
+	Set(key string, value any)
+	GetKeys() []string
 }
 
-// LoadedSettings represents the loaded game settings.
-var LoadedSettings Settings
+func init() {
+	global = empty{}
+}
 
-// LoadSettings loads the game settings from settings.json or creates a new one with the default values.
+var global Settings
+
+func SetSettings(s Settings) {
+	global = s
+}
+
 func LoadSettings() error {
-	data, err := os.ReadFile("./settings.toml")
-	if err != nil {
-		LoadedSettings.Volume = 1
-		LoadedSettings.Mods = []string{}
-		if err := SaveSettings(); err != nil {
-			return err
-		}
-		return nil
-	}
-
-	return toml.Unmarshal(data, &LoadedSettings)
+	return global.LoadSettings()
 }
 
-// SaveSettings saves the settings to settings.json.
 func SaveSettings() error {
-	data, err := toml.Marshal(LoadedSettings)
-	if err != nil {
-		return err
-	}
+	return global.SaveSettings()
+}
 
-	return os.WriteFile("./settings.toml", data, 0666)
+func Get(key string) any {
+	return global.Get(key)
+}
+
+func GetString(key string) string {
+	return global.GetString(key)
+}
+
+func GetStrings(key string) []string {
+	return global.GetStrings(key)
+}
+
+func GetInt(key string) int {
+	return global.GetInt(key)
+}
+
+func GetFloat(key string) float64 {
+	return global.GetFloat(key)
+}
+
+func GetBool(key string) bool {
+	return global.GetBool(key)
+}
+
+func Set(key string, value any) {
+	global.Set(key, value)
+}
+
+func GetKeys() []string {
+	return global.GetKeys()
 }

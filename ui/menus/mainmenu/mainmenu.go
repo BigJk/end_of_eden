@@ -106,14 +106,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		image.ResetSearchPaths()
-		image.AddSearchPaths(lo.Map(settings.LoadedSettings.Mods, func(item string, index int) string {
+		image.AddSearchPaths(lo.Map(settings.GetStrings("mods"), func(item string, index int) string {
 			return fmt.Sprintf("./mods/%s/images/", item)
 		})...)
 
 		m.choices = m.choices.Clear()
 		return m, root.Push(gameview.New(m, m.zones, game.NewSession(
 			game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
-			game.WithMods(settings.LoadedSettings.Mods),
+			game.WithMods(settings.GetStrings("mods")),
 			lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 		)))
 	case ChoiceAbout:

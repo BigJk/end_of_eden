@@ -3,14 +3,8 @@
 
 package audio
 
-func InitAudio() {
+func InitAudio() {}
 
-}
+func Play(key string, volumeModifier ...float64) {}
 
-func Play(key string, volumeModifier ...float64) {
-
-}
-
-func PlayMusic(key string) {
-
-}
+func PlayMusic(key string) {}

@@ -21,6 +21,4 @@ type Value struct {
 
 type Values []Value
 
-type Saver interface {
-	Save([]Value) error
-}
+type Saver func([]Value) error

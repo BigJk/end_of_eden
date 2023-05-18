@@ -117,7 +117,7 @@ func (m Model) items() []list.Item {
 	baseKeys := lo.Keys(m.mods)
 	sort.Strings(baseKeys)
 
-	keys := lo.Uniq(append(settings.LoadedSettings.Mods, baseKeys...))
+	keys := lo.Uniq(append(settings.GetStrings("mods"), baseKeys...))
 	items := lo.FilterMap(keys, func(modName string, _ int) (list.Item, bool) {
 		mod, ok := m.mods[modName]
 		if !ok {
@@ -134,13 +134,13 @@ func (m Model) items() []list.Item {
 }
 
 func (m Model) modUp(mod string) Model {
-	index := lo.IndexOf(settings.LoadedSettings.Mods, mod)
+	index := lo.IndexOf(settings.GetStrings("mods"), mod)
 	if index <= 0 {
 		return m
 	}
 
-	settings.LoadedSettings.Mods[index] = settings.LoadedSettings.Mods[index-1]
-	settings.LoadedSettings.Mods[index-1] = mod
+	settings.GetStrings("mods")[index] = settings.GetStrings("mods")[index-1]
+	settings.GetStrings("mods")[index-1] = mod
 	_ = settings.SaveSettings()
 
 	m.list.SetItems(m.items())
@@ -148,13 +148,13 @@ func (m Model) modUp(mod string) Model {
 }
 
 func (m Model) modDown(mod string) Model {
-	index := lo.IndexOf(settings.LoadedSettings.Mods, mod)
-	if index < 0 || index >= len(settings.LoadedSettings.Mods)-1 {
+	index := lo.IndexOf(settings.GetStrings("mods"), mod)
+	if index < 0 || index >= len(settings.GetStrings("mods"))-1 {
 		return m
 	}
 
-	settings.LoadedSettings.Mods[index] = settings.LoadedSettings.Mods[index+1]
-	settings.LoadedSettings.Mods[index+1] = mod
+	settings.GetStrings("mods")[index] = settings.GetStrings("mods")[index+1]
+	settings.GetStrings("mods")[index+1] = mod
 	_ = settings.SaveSettings()
 
 	m.list.SetItems(m.items())
@@ -163,11 +163,11 @@ func (m Model) modDown(mod string) Model {
 
 func (m Model) modSetActive(mod string, val bool) Model {
 	if val {
-		settings.LoadedSettings.Mods = append(settings.LoadedSettings.Mods, mod)
+		settings.Set("mods", append(settings.GetStrings("mods"), mod))
 	} else {
-		settings.LoadedSettings.Mods = lo.Filter(settings.LoadedSettings.Mods, func(item string, index int) bool {
+		settings.Set("mods", lo.Filter(settings.GetStrings("mods"), func(item string, index int) bool {
 			return item != mod
-		})
+		}))
 	}
 	_ = settings.SaveSettings()
 
@@ -176,7 +176,7 @@ func (m Model) modSetActive(mod string, val bool) Model {
 }
 
 func (m Model) modActive(mod string) bool {
-	return lo.Contains(settings.LoadedSettings.Mods, mod)
+	return lo.Contains(settings.GetStrings("mods"), mod)
 }
 
 func (m Model) fetchMods() Model {

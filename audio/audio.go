@@ -1,7 +1,7 @@
 //go:build !no_audio
 // +build !no_audio
 
-// audio package handles all audio playback. It uses the beep library to play audio files.
+// Package audio handles all audio playback. It uses the beep library to play audio files.
 package audio
 
 import (
@@ -131,7 +131,7 @@ func Play(key string, volumeModifier ...float64) {
 		return
 	}
 
-	if settings.LoadedSettings.Volume == 0 {
+	if settings.GetFloat("volume") == 0 {
 		return
 	}
 
@@ -139,7 +139,7 @@ func Play(key string, volumeModifier ...float64) {
 		volume := &effects.Volume{
 			Streamer: val.Streamer(0, val.Len()),
 			Base:     2,
-			Volume:   baseVolume - (1-settings.LoadedSettings.Volume)*5,
+			Volume:   baseVolume - (1-settings.GetFloat("volume"))*5,
 			Silent:   false,
 		}
 
@@ -157,7 +157,7 @@ func PlayMusic(key string) {
 		return
 	}
 
-	if settings.LoadedSettings.Volume == 0 {
+	if settings.GetFloat("volume") == 0 {
 		return
 	}
 
@@ -185,7 +185,7 @@ func PlayMusic(key string) {
 		volume := &effects.Volume{
 			Streamer: beep.Loop(-1, val.Streamer(0, val.Len())),
 			Base:     2,
-			Volume:   baseVolume - 2 - (1-settings.LoadedSettings.Volume)*5,
+			Volume:   baseVolume - 2 - (1-settings.GetFloat("volume"))*5,
 			Silent:   false,
 		}
 

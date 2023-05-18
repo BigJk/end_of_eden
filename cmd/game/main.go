@@ -7,8 +7,10 @@ import (
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
 	"github.com/BigJk/end_of_eden/settings"
+	"github.com/BigJk/end_of_eden/settings/viper"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
+	uiset "github.com/BigJk/end_of_eden/ui/menus/settings"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
@@ -47,6 +49,13 @@ func main() {
 
 	fmt.Println(loadStyle.Render("Initializing Settings. Please wait..."))
 	{
+		vi := viper.Viper{
+			SettingsName: "settings_term",
+		}
+		vi.SetDefault("audio", true)
+		vi.SetDefault("volume", 1)
+		settings.SetSettings(vi)
+
 		if err := settings.LoadSettings(); err != nil {
 			panic(err)
 		}
@@ -89,14 +98,24 @@ func main() {
 	// Set window title
 	fmt.Println("\033]2;End of Eden\007")
 
+	uiSettings := []uiset.Value{
+		{Key: "audio", Name: "Audio", Description: "Enable or disable audio", Type: uiset.Bool, Val: settings.GetBool("audio"), Min: nil, Max: nil},
+		{Key: "volume", Name: "Volume", Description: "Change the volume", Type: uiset.Float, Val: settings.GetFloat("volume"), Min: 0.0, Max: 2.0},
+	}
+
 	// Setup game
 	var baseModel tea.Model
 	zones := zone.New()
-	baseModel = root.New(zones, mainmenu.NewModel(zones, nil, nil))
+	baseModel = root.New(zones, mainmenu.NewModel(zones, uiSettings, func(values []uiset.Value) error {
+		for i := range values {
+			settings.Set(values[i].Key, values[i].Val)
+		}
+		return settings.SaveSettings()
+	}))
 
 	// If test flags are present we load up a session with the given cards, enemies and artifacts.
 	if len(*testCards) > 0 || len(*testEnemies) > 0 || len(*testArtifacts) > 0 || len(*testGameState) > 0 || len(*testEvent) > 0 {
-		session := game.NewSession(game.WithLogging(log.Default()), game.WithMods(settings.LoadedSettings.Mods), lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil))
+		session := game.NewSession(game.WithLogging(log.Default()), game.WithMods(settings.GetStrings("mods")), lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil))
 		session.SetGameState(game.GameStateFight)
 		session.GetPlayer().Cards.Clear()
 

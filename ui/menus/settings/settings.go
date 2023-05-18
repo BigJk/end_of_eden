@@ -230,7 +230,7 @@ func (m Model) setup() Model {
 }
 
 func (m Model) saveValues() Model {
-	_ = m.saver.Save(m.values)
+	_ = m.saver(m.values)
 	m.list.SetItems(m.items())
 	return m
 }

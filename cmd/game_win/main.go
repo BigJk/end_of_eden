@@ -9,6 +9,7 @@ import (
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
 	"github.com/BigJk/end_of_eden/settings"
+	"github.com/BigJk/end_of_eden/settings/viper"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	uiset "github.com/BigJk/end_of_eden/ui/menus/settings"
 	"github.com/BigJk/end_of_eden/ui/root"
@@ -17,7 +18,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/hajimehoshi/ebiten/v2"
 	zone "github.com/lrstanley/bubblezone"
-	"github.com/spf13/viper"
 	"image/color"
 	"math"
 	"os"
@@ -27,23 +27,6 @@ import (
 var (
 	loadStyle = lipgloss.NewStyle().Bold(true).Italic(true).Foreground(style.BaseGray)
 )
-
-type settingsSaver struct{}
-
-func (s settingsSaver) Save(values []uiset.Value) error {
-	for i := range values {
-		switch values[i].Key {
-		// This is a special case for the volume setting, because it is not stored in the settings_win.toml file.
-		case "volume":
-			settings.LoadedSettings.Volume = values[i].Val.(float64)
-			_ = settings.SaveSettings()
-		default:
-			viper.Set(values[i].Key, values[i].Val)
-		}
-	}
-
-	return viper.WriteConfigAs("./settings_win.toml")
-}
 
 func initSystems(hasAudio bool) {
 	// Init settings
@@ -78,67 +61,67 @@ func initSystems(hasAudio bool) {
 }
 
 func main() {
-	viper.SetConfigName("settings_win")
-	viper.AddConfigPath(".")
-
-	viper.SetDefault("audio", true)
-	viper.SetDefault("font_size", 12)
-	viper.SetDefault("font_normal", "BigBlueTermPlusNerdFont-Regular.ttf")
-	viper.SetDefault("font_italic", "BigBlueTermPlusNerdFont-Regular.ttf")
-	viper.SetDefault("font_bold", "BigBlueTermPlusNerdFont-Regular.ttf")
-	viper.SetDefault("dpi", 1)
-	viper.SetDefault("width", 1300)
-	viper.SetDefault("height", 975)
-	viper.SetDefault("crt", true)
-	viper.SetDefault("show_fps", false)
-	viper.SetDefault("fps", 30)
-
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			_ = viper.SafeWriteConfigAs("./settings_win.toml")
-		} else {
-			panic(err)
-		}
+	vi := viper.Viper{
+		SettingsName: "settings_gl",
 	}
 
-	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
-	initSystems(viper.GetBool("audio"))
+	vi.SetDefault("audio", true)
+	vi.SetDefault("volume", 1)
+	vi.SetDefault("font_size", 12)
+	vi.SetDefault("font_normal", "BigBlueTermPlusNerdFont-Regular.ttf")
+	vi.SetDefault("font_italic", "BigBlueTermPlusNerdFont-Regular.ttf")
+	vi.SetDefault("font_bold", "BigBlueTermPlusNerdFont-Regular.ttf")
+	vi.SetDefault("dpi", 1)
+	vi.SetDefault("width", 1300)
+	vi.SetDefault("height", 975)
+	vi.SetDefault("crt", true)
+	vi.SetDefault("show_fps", false)
+	vi.SetDefault("fps", 30)
 
-	dpi := viper.GetFloat64("dpi")
-	fonts, err := crt.LoadFaces("./assets/fonts/"+viper.GetString("font_normal"), "./assets/fonts/"+viper.GetString("font_bold"), "./assets/fonts/"+viper.GetString("font_italic"), 72*dpi, viper.GetFloat64("font_size")/dpi)
+	settings.SetSettings(vi)
+
+	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
+	initSystems(settings.GetBool("audio"))
+
+	dpi := settings.GetFloat("dpi")
+	fonts, err := crt.LoadFaces("./assets/fonts/"+settings.GetString("font_normal"), "./assets/fonts/"+settings.GetString("font_bold"), "./assets/fonts/"+settings.GetString("font_italic"), 72*dpi, settings.GetFloat("font_size")/dpi)
 	if err != nil {
 		panic(err)
 	}
 
 	uiSettings := []uiset.Value{
-		{Key: "audio", Name: "Audio", Description: "Enable or disable audio", Type: uiset.Bool, Val: viper.GetBool("audio"), Min: nil, Max: nil},
-		{Key: "volume", Name: "Volume", Description: "Change the volume", Type: uiset.Float, Val: settings.LoadedSettings.Volume, Min: 0.0, Max: 1.0},
-		{Key: "font_size", Name: "Font Size", Description: "Change the font size", Type: uiset.Float, Val: viper.GetFloat64("font_size"), Min: 6.0, Max: 64.0},
-		{Key: "dpi", Name: "DPI", Description: "Change the DPI", Type: uiset.Float, Val: viper.GetFloat64("dpi"), Min: 1.0, Max: 5.0},
-		{Key: "width", Name: "Width", Description: "Change the window width", Type: uiset.Float, Val: viper.GetFloat64("width"), Min: 450.0, Max: 5000.0},
-		{Key: "height", Name: "Height", Description: "Change the window height", Type: uiset.Float, Val: viper.GetFloat64("height"), Min: 450.0, Max: 5000.0},
-		{Key: "crt", Name: "CRT", Description: "Enable or disable CRT shader", Type: uiset.Bool, Val: viper.GetBool("crt"), Min: nil, Max: nil},
-		{Key: "show_fps", Name: "Show FPS", Description: "Show the current FPS", Type: uiset.Bool, Val: viper.GetBool("show_fps"), Min: nil, Max: nil},
-		{Key: "fps", Name: "FPS", Description: "Change the FPS", Type: uiset.Float, Val: viper.GetFloat64("fps"), Min: 10.0, Max: 144.0},
-		{Key: "font_normal", Name: "Normal Font", Description: "Change the normal font", Type: uiset.String, Val: viper.GetString("font_normal"), Min: nil, Max: nil},
-		{Key: "font_bold", Name: "Bold Font", Description: "Change the bold font", Type: uiset.String, Val: viper.GetString("font_bold"), Min: nil, Max: nil},
-		{Key: "font_italic", Name: "Italic Font", Description: "Change the italic font", Type: uiset.String, Val: viper.GetString("font_italic"), Min: nil, Max: nil},
+		{Key: "audio", Name: "Audio", Description: "Enable or disable audio", Type: uiset.Bool, Val: settings.GetBool("audio"), Min: nil, Max: nil},
+		{Key: "volume", Name: "Volume", Description: "Change the volume", Type: uiset.Float, Val: settings.GetFloat("volume"), Min: 0.0, Max: 2.0},
+		{Key: "font_size", Name: "Font Size", Description: "Change the font size", Type: uiset.Float, Val: settings.GetFloat("font_size"), Min: 6.0, Max: 64.0},
+		{Key: "dpi", Name: "DPI", Description: "Change the DPI", Type: uiset.Float, Val: settings.GetFloat("dpi"), Min: 1.0, Max: 5.0},
+		{Key: "width", Name: "Width", Description: "Change the window width", Type: uiset.Float, Val: settings.GetFloat("width"), Min: 450.0, Max: 5000.0},
+		{Key: "height", Name: "Height", Description: "Change the window height", Type: uiset.Float, Val: settings.GetFloat("height"), Min: 450.0, Max: 5000.0},
+		{Key: "crt", Name: "CRT", Description: "Enable or disable CRT shader", Type: uiset.Bool, Val: settings.GetBool("crt"), Min: nil, Max: nil},
+		{Key: "show_fps", Name: "Show FPS", Description: "Show the current FPS", Type: uiset.Bool, Val: settings.GetBool("show_fps"), Min: nil, Max: nil},
+		{Key: "fps", Name: "FPS", Description: "Change the FPS", Type: uiset.Float, Val: settings.GetFloat("fps"), Min: 10.0, Max: 144.0},
+		{Key: "font_normal", Name: "Normal Font", Description: "Change the normal font", Type: uiset.String, Val: settings.GetString("font_normal"), Min: nil, Max: nil},
+		{Key: "font_bold", Name: "Bold Font", Description: "Change the bold font", Type: uiset.String, Val: settings.GetString("font_bold"), Min: nil, Max: nil},
+		{Key: "font_italic", Name: "Italic Font", Description: "Change the italic font", Type: uiset.String, Val: settings.GetString("font_italic"), Min: nil, Max: nil},
 	}
 
+	// Create base model
 	var baseModel tea.Model
 	zones := zone.New()
-	baseModel = root.New(zones, mainmenu.NewModel(zones, uiSettings, settingsSaver{}))
-	win, _, err := teadapter.Window(viper.GetInt("width"), viper.GetInt("height"), fonts, baseModel, color.RGBA{
-		R: 34,
-		G: 36,
-		B: 41,
-		A: 255,
-	}, tea.WithAltScreen())
+	baseModel = root.New(zones, mainmenu.NewModel(zones, uiSettings, func(values []uiset.Value) error {
+		for i := range values {
+			settings.Set(values[i].Key, values[i].Val)
+		}
+		return settings.SaveSettings()
+	}))
+
+	// Create window
+	win, _, err := teadapter.Window(settings.GetInt("width"), settings.GetInt("height"), fonts, baseModel, color.RGBA{R: 34, G: 36, B: 41, A: 255}, tea.WithAltScreen())
 	if err != nil {
 		panic(err)
 	}
 
-	if viper.GetBool("crt") {
+	// Enable crt shader
+	if settings.GetBool("crt") {
 		res, _ := os.ReadFile("./assets/shader/grain.go")
 		grain, err := ebiten.NewShader(res)
 
@@ -187,8 +170,9 @@ func main() {
 		win.SetShader(crtLotte, s)
 	}
 
-	win.ShowTPS(viper.GetBool("show_fps"))
-	ebiten.SetTPS(viper.GetInt("fps"))
+	// Run game
+	win.ShowTPS(settings.GetBool("show_fps"))
+	ebiten.SetTPS(settings.GetInt("fps"))
 	if err := win.Run("End Of Eden"); err != nil {
 		panic(err)
 	}
