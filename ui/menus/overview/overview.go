@@ -257,10 +257,17 @@ func (m MenuModel) View() string {
 
 	switch m.choices[m.list.Index()].(choiceItem).key {
 	case ChoiceCharacter:
+		player := m.Session.GetPlayer()
+
+		status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Status Effects:") + "\n\n" + strings.Join(lo.Map(player.StatusEffects.ToSlice(), func(guid string, index int) string {
+			return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
+		}), "\n\n")
+
 		contentBox = contentStyle.Render(
 			lipgloss.JoinVertical(
 				lipgloss.Top,
 				style.HeaderStyle.Render("Character"),
+				lipgloss.NewStyle().Margin(0, 0, 0, 2).Render(status),
 			))
 	case ChoiceLogs:
 		contentBox = contentStyle.Render(lipgloss.JoinVertical(

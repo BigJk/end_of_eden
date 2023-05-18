@@ -20,10 +20,10 @@ import (
 )
 
 const (
-	ZoneCard        = "card_"
-	ZoneEnemy       = "enemy_"
-	ZoneEventChoice = "event_choice_"
-	ZoneEndTurn     = "end_turn"
+	ZoneCard          = "card_"
+	ZoneEnemy         = "enemy_"
+	ZoneEndTurn       = "end_turn"
+	ZonePlayerInspect = "player_inspect"
 )
 
 type Model struct {
@@ -35,6 +35,7 @@ type Model struct {
 	selectedOpponent    int
 	inOpponentSelection bool
 	inEnemyView         bool
+	inPlayerView        bool
 	animations          []tea.Model
 	ctrlDown            bool
 
@@ -94,9 +95,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, root.TooltipClear())
 
 				// Switch to menu
-				if m.inOpponentSelection || m.inEnemyView {
+				if m.inOpponentSelection || m.inEnemyView || m.inPlayerView {
 					m.inOpponentSelection = false
 					m.inEnemyView = false
+					m.inPlayerView = false
 				} else {
 					return overview.New(m, m.zones, m.Session), tea.Batch(cmds...)
 				}
@@ -156,6 +158,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case game.GameStateFight:
 					if m.zones.Get(ZoneEndTurn).InBounds(msg) {
 						m = m.finishTurn()
+					} else if m.zones.Get(ZonePlayerInspect).InBounds(msg) {
+						m.inPlayerView = true
 					}
 				}
 			}
@@ -269,6 +273,15 @@ func (m Model) View() string {
 				lipgloss.Top,
 				m.fightStatusTop(),
 				m.fightEnemyInspectView(),
+				m.fightStatusBottom(),
+			)
+		}
+
+		if m.inPlayerView {
+			return lipgloss.JoinVertical(
+				lipgloss.Top,
+				m.fightStatusTop(),
+				m.playerInspectView(),
 				m.fightStatusBottom(),
 			)
 		}
@@ -415,7 +428,7 @@ func (m Model) fightStatusBottom() string {
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Used: %d", len(fight.Used))),
 			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Exhausted: %d", len(fight.Exhausted))),
 			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Action Points: %d", fight.CurrentPoints)),
-			components.StatusEffects(m.Session, m.Session.GetPlayer()),
+			m.zones.Mark(ZonePlayerInspect, components.StatusEffects(m.Session, m.Session.GetPlayer())),
 		),
 		),
 		lipgloss.Place(40, 3, lipgloss.Right, lipgloss.Center, lipgloss.JoinHorizontal(
@@ -462,7 +475,26 @@ func (m Model) fightEnemyInspectView() string {
 		lipgloss.NewStyle().Border(lipgloss.ThickBorder(), true).Padding(1, 2).BorderForeground(style.BaseRedDarker).Render(
 			lipgloss.JoinHorizontal(lipgloss.Top,
 				lipgloss.NewStyle().Border(lipgloss.NormalBorder(), false, true, false, false).BorderForeground(style.BaseGrayDarker).Padding(0, 2, 2, 0).Render(components.Actor(m.Session, enemy, m.Session.GetEnemy(enemy.TypeID), true, true, false)),
-				lipgloss.NewStyle().Margin(0, 0, 0, 3).Width(30).Render(intend+status),
+				lipgloss.NewStyle().Margin(0, 0, 0, 3).Width(30).Render(intend+status+"\n\n"+style.GrayText.Render("press 'esc' to close")),
+			),
+		),
+		lipgloss.WithWhitespaceChars("?"), lipgloss.WithWhitespaceForeground(style.BaseGrayDarker),
+	)
+}
+
+func (m Model) playerInspectView() string {
+	player := m.Session.GetPlayer()
+
+	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Status Effects:") + "\n\n" + strings.Join(lo.Map(player.StatusEffects.ToSlice(), func(guid string, index int) string {
+		return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
+	}), "\n\n")
+
+	return lipgloss.Place(m.Size.Width, m.fightEnemyViewHeight()+m.fightCardViewHeight()+1, lipgloss.Center, lipgloss.Center,
+		lipgloss.NewStyle().Border(lipgloss.ThickBorder(), true).Padding(1, 2).BorderForeground(style.BaseRedDarker).Render(
+			lipgloss.JoinHorizontal(lipgloss.Top,
+				lipgloss.NewStyle().Margin(0, 0, 0, 3).Width(30).Render(
+					lipgloss.NewStyle().Foreground(style.BaseWhite).Bold(true).Underline(true).Render("Player Status")+"\n\n"+status+"\n\n"+style.GrayText.Render("press 'esc' to close"),
+				),
 			),
 		),
 		lipgloss.WithWhitespaceChars("?"), lipgloss.WithWhitespaceForeground(style.BaseGrayDarker),
