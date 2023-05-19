@@ -19,6 +19,7 @@ jobs:
           project_path: "./cmd/game"
           binary_name: "end_of_eden_term"
           extra_files: "./assets/"
+          ldflags: "-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'"
           goos: linux
           goarch: amd64
   release-linux-gl-amd64:
@@ -37,6 +38,7 @@ jobs:
           project_path: "./cmd/game_win"
           binary_name: "end_of_eden_gl"
           extra_files: "./assets/"
+          ldflags: "-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'"
           goos: linux
           goarch: amd64
   release-windows-term-amd64:
@@ -52,6 +54,7 @@ jobs:
           project_path: "./cmd/game"
           binary_name: "end_of_eden_term"
           extra_files: "./assets/"
+          ldflags: "-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'"
           goos: windows
           goarch: amd64
   release-windows-gl-amd64:
@@ -67,6 +70,7 @@ jobs:
           project_path: "./cmd/game_win"
           binary_name: "end_of_eden_gl"
           extra_files: "./assets/"
+          ldflags: "-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'"
           goos: windows
           goarch: amd64
   release-macos-term-amd64:
@@ -82,7 +86,7 @@ jobs:
           go-version: '^1.20'
       - name: Build
         run: |
-             go build -o end_of_eden ./cmd/game
+             go build -ldflags="-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'" -o end_of_eden ./cmd/game
              export BIN=end_of_eden_term-$(basename ${GITHUB_REF})-macos-amd64
              mkdir $BIN
              cp ./end_of_eden $BIN/end_of_eden
@@ -110,7 +114,7 @@ jobs:
           go-version: '^1.20'
       - name: Build
         run: |
-          go build -o end_of_eden ./cmd/game_win
+          go build -ldflags="-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'" -o end_of_eden ./cmd/game_win
           export BIN=end_of_eden_gl-$(basename ${GITHUB_REF})-macos-amd64
           mkdir $BIN
           cp ./end_of_eden $BIN/end_of_eden
