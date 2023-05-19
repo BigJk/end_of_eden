@@ -179,7 +179,7 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 - Run without building binary: ``go run ./cmd/game/``
 - **Important:** The games working directory needs to be where the ``./assets`` folder is available!
 
-# Versioning
+## Versioning
 
 The game uses versioning similar to [Semantic Versioning](https://semver.org/) to define the version number. This is also in accordance with the [Go Modules](https://go.dev/doc/modules/version-numbers) versioning scheme.
 
