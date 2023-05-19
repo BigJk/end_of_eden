@@ -94,7 +94,7 @@ jobs:
              zip -r $BIN.zip $BIN
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref_name, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: end_of_eden_term-${{ github.ref_name_name }}-macos-amd64.zip
   release-macos-gl-amd64:
@@ -122,6 +122,6 @@ jobs:
           zip -r $BIN.zip $BIN
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref_name, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: end_of_eden_gl-${{ github.ref_name_name }}-macos-amd64.zip
