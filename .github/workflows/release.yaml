@@ -95,7 +95,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: end_of_eden_term-${{ github.ref_name_name }}-macos-amd64.zip
+          files: end_of_eden_term-${{ github.ref_name }}-macos-amd64.zip
   release-macos-gl-amd64:
     permissions: write-all
     name: release macos/amd64 gl
@@ -122,4 +122,4 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: end_of_eden_gl-${{ github.ref_name_name }}-macos-amd64.zip
+          files: end_of_eden_gl-${{ github.ref_name }}-macos-amd64.zip
