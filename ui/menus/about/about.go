@@ -1,7 +1,9 @@
 package about
 
 import (
+	"fmt"
 	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/git"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/BigJk/end_of_eden/util"
@@ -53,7 +55,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	title := style.TitleStyle.Render(ui.Title)
 
-	version := versionStyle.Render("Version: 0.0.1 alpha")
+	version := versionStyle.Render(fmt.Sprintf("Version: %s (%s)", git.Tag, git.CommitHash))
 	about := aboutStyle.Height(lipgloss.Height(ui.About)).Width(util.Min(m.Size.Width, 65)).Render(ui.About)
 	back := m.zones.Mark("back", style.HeaderStyle.Render("Back"))
 
