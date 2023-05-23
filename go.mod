@@ -6,7 +6,7 @@ replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/b
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
-	github.com/BigJk/crt v0.0.7
+	github.com/BigJk/crt v0.0.8
 	github.com/BigJk/imeji v0.0.2
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.15.0
@@ -31,14 +31,13 @@ require (
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.1
 	github.com/olahol/melody v1.1.3
-	github.com/pelletier/go-toml/v2 v2.0.6
 	github.com/samber/lo v1.38.1
 	github.com/sanity-io/litter v1.5.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.2
 	github.com/yuin/gopher-lua v1.1.0
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
-	golang.org/x/sys v0.7.0
+	golang.org/x/sys v0.8.0
 	oss.terrastruct.com/d2 v0.4.1
 )
 
@@ -84,6 +83,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
