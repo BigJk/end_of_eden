@@ -66,7 +66,7 @@ func main() {
 
 	vi.SetDefault("audio", true)
 	vi.SetDefault("volume", 1)
-	vi.SetDefault("font_size", 13)
+	vi.SetDefault("font_size", 12)
 	vi.SetDefault("font_normal", "IosevkaTermNerdFontMono-Regular.ttf")
 	vi.SetDefault("font_italic", "IosevkaTermNerdFontMono-Italic.ttf")
 	vi.SetDefault("font_bold", "IosevkaTermNerdFontMono-Bold.ttf")
@@ -74,6 +74,7 @@ func main() {
 	vi.SetDefault("width", 1100)
 	vi.SetDefault("height", 900)
 	vi.SetDefault("crt", false)
+	vi.SetDefault("grain", false)
 	vi.SetDefault("show_fps", false)
 	vi.SetDefault("fps", 30)
 
@@ -95,7 +96,8 @@ func main() {
 		{Key: "dpi", Name: "DPI", Description: "Change the DPI", Type: uiset.Float, Val: settings.GetFloat("dpi"), Min: 1.0, Max: 5.0},
 		{Key: "width", Name: "Width", Description: "Change the window width", Type: uiset.Float, Val: settings.GetFloat("width"), Min: 450.0, Max: 5000.0},
 		{Key: "height", Name: "Height", Description: "Change the window height", Type: uiset.Float, Val: settings.GetFloat("height"), Min: 450.0, Max: 5000.0},
-		{Key: "crt", Name: "CRT", Description: "Enable or disable CRT shader", Type: uiset.Bool, Val: settings.GetBool("crt"), Min: nil, Max: nil},
+		{Key: "crt", Name: "CRT", Description: "Enable or disable CRT shader. Increases GPU usage.", Type: uiset.Bool, Val: settings.GetBool("crt"), Min: nil, Max: nil},
+		{Key: "grain", Name: "Grain", Description: "Enable or disable grain shader. Matches well with the CRT shader. Increases GPU usage.", Type: uiset.Bool, Val: settings.GetBool("grain"), Min: nil, Max: nil},
 		{Key: "show_fps", Name: "Show FPS", Description: "Show the current FPS", Type: uiset.Bool, Val: settings.GetBool("show_fps"), Min: nil, Max: nil},
 		{Key: "fps", Name: "FPS", Description: "Change the FPS", Type: uiset.Float, Val: settings.GetFloat("fps"), Min: 10.0, Max: 144.0},
 		{Key: "font_normal", Name: "Normal Font", Description: "Change the normal font", Type: uiset.String, Val: settings.GetString("font_normal"), Min: nil, Max: nil},
@@ -119,15 +121,10 @@ func main() {
 		panic(err)
 	}
 
-	// Enable crt shader
+	var loadedShader []shader.Shader
+
+	// Setup CRT shader
 	if settings.GetBool("crt") {
-		res, _ := os.ReadFile("./assets/shader/grain.go")
-		grain, err := ebiten.NewShader(res)
-
-		if err != nil {
-			panic(err)
-		}
-
 		crtLotte, err := shader.NewCrtLotte()
 		if err != nil {
 			panic(err)
@@ -135,6 +132,33 @@ func main() {
 
 		crtLotte.Uniforms["WarpX"] = float32(0)
 		crtLotte.Uniforms["WarpY"] = float32(0)
+
+		// TODO: This is a bad hack to get the shader to change its state!
+		go func() {
+			warp := 0.0
+			for {
+				time.Sleep(time.Millisecond * 50)
+				warp += 0.005
+				win.Lock()
+				{
+					crtLotte.Uniforms["WarpX"] = float32(math.Abs(math.Sin(warp)*0.01) * 0.5)
+					crtLotte.Uniforms["WarpY"] = float32(math.Abs(math.Sin(warp)*0.01) * 0.5)
+				}
+				win.Unlock()
+			}
+		}()
+
+		loadedShader = append(loadedShader, crtLotte)
+	}
+
+	// Setup grain shader
+	if settings.GetBool("grain") {
+		res, _ := os.ReadFile("./assets/shader/grain.go")
+		grain, err := ebiten.NewShader(res)
+
+		if err != nil {
+			panic(err)
+		}
 
 		w, h := win.Layout(0, 0)
 		s := &shader.BaseShader{
@@ -149,24 +173,22 @@ func main() {
 		// TODO: This is a bad hack to get the shader to change its state!
 		go func() {
 			cur := float32(0)
-			warp := 0.0
 			for {
 				time.Sleep(time.Millisecond * 50)
-
 				cur += 1
-				warp += 0.005
-
 				win.Lock()
 				{
 					s.Uniforms["Tick"] = cur
-					crtLotte.Uniforms["WarpX"] = float32(math.Abs(math.Sin(warp)*0.01) * 0.5)
-					crtLotte.Uniforms["WarpY"] = float32(math.Abs(math.Sin(warp)*0.01) * 0.5)
 				}
 				win.Unlock()
 			}
 		}()
 
-		win.SetShader(crtLotte, s)
+		loadedShader = append(loadedShader, s)
+	}
+
+	if len(loadedShader) > 0 {
+		win.SetShader(loadedShader...)
 	}
 
 	// Run game
