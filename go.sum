@@ -47,8 +47,8 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 git.sr.ht/~sbinet/gg v0.3.1 h1:LNhjNn8DerC8f9DHLz6lS0YYul/b602DUxDgGkd/Aik=
 github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 h1:L/gRVlceqvL25UVaW/CKtUDjefjrs0SPonmDGUVOYP0=
 github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
-github.com/BigJk/crt v0.0.8 h1:Sfoqx/hLBUWqsHAqLwmCGn4x8RQPpYL7nYpXW4LKG40=
-github.com/BigJk/crt v0.0.8/go.mod h1:RqZ9qPoYZgrprf78nYON4RpbZLMbmm+A4g8EF908qGo=
+github.com/BigJk/crt v0.0.9 h1:0miNK2DwLFrIGlZ/IbtJw80wUvcmbFC2HXJHnRNb6Q0=
+github.com/BigJk/crt v0.0.9/go.mod h1:RqZ9qPoYZgrprf78nYON4RpbZLMbmm+A4g8EF908qGo=
 github.com/BigJk/imeji v0.0.2 h1:h4cKLWkVzs+IVs/27DFTYGsGuA1OqQxrYDNtvlojypU=
 github.com/BigJk/imeji v0.0.2/go.mod h1:TPCNIXiEsYvZmMFIoRE0RLz9ko4+0nkRvcc5HXtsLaU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=

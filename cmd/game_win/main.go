@@ -70,7 +70,6 @@ func main() {
 	vi.SetDefault("font_normal", "IosevkaTermNerdFontMono-Regular.ttf")
 	vi.SetDefault("font_italic", "IosevkaTermNerdFontMono-Italic.ttf")
 	vi.SetDefault("font_bold", "IosevkaTermNerdFontMono-Bold.ttf")
-	vi.SetDefault("dpi", 1)
 	vi.SetDefault("width", 1100)
 	vi.SetDefault("height", 900)
 	vi.SetDefault("crt", false)
@@ -83,8 +82,7 @@ func main() {
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
 	initSystems(settings.GetBool("audio"))
 
-	dpi := settings.GetFloat("dpi")
-	fonts, err := crt.LoadFaces("./assets/fonts/"+settings.GetString("font_normal"), "./assets/fonts/"+settings.GetString("font_bold"), "./assets/fonts/"+settings.GetString("font_italic"), 72*dpi, settings.GetFloat("font_size")/dpi)
+	fonts, err := crt.LoadFaces("./assets/fonts/"+settings.GetString("font_normal"), "./assets/fonts/"+settings.GetString("font_bold"), "./assets/fonts/"+settings.GetString("font_italic"), crt.GetFontDPI(), settings.GetFloat("font_size"))
 	if err != nil {
 		panic(err)
 	}
@@ -93,7 +91,6 @@ func main() {
 		{Key: "audio", Name: "Audio", Description: "Enable or disable audio", Type: uiset.Bool, Val: settings.GetBool("audio"), Min: nil, Max: nil},
 		{Key: "volume", Name: "Volume", Description: "Change the volume", Type: uiset.Float, Val: settings.GetFloat("volume"), Min: 0.0, Max: 2.0},
 		{Key: "font_size", Name: "Font Size", Description: "Change the font size", Type: uiset.Float, Val: settings.GetFloat("font_size"), Min: 6.0, Max: 64.0},
-		{Key: "dpi", Name: "DPI", Description: "Change the DPI", Type: uiset.Float, Val: settings.GetFloat("dpi"), Min: 1.0, Max: 5.0},
 		{Key: "width", Name: "Width", Description: "Change the window width", Type: uiset.Float, Val: settings.GetFloat("width"), Min: 450.0, Max: 5000.0},
 		{Key: "height", Name: "Height", Description: "Change the window height", Type: uiset.Float, Val: settings.GetFloat("height"), Min: 450.0, Max: 5000.0},
 		{Key: "crt", Name: "CRT", Description: "Enable or disable CRT shader. Increases GPU usage.", Type: uiset.Bool, Val: settings.GetBool("crt"), Min: nil, Max: nil},
@@ -160,7 +157,7 @@ func main() {
 			panic(err)
 		}
 
-		w, h := win.Layout(0, 0)
+		w, h := win.Layout(ebiten.WindowSize())
 		s := &shader.BaseShader{
 			Shader: grain,
 			Uniforms: map[string]any{
