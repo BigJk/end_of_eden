@@ -1,0 +1,20 @@
+{
+  "name": "eoe_hub",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "preview": "vite preview"
+  },
+  "author": "BigJk",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^2.8.8",
+    "vite": "^4.3.8",
+    "xterm": "^5.1.0",
+    "xterm-addon-fit": "^0.7.0"
+  }
+}

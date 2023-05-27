@@ -1,0 +1,9 @@
+{
+  "printWidth": 150,
+  "useTabs": true,
+  "jsxSingleQuote": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}
