@@ -1,6 +1,10 @@
 package game
 
 import (
+	"io/fs"
+	"path/filepath"
+	"strings"
+
 	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/gen/faces"
 	"github.com/BigJk/end_of_eden/lua/ludoc"
@@ -9,9 +13,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
-	"io/fs"
-	"path/filepath"
-	"strings"
 )
 
 // SessionAdapter creates a lua vm that is bound to the session in the given Session.
@@ -87,7 +88,7 @@ fun = require "fun"
 		return 1
 	}))
 
-	d.Function("store", "Stores a persistent value for this run that will be restored after a save load. Can store any lua basic value or table.", "", "key : String")
+	d.Function("store", "Stores a persistent value for this run that will be restored after a save load. Can store any lua basic value or table.", "", "key : String", "value : Any")
 	l.SetGlobal("store", l.NewFunction(func(state *lua.LState) int {
 		session.Store(state.ToString(1), mapper.ToGoValue(state.Get(2)))
 		return 0
