@@ -114,7 +114,7 @@ Stores a persistent value for this run that will be restored after a save load. 
 **Signature:**
 
 ```
-store(key : String) -> None
+store(key : String, value : Any) -> None
 ```
 
 </details>
