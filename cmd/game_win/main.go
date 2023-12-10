@@ -20,6 +20,8 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"image/color"
 	"math"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"time"
 )
@@ -60,6 +62,13 @@ func initSystems(hasAudio bool) {
 }
 
 func main() {
+	// Start profiling server
+	if env := os.Getenv("EOE_PROFILE"); env != "" {
+		go func() {
+			http.ListenAndServe(":8080", nil)
+		}()
+	}
+
 	vi := viper.Viper{
 		SettingsName: "settings_gl",
 	}
