@@ -6,6 +6,6 @@ import (
 
 type StoryTeller struct {
 	ID     string
-	Active luhelp.OwnedCallback
-	Decide luhelp.OwnedCallback
+	Active luhelp.OwnedCallback `json:"-"`
+	Decide luhelp.OwnedCallback `json:"-"`
 }

@@ -15,7 +15,7 @@ type Artifact struct {
 	Description string
 	Order       int
 	Price       int
-	Callbacks   map[string]luhelp.OwnedCallback
+	Callbacks   map[string]luhelp.OwnedCallback `json:"-"`
 }
 
 type ArtifactInstance struct {

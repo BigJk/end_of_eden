@@ -7,3 +7,4 @@ samples/
 settings.json
 mods/example_mod_*
 *.toml
+node_modules/

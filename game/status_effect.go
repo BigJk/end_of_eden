@@ -21,14 +21,14 @@ type StatusEffect struct {
 	ID          string
 	Name        string
 	Description string
-	State       luhelp.OwnedCallback
+	State       luhelp.OwnedCallback `json:"-"`
 	Look        string
 	Foreground  string
 	Order       int
 	CanStack    bool
 	Decay       DecayBehaviour
 	Rounds      int
-	Callbacks   map[string]luhelp.OwnedCallback
+	Callbacks   map[string]luhelp.OwnedCallback `json:"-"`
 }
 
 type StatusEffectInstance struct {
