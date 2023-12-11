@@ -37,6 +37,7 @@ jobs:
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev gcc libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev"
           project_path: "./cmd/game_win"
           binary_name: "end_of_eden_gl"
+          build_flags: "-tags ebitenginesinglethread"
           extra_files: "./assets/"
           ldflags: "-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'"
           goos: linux
@@ -53,6 +54,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           project_path: "./cmd/game"
           binary_name: "end_of_eden_term"
+          build_flags: "-tags ebitenginesinglethread"
           extra_files: "./assets/"
           ldflags: "-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'"
           goos: windows
@@ -86,7 +88,7 @@ jobs:
           go-version: '^1.20'
       - name: Build
         run: |
-             go build -ldflags="-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'" -o end_of_eden ./cmd/game
+             go build -ldflags="-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'" -o end_of_eden -tags ebitenginesinglethread ./cmd/game
              export BIN=end_of_eden_term-$(basename ${GITHUB_REF})-macos-amd64
              mkdir $BIN
              cp ./end_of_eden $BIN/end_of_eden
@@ -113,7 +115,7 @@ jobs:
           go-version: '^1.20'
       - name: Build
         run: |
-          go build -ldflags="-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'" -o end_of_eden ./cmd/game_win
+          go build -ldflags="-X 'github.com/BigJk/end_of_eden/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/git.CommitHash=${{ github.sha }}'" -o end_of_eden -tags ebitenginesinglethread ./cmd/game_win
           export BIN=end_of_eden_gl-$(basename ${GITHUB_REF})-macos-amd64
           mkdir $BIN
           cp ./end_of_eden $BIN/end_of_eden
