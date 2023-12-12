@@ -355,13 +355,7 @@ fun = require "fun"
 		session.RemoveArtifact(state.ToString(1))
 		return 0
 	}))
-
-	d.Function("get_random_artifact_type", "Returns a random type id given a max gold price.", "", "maxGold : Number")
-	l.SetGlobal("get_random_artifact_type", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString(session.GetRandomArtifactType(int(state.ToNumber(1)))))
-		return 1
-	}))
-
+	
 	d.Function("get_artifact", "Returns the artifact definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.", "Table", "id : String")
 	l.SetGlobal("get_artifact", l.NewFunction(func(state *lua.LState) int {
 		art, _ := session.GetArtifact(state.ToString(1))

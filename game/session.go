@@ -104,6 +104,7 @@ type Session struct {
 	currentFight  FightState
 	merchant      MerchantState
 	eventHistory  []string
+	randomHistory []string
 	ctxData       map[string]any
 
 	loadedMods       []string
@@ -732,14 +733,32 @@ func (s *Session) GetMerchantGoldMax() int {
 	return 150 + s.stagesCleared*30
 }
 
+func (s *Session) PushRandomHistory(id string) {
+	s.randomHistory = append([]string{id}, s.randomHistory...)
+	if len(s.randomHistory) > 10 {
+		s.randomHistory = s.randomHistory[:10]
+	}
+}
+
 // GetRandomArtifact returns the type id of a random artifact with a price lower than the given value.
 func (s *Session) GetRandomArtifact(maxGold int) string {
 	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
 		return item.Price >= 0 && item.Price < maxGold
 	})
 
+	possibleNoDupes := lo.Filter(possible, func(item *Artifact, index int) bool {
+		return !lo.Contains(s.randomHistory, item.ID)
+	})
+
 	if len(possible) > 0 {
-		return lo.Shuffle(possible)[0].ID
+		var chosen string
+		if len(possibleNoDupes) > 0 {
+			chosen = lo.Shuffle(possibleNoDupes)[0].ID
+		} else {
+			chosen = lo.Shuffle(possible)[0].ID
+		}
+		s.PushRandomHistory(chosen)
+		return chosen
 	}
 
 	return ""
@@ -751,8 +770,19 @@ func (s *Session) GetRandomCard(maxGold int) string {
 		return item.Price >= 0 && item.Price < maxGold
 	})
 
+	possibleNoDupes := lo.Filter(possible, func(item *Card, index int) bool {
+		return !lo.Contains(s.randomHistory, item.ID)
+	})
+
 	if len(possible) > 0 {
-		return lo.Shuffle(possible)[0].ID
+		var chosen string
+		if len(possibleNoDupes) > 0 {
+			chosen = lo.Shuffle(possibleNoDupes)[0].ID
+		} else {
+			chosen = lo.Shuffle(possible)[0].ID
+		}
+		s.PushRandomHistory(chosen)
+		return chosen
 	}
 
 	return ""
@@ -1177,17 +1207,6 @@ func (s *Session) GetArtifactOrder(guid string) int {
 		}
 	}
 	return 0
-}
-
-// GetRandomArtifactType returns a random artifact type with a given max price.
-func (s *Session) GetRandomArtifactType(maxPrice int) string {
-	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
-		return item.Price < maxPrice
-	})
-	if len(possible) == 0 {
-		return ""
-	}
-	return lo.Shuffle(possible)[0].ID
 }
 
 // GetArtifacts returns all artifacts owned by a actor.
