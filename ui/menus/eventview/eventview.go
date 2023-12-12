@@ -17,6 +17,7 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/samber/lo"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -235,7 +236,12 @@ func (m Model) eventFooterView() string {
 		return ""
 	}
 
-	info := infoStyle.Render(fmt.Sprintf("%3.f%%", m.viewport.ScrollPercent()*100))
+	perc := m.viewport.ScrollPercent() * 100
+	if perc == math.NaN() {
+		perc = 0
+	}
+
+	info := infoStyle.Render(fmt.Sprintf("%3.f%%", perc))
 	line := style.GrayTextDarker.Render(strings.Repeat("━", util.Max(0, m.viewport.Width-lipgloss.Width(info))))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
