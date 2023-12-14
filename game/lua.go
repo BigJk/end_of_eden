@@ -277,7 +277,7 @@ fun = require "fun"
 			session.logLuaError("had_events_any", "", err)
 			return 0
 		} else {
-			state.Push(luhelp.ToLua(state, session.HadEvents(ids)))
+			state.Push(luhelp.ToLua(state, session.HadEventsAny(ids)))
 		}
 		return 1
 	}))
@@ -355,7 +355,7 @@ fun = require "fun"
 		session.RemoveArtifact(state.ToString(1))
 		return 0
 	}))
-	
+
 	d.Function("get_artifact", "Returns the artifact definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.", "Table", "id : String")
 	l.SetGlobal("get_artifact", l.NewFunction(func(state *lua.LState) int {
 		art, _ := session.GetArtifact(state.ToString(1))
