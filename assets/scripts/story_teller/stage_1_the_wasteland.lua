@@ -1,6 +1,6 @@
 stage_1_the_wasteland = { fights = { { "SAND_STALKER" }, { "SAND_STALKER", "SAND_STALKER" } } }
 
-register_story_teller("STAGE_1", {
+register_story_teller("STAGE_1_THE_WASTELAND", {
     active = function(ctx)
         if had_event("THE_WASTELAND") then
             return 1

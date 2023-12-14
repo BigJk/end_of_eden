@@ -1,6 +1,6 @@
 stage_1_the_core = { fights = { { "RUST_MITE", "RUST_MITE", "RUST_MITE" }, { "CLEAN_BOT", "CLEAN_BOT" } } }
 
-register_story_teller("STAGE_1", {
+register_story_teller("STAGE_1_THE_CORE", {
     active = function(ctx)
         if had_event("THE_CORE") then
             return 1

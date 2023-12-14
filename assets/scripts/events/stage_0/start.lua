@@ -17,7 +17,7 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
             callback = function()
                 -- Try to escape
                 if math.random() < 0.5 then
-                    set_event("FIRST_OUTSIDE")
+                    set_event(stage_1_init_events[math.random(#stage_1_init_events)])
                     return GAME_STATE_EVENT
                 end
 

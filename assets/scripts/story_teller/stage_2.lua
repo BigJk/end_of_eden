@@ -12,6 +12,8 @@ register_story_teller("STAGE_2", {
             -- BOSS
         end
 
+        add_actor_by_enemy("DUMMY")
+
         return GAME_STATE_FIGHT
     end
 })

@@ -2,7 +2,7 @@ stage_1_bio_kingdom = {
     fights = { { "RUST_MITE", "RUST_MITE", "RUST_MITE" }, { "SHADOW_ASSASSIN", "SHADOW_ASSASSIN" }, { "SHADOW_ASSASSIN" } }
 }
 
-register_story_teller("STAGE_1", {
+register_story_teller("STAGE_1_BIO_KINGDOM", {
     active = function(ctx)
         if had_event("BIO_KINGDOM") then
             return 1
