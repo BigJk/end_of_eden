@@ -174,9 +174,18 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 
 ## Building
 
+### Automatic
+
+You can also use the ``./build.sh`` script to build all the binaries. The script will create a ``bin`` folder and put all the binaries and assets in there. If go is not installed on your system, the script will prompt to automatically fetch and run go via [pkgx](https://pkgx.dev/). pkgx is a tool to run go binaries without *installing* go on your system and will be installed automatically if needed.
+
+### Manual
+
 - You need golang ``>= 1.20`` installed
-- Build binary: ``go build -o end_of_eden ./cmd/game/``
-- Run without building binary: ``go run ./cmd/game/``
+- Build binary:
+  - ``go build -o end_of_eden ./cmd/game/`` (terminal version)
+  - ``go build -o end_of_eden ./cmd/game_win/`` (gl version)
+- Now a ``end_of_eden(.exe)`` binary should be available in your current directory
+- To run without building binaries use ``run`` instead of ``build`` (e.g. ``go run ./cmd/game/``)
 - **Important:** The games working directory needs to be where the ``./assets`` folder is available!
 
 ## Versioning
