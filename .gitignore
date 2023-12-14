@@ -2,9 +2,14 @@
 debug.log
 logs/
 .ssh/
+bin/
 samples/
 *.save
-settings.json
+settings_*.json
+session.save
 mods/example_mod_*
 *.toml
 node_modules/
+cpu*
+heap*
+profile*
