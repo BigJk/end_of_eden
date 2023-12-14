@@ -1,11 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/BigJk/crt"
 	teadapter "github.com/BigJk/crt/bubbletea"
 	"github.com/BigJk/crt/shader"
 	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/cmd/testargs"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
 	"github.com/BigJk/end_of_eden/settings"
@@ -62,6 +64,9 @@ func initSystems(hasAudio bool) {
 }
 
 func main() {
+	testArgs := testargs.New()
+	flag.Parse()
+
 	// Start profiling server
 	if env := os.Getenv("EOE_PROFILE"); env != "" {
 		go func() {
@@ -120,6 +125,9 @@ func main() {
 		}
 		return settings.SaveSettings()
 	}))
+
+	// Apply test args if given
+	baseModel = testArgs.ApplyArgs(baseModel, zones)
 
 	// Create window
 	win, _, err := teadapter.Window(settings.GetInt("width"), settings.GetInt("height"), fonts, baseModel, color.RGBA{R: 34, G: 36, B: 41, A: 255}, tea.WithAltScreen())
