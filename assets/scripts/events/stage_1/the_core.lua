@@ -9,7 +9,8 @@ As you step out of the cryo facility, the eerie silence is broken by the sound o
         {
             description = "Go...",
             callback = function()
-                return nil
+                set_event("MERCHANT")
+                return GAME_STATE_EVENT
             end
         }
     },

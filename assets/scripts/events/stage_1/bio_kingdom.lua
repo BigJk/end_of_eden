@@ -9,7 +9,8 @@ The air is thick with humidity and the sounds of the jungle are overwhelming. St
         {
             description = "Go...",
             callback = function()
-                return nil
+                set_event("MERCHANT")
+                return GAME_STATE_EVENT
             end
         }
     },

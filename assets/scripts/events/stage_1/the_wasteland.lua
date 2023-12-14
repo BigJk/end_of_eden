@@ -9,7 +9,8 @@ The scorching sun beats down on you as the sand whips against your skin, a remin
         {
             description = "Go...",
             callback = function()
-                return nil
+                set_event("MERCHANT")
+                return GAME_STATE_EVENT
             end
         }
     },
