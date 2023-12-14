@@ -2,15 +2,13 @@ module github.com/BigJk/end_of_eden
 
 go 1.20
 
-replace github.com/charmbracelet/bubbletea v0.24.0 => github.com/charmbracelet/bubbletea v0.23.3-0.20230307193447-807465ab271e
-
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
-	github.com/BigJk/crt v0.0.12
+	github.com/BigJk/crt v0.0.13
 	github.com/BigJk/imeji v0.0.2
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.15.0
-	github.com/charmbracelet/bubbletea v0.24.0
+	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/glamour v0.6.0
 	github.com/charmbracelet/harmonica v0.2.0
 	github.com/charmbracelet/lipgloss v0.7.1
@@ -29,7 +27,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6
 	github.com/muesli/reflow v0.3.0
-	github.com/muesli/termenv v0.15.1
+	github.com/muesli/termenv v0.15.2
 	github.com/olahol/melody v1.1.3
 	github.com/samber/lo v1.38.1
 	github.com/sanity-io/litter v1.5.5
