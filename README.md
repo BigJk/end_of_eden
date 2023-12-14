@@ -176,7 +176,7 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 
 ### Automatic
 
-You can also use the ``./build.sh`` script to build all the binaries. The script will create a ``bin`` folder and put all the binaries and assets in there. If go is not installed on your system, the script will prompt to automatically fetch and run go via [pkgx](https://pkgx.dev/). pkgx is a tool to run go binaries without *installing* go on your system and will be installed automatically if needed.
+You can use the ``./build.sh`` script to build all the binaries. The script will create a ``bin`` folder and put all the binaries and assets in there. If go is not installed on your system, the script will prompt to automatically fetch and run go via [pkgx](https://pkgx.dev/). pkgx is a tool to run go binaries without *installing* go on your system and will be installed automatically if needed.
 
 ### Manual
 
