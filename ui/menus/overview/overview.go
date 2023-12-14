@@ -185,6 +185,7 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.listFocus = !m.listFocus
 		case tea.KeyEnter:
 			if m.list.SelectedItem().(choiceItem).key == ChoiceQuit {
+				m.Session.Close()
 				return nil, nil
 			}
 		case tea.KeyDown:
