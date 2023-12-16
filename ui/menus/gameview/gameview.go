@@ -427,7 +427,7 @@ func (m Model) fightStatusBottom() string {
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(style.BaseWhite)).Padding(0, 4, 0, 4).Render(fmt.Sprintf("Deck: %d", len(fight.Deck))),
 			lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FFFF00")).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Used: %d", len(fight.Used))),
 			lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Exhausted: %d", len(fight.Exhausted))),
-			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Action Points: %d", fight.CurrentPoints)),
+			lipgloss.NewStyle().Bold(true).Foreground(style.BaseGreen).Padding(0, 4, 0, 0).Render(fmt.Sprintf("Action Points: (%d) %s", fight.CurrentPoints, strings.Repeat("• ", fight.CurrentPoints))),
 			m.zones.Mark(ZonePlayerInspect, components.StatusEffects(m.Session, m.Session.GetPlayer())),
 		),
 		),

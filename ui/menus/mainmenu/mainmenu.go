@@ -7,13 +7,14 @@ import (
 	"github.com/BigJk/end_of_eden/image"
 	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/ui"
+	"github.com/BigJk/end_of_eden/ui/components/loader"
 	"github.com/BigJk/end_of_eden/ui/menus/about"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
+	"github.com/BigJk/end_of_eden/ui/menus/intro"
 	"github.com/BigJk/end_of_eden/ui/menus/mods"
 	uiset "github.com/BigJk/end_of_eden/ui/menus/settings"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
-	"github.com/BigJk/imeji"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
@@ -34,10 +35,11 @@ type Model struct {
 
 	settingValues []uiset.Value
 	settingSaver  uiset.Saver
+	didLoad       bool
 }
 
 func NewModel(zones *zone.Manager, settings settings.Settings, values []uiset.Value, saver uiset.Saver) Model {
-	img, _ := image.Fetch("title.png", imeji.WithResize(180, 9))
+	img, _ := image.Fetch("title.png", image.WithResize(180, 9))
 
 	audio.PlayMusic("planet_mining")
 
@@ -58,6 +60,19 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if !m.didLoad {
+		m.didLoad = true
+
+		if m.settings.GetBool("experimental") {
+			l, done, _ := loader.New(intro.New(m), "Initial loading")
+			go func() {
+				_, _ = image.FetchAnimation("intro.gif", image.WithMaxWidth(100))
+				done <- true
+			}()
+			return l, nil
+		}
+	}
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Size = msg

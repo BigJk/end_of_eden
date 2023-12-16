@@ -20,9 +20,8 @@ var (
 type Model struct {
 	ui.MenuBase
 
-	zones     *zone.Manager
-	lastMouse tea.MouseMsg
-	parent    tea.Model
+	zones  *zone.Manager
+	parent tea.Model
 }
 
 func New(parent tea.Model, zones *zone.Manager) Model {

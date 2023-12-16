@@ -9,7 +9,6 @@ import (
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/BigJk/end_of_eden/util"
-	"github.com/BigJk/imeji"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
@@ -185,7 +184,7 @@ func (m Model) eventUpdateContent() Model {
 				}
 				res = string(ansRes)
 			} else {
-				imgRes, err := image.Fetch(file, imeji.WithMaxWidth(100))
+				imgRes, err := image.Fetch(file, image.WithMaxWidth(100))
 				if err != nil {
 					continue
 				}
