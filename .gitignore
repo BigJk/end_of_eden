@@ -4,6 +4,7 @@ logs/
 .ssh/
 bin/
 samples/
+cache/
 *.save
 settings_*.json
 session.save
