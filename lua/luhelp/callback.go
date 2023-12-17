@@ -1,10 +1,12 @@
 package luhelp
 
+import "encoding/json"
+
 // OwnedCallback represents a callback that will execute inside a lua vm.
 type OwnedCallback func(args ...any) (any, error)
 
 func (cb OwnedCallback) MarshalJSON() ([]byte, error) {
-	return []byte("function"), nil
+	return json.Marshal("lua function")
 }
 
 // Call executes the callback with the given arguments. If the callback is nil

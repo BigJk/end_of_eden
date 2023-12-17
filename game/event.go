@@ -7,8 +7,8 @@ import (
 // EventChoice represents a possible choice in the Event.
 type EventChoice struct {
 	Description   string
-	DescriptionFn luhelp.OwnedCallback `json:"-"`
-	Callback      luhelp.OwnedCallback `json:"-"`
+	DescriptionFn luhelp.OwnedCallback
+	Callback      luhelp.OwnedCallback
 }
 
 // Event represents a encounter-able event.
@@ -17,8 +17,9 @@ type Event struct {
 	Name        string
 	Description string
 	Choices     []EventChoice
-	OnEnter     luhelp.OwnedCallback `json:"-"`
-	OnEnd       luhelp.OwnedCallback `json:"-"`
+	OnEnter     luhelp.OwnedCallback
+	OnEnd       luhelp.OwnedCallback
+	Test        luhelp.OwnedCallback
 }
 
 func (e Event) IsNone() bool {

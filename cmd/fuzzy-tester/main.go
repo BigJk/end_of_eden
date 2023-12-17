@@ -18,10 +18,6 @@ var seed int64
 var mods []string
 
 func main() {
-	fmt.Println("End Of Eden :: Fuzzy Tester")
-	fmt.Println("The fuzzy tester hits a game session with a random number of operations and tries to trigger a panic.")
-	fmt.Println()
-
 	routines := flag.Int("n", 1, "number of goroutines")
 	timeout := flag.Duration("timeout", time.Minute, "length of testing")
 	baseSeed := flag.Int64("seed", 0, "random seed")
@@ -30,6 +26,9 @@ func main() {
 	flag.Parse()
 
 	if *help {
+		fmt.Println("End Of Eden :: Fuzzy Tester")
+		fmt.Println("The fuzzy tester hits a game session with a random number of operations and tries to trigger a panic.")
+		fmt.Println()
 		flag.PrintDefaults()
 		return
 	}

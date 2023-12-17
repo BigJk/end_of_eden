@@ -19,6 +19,10 @@ End Of Eden :: Game
         show help
 ```
 
+# Game Win
+
+- The base game but running in a window
+
 # Game Browser
 
 - The base game but running in browser
@@ -62,6 +66,23 @@ Each SSH session creates it's own game session. Modding and audio not supported.
 - Generates the LUA documentation of the game and prints a markdown formatted text to stdout.
 - ``go run ./cmd/docs > LUA_API_DOCS.md``
 
+# Tester
+
+- Runs the ``test`` function of all artifacts, cards and status effects
+- Reports the results
+- ``go run ./cmd/tester -mods=mod1,mod2,mod3``
+
+```
+End Of Eden :: Tester
+The tester tests all artifacts, cards and status effects based on their test function.
+
+  -help
+        show help
+  -mods string
+        mods to load (e.g. 'my-mod,test-mod,another-mod')
+
+```
+
 # Fuzzy Tester
 
 ```
@@ -83,4 +104,4 @@ The fuzzy tester hits a game session with a random number of operations and trie
 # Environment Variables
 
 - ``EOE_NO_PROTECT=1``: Disables lua safety and kills the program if a lua error is encountered. Good for debugging.
-- ``EOE_DEBUG=1``: Enables the debugging api access if a game is started. This needs ``ttyd`` and ``wscat`` installed for full usage.
+- ``EOE_DEBUG=1``: Enables the debugging api access if a game is started.

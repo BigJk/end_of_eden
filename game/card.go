@@ -14,14 +14,15 @@ type Card struct {
 	ID          string
 	Name        string
 	Description string
-	State       luhelp.OwnedCallback `json:"-"`
+	State       luhelp.OwnedCallback
 	Color       string
 	PointCost   int
 	MaxLevel    int
 	DoesExhaust bool
 	NeedTarget  bool
 	Price       int
-	Callbacks   map[string]luhelp.OwnedCallback `json:"-"`
+	Callbacks   map[string]luhelp.OwnedCallback
+	Test        luhelp.OwnedCallback
 }
 
 // CardInstance represents an instance of a card owned by some actor.

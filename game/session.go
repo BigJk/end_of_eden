@@ -1066,6 +1066,11 @@ func (s *Session) RemoveAllStatusEffects() {
 	for i := range clean {
 		delete(s.instances, clean[i])
 	}
+
+	for guid, actor := range s.actors {
+		actor.StatusEffects = NewStringSet()
+		s.actors[guid] = actor
+	}
 }
 
 // GiveStatusEffect gives the owner a status effect of a certain type. Status effects are singleton per actor,

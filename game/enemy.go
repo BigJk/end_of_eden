@@ -13,6 +13,7 @@ type Enemy struct {
 	MaxHP       int
 	Look        string
 	Color       string
-	Intend      luhelp.OwnedCallback            `json:"-"`
-	Callbacks   map[string]luhelp.OwnedCallback `json:"-"`
+	Intend      luhelp.OwnedCallback
+	Callbacks   map[string]luhelp.OwnedCallback
+	Test        luhelp.OwnedCallback
 }

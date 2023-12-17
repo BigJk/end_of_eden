@@ -334,7 +334,7 @@ fun = require "fun"
 		return 0
 	}))
 
-	d.Function("add_actor_by_enemy", "Creates a new enemy fighting against the player. Example ``add_actor_by_enemy(\"RUST_MITE\")``.", "", "enemyId : String")
+	d.Function("add_actor_by_enemy", "Creates a new enemy fighting against the player. Example ``add_actor_by_enemy(\"RUST_MITE\")``.", "String", "enemyId : String")
 	l.SetGlobal("add_actor_by_enemy", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(session.AddActorFromEnemy(state.ToString(1))))
 		return 1
@@ -557,6 +557,12 @@ fun = require "fun"
 	l.SetGlobal("player_buy_artifact", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LBool(session.PlayerBuyArtifact(state.ToString(1))))
 		return 1
+	}))
+
+	d.Function("finish_player_turn", "Finishes the player turn.", "")
+	l.SetGlobal("finish_player_turn", l.NewFunction(func(state *lua.LState) int {
+		session.FinishPlayerTurn()
+		return 0
 	}))
 
 	// Merchant
