@@ -447,7 +447,7 @@ Creates a new enemy fighting against the player. Example ``add_actor_by_enemy("R
 **Signature:**
 
 ```
-add_actor_by_enemy(enemyId : String) -> None
+add_actor_by_enemy(enemyId : String) -> String
 ```
 
 </details>
@@ -553,18 +553,6 @@ Returns the artifact instance by guid.
 
 ```
 get_artifact_instance(guid : String) -> None
-```
-
-</details>
-
-<details> <summary><b><code>get_random_artifact_type</code></b> </summary> <br/>
-
-Returns a random type id given a max gold price.
-
-**Signature:**
-
-```
-get_random_artifact_type(maxGold : Number) -> None
 ```
 
 </details>
@@ -845,6 +833,18 @@ Functions that are related to the player.
 None
 
 ### Functions
+<details> <summary><b><code>finish_player_turn</code></b> </summary> <br/>
+
+Finishes the player turn.
+
+**Signature:**
+
+```
+finish_player_turn() -> None
+```
+
+</details>
+
 <details> <summary><b><code>give_player_gold</code></b> </summary> <br/>
 
 Gives the player gold.
