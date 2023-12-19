@@ -113,7 +113,7 @@ mods = [ "example_mod", "other_mod" ]
 - The settings file is called ``settings_gl.toml``
 - The settings can be modified in game via the settings menu
 
-<details><summary>Available settings in settings_win.toml</summary>
+<details><summary>Available settings in settings_gl.toml</summary>
 
 ```toml
 # Audio volume
