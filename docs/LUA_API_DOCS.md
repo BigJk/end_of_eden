@@ -1016,6 +1016,109 @@ These functions are used to define new content in the base game and in mods.
 None
 
 ### Functions
+<details> <summary><b><code>delete_base_game</code></b> </summary> <br/>
+
+Deletes all base game content. Useful if you don't want to include base game content in your mod.
+
+```lua
+delete_base_game() -- delete all base game content
+delete_base_game("artifact") -- deletes all artifacts
+delete_base_game("card") -- deletes all cards
+delete_base_game("enemy") -- deletes all enemies
+delete_base_game("event") -- deletes all events
+delete_base_game("status_effect") -- deletes all status effects
+delete_base_game("story_teller") -- deletes all story tellers
+
+```
+
+**Signature:**
+
+```
+delete_base_game((optional) type : String) -> None
+```
+
+</details>
+
+<details> <summary><b><code>delete_card</code></b> </summary> <br/>
+
+Deletes a card.
+
+```lua
+delete_card("SOME_CARD")
+```
+
+**Signature:**
+
+```
+delete_card(id : String) -> None
+```
+
+</details>
+
+<details> <summary><b><code>delete_enemy</code></b> </summary> <br/>
+
+Deletes an enemy.
+
+```lua
+delete_enemy("SOME_ENEMY")
+```
+
+**Signature:**
+
+```
+delete_enemy(id : String) -> None
+```
+
+</details>
+
+<details> <summary><b><code>delete_event</code></b> </summary> <br/>
+
+Deletes an event.
+
+```lua
+delete_event("SOME_EVENT")
+```
+
+**Signature:**
+
+```
+delete_event(id : String) -> None
+```
+
+</details>
+
+<details> <summary><b><code>delete_status_effect</code></b> </summary> <br/>
+
+Deletes a status effect.
+
+```lua
+delete_status_effect("SOME_STATUS_EFFECT")
+```
+
+**Signature:**
+
+```
+delete_status_effect(id : String) -> None
+```
+
+</details>
+
+<details> <summary><b><code>delete_story_teller</code></b> </summary> <br/>
+
+Deletes a story teller.
+
+```lua
+delete_story_teller("SOME_STORY_TELLER")
+```
+
+**Signature:**
+
+```
+delete_story_teller(id : String) -> None
+```
+
+</details>
+
 <details> <summary><b><code>register_artifact</code></b> </summary> <br/>
 
 Registers a new artifact.
@@ -1049,7 +1152,7 @@ register_artifact(id : String, definition : Table) -> None
 
 <details> <summary><b><code>register_card</code></b> </summary> <br/>
 
-Registers a new artifact.
+Registers a new card.
 
 ```lua
 register_card("MELEE_HIT",
@@ -1084,7 +1187,7 @@ register_card(id : String, definition : Table) -> None
 
 <details> <summary><b><code>register_enemy</code></b> </summary> <br/>
 
-Registers a new artifact.
+Registers a new enemy.
 
 ```lua
 register_enemy("RUST_MITE",
@@ -1121,7 +1224,7 @@ register_enemy(id : String, definition : Table) -> None
 
 <details> <summary><b><code>register_event</code></b> </summary> <br/>
 
-Registers a new artifact.
+Registers a new event.
 
 ```lua
 register_event("SOME_EVENT",
@@ -1169,7 +1272,7 @@ register_event(id : String, definition : Table) -> None
 
 <details> <summary><b><code>register_status_effect</code></b> </summary> <br/>
 
-Registers a new artifact.
+Registers a new status effect.
 
 ```lua
 register_artifact("REPULSION_STONE",
@@ -1200,7 +1303,7 @@ register_status_effect(id : String, definition : Table) -> None
 
 <details> <summary><b><code>register_story_teller</code></b> </summary> <br/>
 
-Registers a new artifact.
+Registers a new story teller.
 
 ```lua
 register_artifact("REPULSION_STONE",

@@ -431,4 +431,13 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
 	docs.Function("delete_enemy", fmt.Sprintf("Deletes an enemy.\n\n```lua\n%s\n```", `delete_enemy("SOME_ENEMY")`), "", "id : String")
 	docs.Function("delete_status_effect", fmt.Sprintf("Deletes a status effect.\n\n```lua\n%s\n```", `delete_status_effect("SOME_STATUS_EFFECT")`), "", "id : String")
 	docs.Function("delete_story_teller", fmt.Sprintf("Deletes a story teller.\n\n```lua\n%s\n```", `delete_story_teller("SOME_STORY_TELLER")`), "", "id : String")
+
+	docs.Function("delete_base_game", fmt.Sprintf("Deletes all base game content. Useful if you don't want to include base game content in your mod.\n\n```lua\n%s\n```", `delete_base_game() -- delete all base game content
+delete_base_game("artifact") -- deletes all artifacts
+delete_base_game("card") -- deletes all cards
+delete_base_game("enemy") -- deletes all enemies
+delete_base_game("event") -- deletes all events
+delete_base_game("status_effect") -- deletes all status effects
+delete_base_game("story_teller") -- deletes all story tellers
+`), "", "(optional) type : String")
 }
