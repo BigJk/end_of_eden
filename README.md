@@ -134,7 +134,7 @@ crt = true
 
 # Enable or disable the grain shader
 #
-crt = grain
+grain = true
 
 # DPI scaling
 #
