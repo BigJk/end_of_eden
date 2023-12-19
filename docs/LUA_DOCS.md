@@ -37,6 +37,11 @@ A mod is nothing more than a `meta.json` and a bunch of lua files. The `meta.jso
 
 In the modding menu you can define the loading order of the mods. The mods are loaded from top to bottom. This is important if mods overwrite content of the base game, like changing the `START` event. If multiple mods change it the last loaded mod will be the last to overwrite it and so its event is used. Keep this in mind when organizing mods.
 
+### ``START`` Event
+
+The `START` event is the first event that is executed when the game starts. If you want to do more than just add artifacts and cards that the player can find you can replace the `START` event to set a custom starting point for your mod. In case you don't want any base-game content to interfere with your mod you can also remove all base-game content. Check the `delete_base_game` function in the [Lua Game API](./LUA_API_DOCS.md). This function should be called directly (and not in some event or callback) in one of your lua files.
+ 
+
 ## Callbacks
 
 ### General

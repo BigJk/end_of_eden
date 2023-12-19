@@ -10,22 +10,19 @@
 - Is a "Slay the Spire"-like, roguelite deck-builder game running fully in console
 - Collect Artifacts that give you new cards or various passive effects
 - Clash with strange beings and try to survive as long as possible
+- Use the base engine to create your own mods and content
 
 
 # Screenshots
 
-![Screenshot](.github/screenshot.png)
-![Screenshot](.github/screenshot_merchant.png)
-
-<details><summary>GL Version Screenshots</summary>
-
-
-The following screenshots are from the ``_gl`` version of the game. The ``_gl`` version is the same game but running in a dedicated window. Additionally, a crt shader is activated to give the game a more retro look.
-
 ![Screenshot](.github/screenshot_gl1.png)
-![Screenshot](.github/screenshot_gl2.png)
 ![Screenshot](.github/screenshot_gl3.png)
 
+<details><summary>Terminal Version Screenshots</summary>
+
+
+![Screenshot](.github/screenshot.png)
+![Screenshot](.github/screenshot_merchant.png)
 </details>
 
 # Status
@@ -33,6 +30,14 @@ The following screenshots are from the ``_gl`` version of the game. The ``_gl`` 
 The game is still in early development. There are still a lot of content missing and the game is not balanced at all. It mostly contians test content at the moment. If you want to help out, feel free to open a issue or pull request or even better join the [discord](https://discord.gg/XpDvfvVuB2).
 
 # :video_game: How to play
+
+**Quickstart:**
+
+- You just want to test the game: Download the ``_gl`` version
+- You don't want to leave your terminal: Download the ``_term`` version
+
+**Long Answer:**
+
 
 The game can be played in two ways. You can download the ``_term`` or ``_gl`` version. You can see which type you download from the file name (``end_of_eden_term`` vs ``end_of_eden_gl``). The ``_term`` version is the base game and runs in your terminal. The ``_gl`` version is the same game but running in a dedicated window, so no console magic is needed just a plain old game window. If you are not familiar with the terminal, you can try out the ``_gl`` version. It also comes with a optional crt shader to give the game a more retro look. Check out the [Settings](#settings) section for more information.
 
@@ -43,7 +48,7 @@ The game can be played in two ways. You can download the ``_term`` or ``_gl`` ve
 
 ## :whale: Docker
 
-If you are a advanced user you can also run the game through docker.
+If you are an advanced user you can also run the game through docker.
 
 <details><summary>Docker Guide</summary>
 
@@ -127,6 +132,10 @@ audio = true
 #
 crt = true
 
+# Enable or disable the grain shader
+#
+crt = grain
+
 # DPI scaling
 #
 dpi = 1
@@ -157,7 +166,7 @@ width = 1100
 
 ## Console
 
-A modern console is required to support all the features like full mouse control. Just start the  ``end_of_eden(.exe)`` executable in your terminal.
+A modern console is required to support all the features like full mouse control in the ``_term`` version. Just start the  ``end_of_eden(.exe)`` executable in your terminal.
 
 ### Tested Terminals
 | Terminal                                              |   OS    | Status             | Note                                                            |
