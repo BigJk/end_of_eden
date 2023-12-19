@@ -142,8 +142,9 @@ func NewSession(options ...func(s *Session)) *Session {
 	}
 
 	session.resources = NewResourcesManager(session.luaState, session.luaDocs, session.log)
-	session.SetEvent("START")
+	session.resources.MarkBaseGame()
 	session.loadMods(session.loadedMods)
+	session.SetEvent("START")
 
 	session.log.Println("Session started!")
 
@@ -160,7 +161,7 @@ func NewSession(options ...func(s *Session)) *Session {
 // WithDebugEnabled enables the lua debugging. With lua debugging a server will be started
 // on the given bind port. This exposes the /ws route to connect over websocket to. In essence,
 // it exposes REPL access to the internal lua state which is helpful to debug problems. You can use
-// the debug_r function to send data back to  the websocket.
+// the debug_r function to send data back to the websocket.
 //
 // Tip: Use https://github.com/websockets/wscat to connect and talk with it.
 func WithDebugEnabled(port int) func(s *Session) {
@@ -412,12 +413,16 @@ func (s *Session) SetGameState(state GameState) {
 // SetEvent changes the active event, but won't set the game state to EVENT. So this can be used
 // to set the next event even before a fight or merchant interaction is over.
 func (s *Session) SetEvent(id string) {
-	s.currentEvent = ""
+	s.currentEvent = id
 	if _, ok := s.resources.Events[id]; ok {
-		s.currentEvent = id
 		s.eventHistory = append(s.eventHistory, id)
 		_, _ = s.resources.Events[id].OnEnter.Call(CreateContext("type_id", id))
 	}
+}
+
+// GetEventID returns the id of the current event.
+func (s *Session) GetEventID() string {
+	return s.currentEvent
 }
 
 // GetEvent returns the event definition of the current event. Will be nil if no event is present.

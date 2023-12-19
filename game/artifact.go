@@ -17,6 +17,7 @@ type Artifact struct {
 	Price       int
 	Callbacks   map[string]luhelp.OwnedCallback
 	Test        luhelp.OwnedCallback
+	BaseGame    bool
 }
 
 type ArtifactInstance struct {

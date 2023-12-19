@@ -6,6 +6,7 @@ import (
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/image"
 	"github.com/BigJk/end_of_eden/ui"
+	"github.com/BigJk/end_of_eden/ui/components"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/BigJk/end_of_eden/util"
@@ -115,6 +116,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	if m.session.GetEvent() == nil {
+		return components.Error(m.Size.Width, m.Size.Height, fmt.Sprintf("No event with id %s found! Report this as bug or check if a mod is causing a non existing event to happen.", style.RedText.Render(m.session.GetEventID())))
+	}
+
 	return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Top, fmt.Sprintf("%s\n%s\n%s\n%s", m.eventHeaderView(), m.viewport.View(), m.eventFooterView(), strings.Join(m.eventChoices(), "\n")))
 }
 

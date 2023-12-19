@@ -20,6 +20,7 @@ type Event struct {
 	OnEnter     luhelp.OwnedCallback
 	OnEnd       luhelp.OwnedCallback
 	Test        luhelp.OwnedCallback
+	BaseGame    bool
 }
 
 func (e Event) IsNone() bool {

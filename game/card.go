@@ -23,6 +23,7 @@ type Card struct {
 	Price       int
 	Callbacks   map[string]luhelp.OwnedCallback
 	Test        luhelp.OwnedCallback
+	BaseGame    bool
 }
 
 // CardInstance represents an instance of a card owned by some actor.

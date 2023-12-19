@@ -58,6 +58,12 @@ func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger
 	man.luaState.SetGlobal("register_status_effect", man.luaState.NewFunction(man.luaRegisterStatusEffect))
 	man.luaState.SetGlobal("register_story_teller", man.luaState.NewFunction(man.luaRegisterStoryTeller))
 	man.luaState.SetGlobal("delete_event", man.luaState.NewFunction(man.luaDeleteEvent))
+	man.luaState.SetGlobal("delete_card", man.luaState.NewFunction(man.luaDeleteCard))
+	man.luaState.SetGlobal("delete_enemy", man.luaState.NewFunction(man.luaDeleteEnemy))
+	man.luaState.SetGlobal("delete_event", man.luaState.NewFunction(man.luaDeleteEvent))
+	man.luaState.SetGlobal("delete_status_effect", man.luaState.NewFunction(man.luaDeleteStatusEffect))
+	man.luaState.SetGlobal("delete_story_teller", man.luaState.NewFunction(man.luaDeleteStoryTeller))
+	man.luaState.SetGlobal("delete_base_game", man.luaState.NewFunction(man.luaDeleteBaseGame))
 	man.defineDocs(docs)
 
 	// Load all local scripts
@@ -82,6 +88,28 @@ func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger
 	})
 
 	return man
+}
+
+// MarkBaseGame marks all currently registered resources as base game resources.
+func (man *ResourcesManager) MarkBaseGame() {
+	for _, v := range man.Artifacts {
+		v.BaseGame = true
+	}
+	for _, v := range man.Cards {
+		v.BaseGame = true
+	}
+	for _, v := range man.Events {
+		v.BaseGame = true
+	}
+	for _, v := range man.Enemies {
+		v.BaseGame = true
+	}
+	for _, v := range man.StatusEffects {
+		v.BaseGame = true
+	}
+	for _, v := range man.StoryTeller {
+		v.BaseGame = true
+	}
 }
 
 func (man *ResourcesManager) luaRegisterArtifact(l *lua.LState) int {
@@ -200,6 +228,68 @@ func (man *ResourcesManager) luaDeleteEvent(l *lua.LState) int {
 	return 0
 }
 
+func (man *ResourcesManager) luaDeleteCard(l *lua.LState) int {
+	man.log.Println("Delete card:", l.ToString(1))
+
+	delete(man.Cards, l.ToString(1))
+	man.registered.RawGetString("card").(*lua.LTable).RawSetString(l.ToString(1), lua.LNil)
+	return 0
+}
+
+func (man *ResourcesManager) luaDeleteEnemy(l *lua.LState) int {
+	man.log.Println("Delete enemy:", l.ToString(1))
+
+	delete(man.Enemies, l.ToString(1))
+	man.registered.RawGetString("enemy").(*lua.LTable).RawSetString(l.ToString(1), lua.LNil)
+	return 0
+}
+
+func (man *ResourcesManager) luaDeleteStatusEffect(l *lua.LState) int {
+	man.log.Println("Delete status_effect:", l.ToString(1))
+
+	delete(man.StatusEffects, l.ToString(1))
+	man.registered.RawGetString("status_effect").(*lua.LTable).RawSetString(l.ToString(1), lua.LNil)
+	return 0
+}
+
+func (man *ResourcesManager) luaDeleteStoryTeller(l *lua.LState) int {
+	man.log.Println("Delete story_teller:", l.ToString(1))
+
+	delete(man.StoryTeller, l.ToString(1))
+	man.registered.RawGetString("story_teller").(*lua.LTable).RawSetString(l.ToString(1), lua.LNil)
+	return 0
+}
+
+func (man *ResourcesManager) luaDeleteBaseGame(l *lua.LState) int {
+	if l.GetTop() == 1 {
+		t := l.ToString(1)
+		switch t {
+		case "artifact":
+			man.Artifacts = lo.PickBy(man.Artifacts, func(k string, v *Artifact) bool { return !v.BaseGame })
+		case "card":
+			man.Cards = lo.PickBy(man.Cards, func(k string, v *Card) bool { return !v.BaseGame })
+		case "enemy":
+			man.Enemies = lo.PickBy(man.Enemies, func(k string, v *Enemy) bool { return !v.BaseGame })
+		case "event":
+			man.Events = lo.PickBy(man.Events, func(k string, v *Event) bool { return !v.BaseGame })
+		case "status_effect":
+			man.StatusEffects = lo.PickBy(man.StatusEffects, func(k string, v *StatusEffect) bool { return !v.BaseGame })
+		case "story_teller":
+			man.StoryTeller = lo.PickBy(man.StoryTeller, func(k string, v *StoryTeller) bool { return !v.BaseGame })
+		}
+		return 0
+	}
+
+	man.Artifacts = lo.PickBy(man.Artifacts, func(k string, v *Artifact) bool { return !v.BaseGame })
+	man.Cards = lo.PickBy(man.Cards, func(k string, v *Card) bool { return !v.BaseGame })
+	man.Enemies = lo.PickBy(man.Enemies, func(k string, v *Enemy) bool { return !v.BaseGame })
+	man.Events = lo.PickBy(man.Events, func(k string, v *Event) bool { return !v.BaseGame })
+	man.StatusEffects = lo.PickBy(man.StatusEffects, func(k string, v *StatusEffect) bool { return !v.BaseGame })
+	man.StoryTeller = lo.PickBy(man.StoryTeller, func(k string, v *StoryTeller) bool { return !v.BaseGame })
+
+	return 0
+}
+
 func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
 	if docs == nil {
 		return
@@ -224,7 +314,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
     }
 )`), "", "id : String", "definition : Table")
 
-	docs.Function("register_card", fmt.Sprintf("Registers a new artifact.\n\n```lua\n%s\n```", `register_card("MELEE_HIT",
+	docs.Function("register_card", fmt.Sprintf("Registers a new card.\n\n```lua\n%s\n```", `register_card("MELEE_HIT",
     {
         name = "Melee Hit",
         description = "Use your bare hands to deal 5 (+3 for each upgrade) damage.",
@@ -245,7 +335,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
     }
 )`), "", "id : String", "definition : Table")
 
-	docs.Function("register_enemy", fmt.Sprintf("Registers a new artifact.\n\n```lua\n%s\n```", `register_enemy("RUST_MITE",
+	docs.Function("register_enemy", fmt.Sprintf("Registers a new enemy.\n\n```lua\n%s\n```", `register_enemy("RUST_MITE",
     {
         name = "Rust Mite",
         description = "Loves to eat metal.",
@@ -268,7 +358,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
     }
 )`), "", "id : String", "definition : Table")
 
-	docs.Function("register_event", fmt.Sprintf("Registers a new artifact.\n\n```lua\n%s\n```", `register_event("SOME_EVENT",
+	docs.Function("register_event", fmt.Sprintf("Registers a new event.\n\n```lua\n%s\n```", `register_event("SOME_EVENT",
 	{
 		name = "Event Name",
 		description = [[Flavor Text... Can include **Markdown** Syntax!]],
@@ -302,7 +392,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
 	}
 )`), "", "id : String", "definition : Table")
 
-	docs.Function("register_status_effect", fmt.Sprintf("Registers a new artifact.\n\n```lua\n%s\n```", `register_artifact("REPULSION_STONE",
+	docs.Function("register_status_effect", fmt.Sprintf("Registers a new status effect.\n\n```lua\n%s\n```", `register_artifact("REPULSION_STONE",
     {
         name = "Repulsion Stone",
         description = "For each damage taken heal for 2",
@@ -319,7 +409,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
     }
 )`), "", "id : String", "definition : Table")
 
-	docs.Function("register_story_teller", fmt.Sprintf("Registers a new artifact.\n\n```lua\n%s\n```", `register_artifact("REPULSION_STONE",
+	docs.Function("register_story_teller", fmt.Sprintf("Registers a new story teller.\n\n```lua\n%s\n```", `register_artifact("REPULSION_STONE",
     {
         name = "Repulsion Stone",
         description = "For each damage taken heal for 2",
@@ -335,4 +425,10 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
         }
     }
 )`), "", "id : String", "definition : Table")
+
+	docs.Function("delete_event", fmt.Sprintf("Deletes an event.\n\n```lua\n%s\n```", `delete_event("SOME_EVENT")`), "", "id : String")
+	docs.Function("delete_card", fmt.Sprintf("Deletes a card.\n\n```lua\n%s\n```", `delete_card("SOME_CARD")`), "", "id : String")
+	docs.Function("delete_enemy", fmt.Sprintf("Deletes an enemy.\n\n```lua\n%s\n```", `delete_enemy("SOME_ENEMY")`), "", "id : String")
+	docs.Function("delete_status_effect", fmt.Sprintf("Deletes a status effect.\n\n```lua\n%s\n```", `delete_status_effect("SOME_STATUS_EFFECT")`), "", "id : String")
+	docs.Function("delete_story_teller", fmt.Sprintf("Deletes a story teller.\n\n```lua\n%s\n```", `delete_story_teller("SOME_STORY_TELLER")`), "", "id : String")
 }

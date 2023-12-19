@@ -30,6 +30,7 @@ type StatusEffect struct {
 	Rounds      int
 	Callbacks   map[string]luhelp.OwnedCallback
 	Test        luhelp.OwnedCallback
+	BaseGame    bool
 }
 
 type StatusEffectInstance struct {

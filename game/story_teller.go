@@ -5,7 +5,8 @@ import (
 )
 
 type StoryTeller struct {
-	ID     string
-	Active luhelp.OwnedCallback `json:"-"`
-	Decide luhelp.OwnedCallback `json:"-"`
+	ID       string
+	Active   luhelp.OwnedCallback
+	Decide   luhelp.OwnedCallback
+	BaseGame bool
 }

@@ -16,4 +16,5 @@ type Enemy struct {
 	Intend      luhelp.OwnedCallback
 	Callbacks   map[string]luhelp.OwnedCallback
 	Test        luhelp.OwnedCallback
+	BaseGame    bool
 }
