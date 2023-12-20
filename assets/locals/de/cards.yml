@@ -1,0 +1,6 @@
+de:
+  cards:
+    MELEE_HIT:
+      name: Nahkampf Schlag
+      description: "Benutze deine bloßen Hände um 5 (+3 für jede Verbesserung) Schaden zu verursachen."
+      state: "Benutze deine bloßen Hände um %s Schaden zu verursachen."

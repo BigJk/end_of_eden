@@ -1,0 +1,44 @@
+de:
+  basics:
+    on: An
+    off: Aus
+  settings:
+    audio:
+      title: Audio
+      description: Audio aktivieren oder deaktivieren
+    volume:
+      title: Lautstärke
+      description: Lautstärke des Spiels
+    language:
+      title: Sprache
+      description: Sprache des Spiels
+    font_size:
+      title: Schriftgröße
+      description: Schriftgröße des Spiels
+    font_normal:
+      title: Normale Schriftart
+      description: Normale Schriftart des Spiels
+    font_italic:
+      title: Kursive Schriftart
+      description: Kursive Schriftart des Spiels
+    font_bold:
+        title: Fette Schriftart
+        description: Fette Schriftart des Spiels
+    width:
+        title: Breite
+        description: Breite des Spiels
+    height:
+        title: Höhe
+        description: Höhe des Spiels
+    crt:
+        title: CRT
+        description: CRT-Effekt aktivieren oder deaktivieren (verbraucht mehr GPU Leistung)
+    grain:
+        title: Grain
+        description: Grain-Effekt aktivieren oder deaktivieren (verbraucht mehr GPU Leistung)
+    show_fps:
+        title: FPS anzeigen
+        description: FPS anzeigen oder verstecken
+    fps:
+        title: FPS
+        description: Maximal FPS des Spiels

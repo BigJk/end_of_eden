@@ -3,6 +3,7 @@ package settings
 import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/key"
@@ -24,9 +25,9 @@ func (i item) Title() string {
 	switch i.val.Type {
 	case Bool:
 		if i.val.Val.(bool) {
-			val = lipgloss.NewStyle().Foreground(style.BaseGreen).Render("on")
+			val = lipgloss.NewStyle().Foreground(style.BaseGreen).Render(localization.G("basics.on", "on"))
 		} else {
-			val = lipgloss.NewStyle().Foreground(style.BaseRed).Render("off")
+			val = lipgloss.NewStyle().Foreground(style.BaseRed).Render(localization.G("basics.off", "off"))
 		}
 	case Int:
 		val = fmt.Sprint(i.val.Val)
@@ -36,10 +37,16 @@ func (i item) Title() string {
 		val = fmt.Sprint(i.val.Val)
 	}
 
-	return fmt.Sprintf("%-20s", i.val.Name) + " : " + val
+	return fmt.Sprintf("%-20s", localization.G(fmt.Sprintf("settings.%s.title", i.val.Key), i.val.Name)) + " : " + val
 }
-func (i item) Description() string { return i.val.Description }
-func (i item) FilterValue() string { return i.val.Name }
+
+func (i item) Description() string {
+	return localization.G(fmt.Sprintf("settings.%s.description", i.val.Key), i.val.Description)
+}
+
+func (i item) FilterValue() string {
+	return localization.G(fmt.Sprintf("settings.%s.title", i.val.Key), i.val.Name)
+}
 
 type Model struct {
 	ui.MenuBase

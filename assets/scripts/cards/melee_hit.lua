@@ -1,8 +1,8 @@
 register_card("MELEE_HIT", {
-    name = "Melee Hit",
-    description = "Use your bare hands to deal 5 (+3 for each upgrade) damage.",
+    name = l("cards.MELEE_HIT.name", "Melee Hit"),
+    description = l("cards.MELEE_HIT.description", "Use your bare hands to deal 5 (+3 for each upgrade) damage."),
     state = function(ctx)
-        return "Use your bare hands to deal " .. highlight(5 + ctx.level * 3) .. " damage."
+        return string.format(l("cards.MELEE_HIT.state", "Use your bare hands to deal %s damage."), highlight(5 + ctx.level * 3))
     end,
     max_level = 1,
     color = "#2f3e46",

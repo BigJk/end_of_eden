@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
+	"github.com/BigJk/end_of_eden/localization"
 	"github.com/BigJk/end_of_eden/lua/ludoc"
 	"github.com/BigJk/end_of_eden/util"
 	"github.com/samber/lo"
@@ -330,6 +331,11 @@ func (s *Session) loadMods(mods []string) {
 		}
 
 		_ = filepath.Walk(filepath.Join("./mods", mods[i]), func(path string, info fs.FileInfo, err error) error {
+			// If we find a locals folder we add it to the localization
+			if info.IsDir() && info.Name() == "locals" {
+				_ = localization.Global.AddFolder(path)
+			}
+
 			if err != nil {
 				return nil
 			}

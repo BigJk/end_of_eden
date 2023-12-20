@@ -15,6 +15,7 @@
 - [Player Operations](#player-operations)
 - [Merchant Operations](#merchant-operations)
 - [Random Utility](#random-utility)
+- [Localization](#localization)
 - [Content Registry](#content-registry)
 
 ## Game Constants
@@ -1003,6 +1004,28 @@ Returns the type id of a random card.
 
 ```
 random_card(maxPrice : Number) -> String
+```
+
+</details>
+
+## Localization
+
+Functions that help with localization.
+
+### Globals
+
+None
+
+### Functions
+<details> <summary><b><code>l</code></b> </summary> <br/>
+
+Returns the localized string for the given key. Examples on locals definition can be found in `/assets/locals`. Example: ``
+l('cards.MY_CARD.name', "English Default Name")``
+
+**Signature:**
+
+```
+l(key : String, (optional) default : String) -> String
 ```
 
 </details>

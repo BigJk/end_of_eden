@@ -7,6 +7,7 @@ import (
 	"github.com/BigJk/end_of_eden/cmd/testargs"
 	"github.com/BigJk/end_of_eden/gen"
 	"github.com/BigJk/end_of_eden/gen/faces"
+	"github.com/BigJk/end_of_eden/localization"
 	"github.com/BigJk/end_of_eden/settings"
 	"github.com/BigJk/end_of_eden/settings/viper"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
@@ -20,6 +21,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"strings"
 )
 
 var prog *tea.Program
@@ -56,6 +58,7 @@ func main() {
 		}
 		vi.SetDefault("audio", true)
 		vi.SetDefault("volume", 1)
+		vi.SetDefault("language", "en")
 		settings.SetSettings(vi)
 
 		if err := settings.LoadSettings(); err != nil {
@@ -84,6 +87,16 @@ func main() {
 	}
 	fmt.Println(loadStyle.Render("Done!"))
 
+	// Init Localization
+	fmt.Println(loadStyle.Render("Initializing Localization. Please wait..."))
+	{
+		if err := localization.Global.AddFolder("./assets/locals"); err != nil {
+			panic(err)
+		}
+		localization.SetCurrent(settings.GetString("language"))
+	}
+	fmt.Println(loadStyle.Render("Done!"))
+
 	// Redirect log to file
 	_ = os.Mkdir("./logs", 0777)
 	f, err := tea.LogToFile("./logs/global.log", "")
@@ -103,6 +116,7 @@ func main() {
 	uiSettings := []uiset.Value{
 		{Key: "audio", Name: "Audio", Description: "Enable or disable audio", Type: uiset.Bool, Val: settings.GetBool("audio"), Min: nil, Max: nil},
 		{Key: "volume", Name: "Volume", Description: "Change the volume", Type: uiset.Float, Val: settings.GetFloat("volume"), Min: 0.0, Max: 2.0},
+		{Key: "language", Name: "Language", Description: fmt.Sprintf("Change the language (supported: %s)", strings.Join(localization.Global.GetLocales(), ", ")), Type: uiset.String, Val: settings.GetString("language")},
 	}
 
 	// Setup game
@@ -112,6 +126,7 @@ func main() {
 		for i := range values {
 			settings.Set(values[i].Key, values[i].Val)
 		}
+		localization.SetCurrent(settings.GetString("language"))
 		return settings.SaveSettings()
 	}))
 

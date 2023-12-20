@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/BigJk/end_of_eden/localization"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -616,6 +617,20 @@ fun = require "fun"
 	d.Function("random_artifact", "Returns the type id of a random artifact.", "String", "maxPrice : Number")
 	l.SetGlobal("random_artifact", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(session.GetRandomArtifact(int(state.ToNumber(1)))))
+		return 1
+	}))
+
+	// Localization
+
+	d.Category("Localization", "Functions that help with localization.", 14)
+
+	d.Function("l", "Returns the localized string for the given key. Examples on locals definition can be found in `/assets/locals`. Example: ``\nl('cards.MY_CARD.name', \"English Default Name\")``", "String", "key : String", "(optional) default : String")
+	l.SetGlobal("l", l.NewFunction(func(state *lua.LState) int {
+		if state.GetTop() == 1 {
+			state.Push(lua.LString(localization.G(state.ToString(1))))
+		} else {
+			state.Push(lua.LString(localization.G(state.ToString(1), state.ToString(2))))
+		}
 		return 1
 	}))
 
