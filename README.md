@@ -6,12 +6,13 @@
 
 > Welcome to a world 500 years in the future, ravaged by climate change and nuclear wars. The remaining humans have become few and far between, replaced by mutated and plant-based creatures. In this gonzo-fantasy setting, you find yourself awakening from cryo sleep in an underground facility, long forgotten and alone. With all other cryosleep capsules broken, it's up to you to navigate this strange and dangerous world and uncover the secrets that led to your isolation...
 
+<a href="https://bigjk.itch.io/end-of-eden"><img align="right" src="http://jessemillar.github.io/available-on-itchio-badge/badge-bw.png" width="130"></img></a>
+
 **End of Eden...**
 - Is a "Slay the Spire"-like, roguelite deck-builder game running fully in console
 - Collect Artifacts that give you new cards or various passive effects
 - Clash with strange beings and try to survive as long as possible
 - Use the base engine to create your own mods and content
-
 
 # Screenshots
 
@@ -206,6 +207,11 @@ v``Major``.``Minor``.``Patch``
 - **Major:** Major version represents a major milestone in the games development. A major version of ``0`` represents the early development phase of the game, where nothing is set in stone yet and everything can change.
 - **Minor:** Minor version represents a new feature or a significant change.
 - **Path:** Smaller changes, bug fixes and improvements.
+
+# Socials
+
+- **itch.io:** https://bigjk.itch.io/end-of-eden
+- **indiedb:** https://www.indiedb.com/games/end-of-eden
 
 # Credits
 
