@@ -2,7 +2,7 @@ package game
 
 import (
 	"encoding/gob"
-	"github.com/BigJk/end_of_eden/lua/luhelp"
+	"github.com/BigJk/end_of_eden/internal/lua/luhelp"
 )
 
 func init() {

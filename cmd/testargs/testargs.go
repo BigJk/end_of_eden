@@ -3,7 +3,7 @@ package testargs
 import (
 	"flag"
 	"github.com/BigJk/end_of_eden/game"
-	"github.com/BigJk/end_of_eden/settings"
+	"github.com/BigJk/end_of_eden/system/settings"
 	"github.com/BigJk/end_of_eden/ui/menus/gameview"
 	"github.com/BigJk/end_of_eden/ui/root"
 	tea "github.com/charmbracelet/bubbletea"

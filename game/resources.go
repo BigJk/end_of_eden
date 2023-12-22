@@ -2,8 +2,8 @@ package game
 
 import (
 	"fmt"
-	"github.com/BigJk/end_of_eden/lua/ludoc"
-	luhelp "github.com/BigJk/end_of_eden/lua/luhelp"
+	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
+	luhelp2 "github.com/BigJk/end_of_eden/internal/lua/luhelp"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"io/fs"
@@ -26,7 +26,7 @@ type ResourcesManager struct {
 	luaDocs    *ludoc.Docs
 	log        *log.Logger
 	registered *lua.LTable
-	mapper     *luhelp.Mapper
+	mapper     *luhelp2.Mapper
 }
 
 func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger) *ResourcesManager {
@@ -41,7 +41,7 @@ func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger
 		StoryTeller:   map[string]*StoryTeller{},
 
 		registered: state.NewTable(),
-		mapper:     luhelp.NewMapper(state),
+		mapper:     luhelp2.NewMapper(state),
 	}
 
 	// Create global variable to access registered values in lua
@@ -114,7 +114,7 @@ func (man *ResourcesManager) MarkBaseGame() {
 
 func (man *ResourcesManager) luaRegisterArtifact(l *lua.LState) int {
 	def := Artifact{
-		Callbacks: map[string]luhelp.OwnedCallback{},
+		Callbacks: map[string]luhelp2.OwnedCallback{},
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
@@ -133,7 +133,7 @@ func (man *ResourcesManager) luaRegisterArtifact(l *lua.LState) int {
 
 func (man *ResourcesManager) luaRegisterCard(l *lua.LState) int {
 	def := Card{
-		Callbacks: map[string]luhelp.OwnedCallback{},
+		Callbacks: map[string]luhelp2.OwnedCallback{},
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
@@ -152,7 +152,7 @@ func (man *ResourcesManager) luaRegisterCard(l *lua.LState) int {
 
 func (man *ResourcesManager) luaRegisterEnemy(l *lua.LState) int {
 	def := Enemy{
-		Callbacks: map[string]luhelp.OwnedCallback{},
+		Callbacks: map[string]luhelp2.OwnedCallback{},
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {
@@ -188,7 +188,7 @@ func (man *ResourcesManager) luaRegisterEvent(l *lua.LState) int {
 
 func (man *ResourcesManager) luaRegisterStatusEffect(l *lua.LState) int {
 	def := StatusEffect{
-		Callbacks: map[string]luhelp.OwnedCallback{},
+		Callbacks: map[string]luhelp2.OwnedCallback{},
 	}
 
 	if err := man.mapper.Map(l.ToTable(2), &def); err != nil {

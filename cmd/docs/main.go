@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
-	"github.com/BigJk/end_of_eden/lua/ludoc"
+	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
 	"github.com/samber/lo"
 	"regexp"
 	"sort"

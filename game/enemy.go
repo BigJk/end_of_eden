@@ -1,7 +1,7 @@
 package game
 
 import (
-	"github.com/BigJk/end_of_eden/lua/luhelp"
+	"github.com/BigJk/end_of_eden/internal/lua/luhelp"
 )
 
 // Enemy represents a definition of a enemy that can be linked from a Actor.

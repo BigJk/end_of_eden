@@ -5,6 +5,7 @@
 package audio
 
 import (
+	"github.com/BigJk/end_of_eden/system/settings"
 	"io/fs"
 	"log"
 	"os"
@@ -14,7 +15,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/BigJk/end_of_eden/settings"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/wav"
 

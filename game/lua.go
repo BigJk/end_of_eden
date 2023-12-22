@@ -1,16 +1,15 @@
 package game
 
 import (
-	"github.com/BigJk/end_of_eden/localization"
+	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
+	luhelp2 "github.com/BigJk/end_of_eden/internal/lua/luhelp"
+	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/gen/faces"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"io/fs"
 	"path/filepath"
 	"strings"
 
-	"github.com/BigJk/end_of_eden/audio"
-	"github.com/BigJk/end_of_eden/gen/faces"
-	"github.com/BigJk/end_of_eden/lua/ludoc"
-	"github.com/BigJk/end_of_eden/lua/luhelp"
-	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
@@ -23,7 +22,7 @@ func SessionAdapter(session *Session) (*lua.LState, *ludoc.Docs) {
 	})
 	d := ludoc.New()
 
-	mapper := luhelp.NewMapper(l)
+	mapper := luhelp2.NewMapper(l)
 
 	_ = filepath.Walk("./assets/scripts/libs", func(path string, info fs.FileInfo, _ error) error {
 		if info != nil && info.IsDir() || !strings.HasSuffix(path, ".lua") {
@@ -97,7 +96,7 @@ fun = require "fun"
 
 	d.Function("fetch", "Fetches a value from the persistent store", "Any", "key : String")
 	l.SetGlobal("fetch", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.Fetch(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.Fetch(state.ToString(1))))
 		return 1
 	}))
 
@@ -107,31 +106,31 @@ fun = require "fun"
 
 	d.Function("text_bold", "Makes the text bold.", "String", "value")
 	l.SetGlobal("text_bold", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString("\033[1m" + luhelp.ToString(state.Get(1), mapper) + "\033[22m"))
+		state.Push(lua.LString("\033[1m" + luhelp2.ToString(state.Get(1), mapper) + "\033[22m"))
 		return 1
 	}))
 
 	d.Function("text_italic", "Makes the text italic.", "String", "value")
 	l.SetGlobal("text_italic", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString("\033[3m" + luhelp.ToString(state.Get(1), mapper) + "\033[23m"))
+		state.Push(lua.LString("\033[3m" + luhelp2.ToString(state.Get(1), mapper) + "\033[23m"))
 		return 1
 	}))
 
 	d.Function("text_underline", "Makes the text underlined.", "String", "value")
 	l.SetGlobal("text_underline", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString("\033[4m" + luhelp.ToString(state.Get(1), mapper) + "\033[24m"))
+		state.Push(lua.LString("\033[4m" + luhelp2.ToString(state.Get(1), mapper) + "\033[24m"))
 		return 1
 	}))
 
 	d.Function("text_color", "Makes the text foreground colored. Takes hex values like #ff0000.", "String", "color : String", "value")
 	l.SetGlobal("text_color", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Foreground(lipgloss.Color(luhelp.ToString(state.Get(1), mapper))).Render(luhelp.ToString(state.Get(2), mapper)))))
+		state.Push(lua.LString(removeAnsiReset(lipgloss.NewStyle().Foreground(lipgloss.Color(luhelp2.ToString(state.Get(1), mapper))).Render(luhelp2.ToString(state.Get(2), mapper)))))
 		return 1
 	}))
 
 	d.Function("text_bg", "Makes the text background colored. Takes hex values like #ff0000.", "String", "color : String", "value")
 	l.SetGlobal("text_bg", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString(util.RemoveAnsiReset(lipgloss.NewStyle().Background(lipgloss.Color(luhelp.ToString(state.Get(1), mapper))).Render(luhelp.ToString(state.Get(2), mapper)))))
+		state.Push(lua.LString(removeAnsiReset(lipgloss.NewStyle().Background(lipgloss.Color(luhelp2.ToString(state.Get(1), mapper))).Render(luhelp2.ToString(state.Get(2), mapper)))))
 		return 1
 	}))
 
@@ -141,25 +140,25 @@ fun = require "fun"
 
 	d.Function("log_i", "Log at **information** level to player log.", "", "value")
 	l.SetGlobal("log_i", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeInfo, luhelp.ToString(state.Get(1), mapper))
+		session.Log(LogTypeInfo, luhelp2.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
 	d.Function("log_w", "Log at **warning** level to player log.", "", "value")
 	l.SetGlobal("log_w", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeWarning, luhelp.ToString(state.Get(1), mapper))
+		session.Log(LogTypeWarning, luhelp2.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
 	d.Function("log_d", "Log at **danger** level to player log.", "", "value")
 	l.SetGlobal("log_d", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeDanger, luhelp.ToString(state.Get(1), mapper))
+		session.Log(LogTypeDanger, luhelp2.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
 	d.Function("log_s", "Log at **success** level to player log.", "", "value")
 	l.SetGlobal("log_s", l.NewFunction(func(state *lua.LState) int {
-		session.Log(LogTypeSuccess, luhelp.ToString(state.Get(1), mapper))
+		session.Log(LogTypeSuccess, luhelp2.ToString(state.Get(1), mapper))
 		return 0
 	}))
 
@@ -180,7 +179,7 @@ fun = require "fun"
 
 		session.log.Printf("[LUA :: %d %s] %s \n", dbg.CurrentLine, dbg.Source, strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
 			val := state.Get(1 + index)
-			return luhelp.ToString(val, mapper)
+			return luhelp2.ToString(val, mapper)
 		}), " "))
 
 		return 0
@@ -243,19 +242,19 @@ fun = require "fun"
 
 	d.Function("get_fight", "Gets the fight state. This contains the player hand, used, exhausted and round information.", "Table", "")
 	l.SetGlobal("get_fight", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetFight()))
+		state.Push(luhelp2.ToLua(state, session.GetFight()))
 		return 1
 	}))
 
 	d.Function("get_event_history", "Gets the ids of all the encountered events in the order of occurrence.", "Array", "")
 	l.SetGlobal("get_event_history", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetEventHistory()))
+		state.Push(luhelp2.ToLua(state, session.GetEventHistory()))
 		return 1
 	}))
 
 	d.Function("had_event", "Checks if the event happened at least once.", "Bool", "eventId : String")
 	l.SetGlobal("had_event", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.HadEvent(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.HadEvent(state.ToString(1))))
 		return 1
 	}))
 
@@ -266,7 +265,7 @@ fun = require "fun"
 			session.logLuaError("had_event", "", err)
 			return 0
 		} else {
-			state.Push(luhelp.ToLua(state, session.HadEvents(ids)))
+			state.Push(luhelp2.ToLua(state, session.HadEvents(ids)))
 		}
 		return 1
 	}))
@@ -278,7 +277,7 @@ fun = require "fun"
 			session.logLuaError("had_events_any", "", err)
 			return 0
 		} else {
-			state.Push(luhelp.ToLua(state, session.HadEventsAny(ids)))
+			state.Push(luhelp2.ToLua(state, session.HadEventsAny(ids)))
 		}
 		return 1
 	}))
@@ -289,19 +288,19 @@ fun = require "fun"
 
 	d.Function("get_player", "Get the player actor. Equivalent to ``get_actor(PLAYER_ID)``", "Table")
 	l.SetGlobal("get_player", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetPlayer()))
+		state.Push(luhelp2.ToLua(state, session.GetPlayer()))
 		return 1
 	}))
 
 	d.Function("get_actor", "Get a actor by guid.", "Table", "guid : String")
 	l.SetGlobal("get_actor", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetActor(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.GetActor(state.ToString(1))))
 		return 1
 	}))
 
 	d.Function("get_opponent_by_index", "Get opponent (actor) by index of a certain actor. ``get_opponent_by_index(PLAYER_ID, 2)`` would return the second alive opponent of the player.", "Table", "guid : String", "index : Number")
 	l.SetGlobal("get_opponent_by_index", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetOpponentByIndex(state.ToString(1), int(state.ToNumber(2))-1)))
+		state.Push(luhelp2.ToLua(state, session.GetOpponentByIndex(state.ToString(1), int(state.ToNumber(2))-1)))
 		return 1
 	}))
 
@@ -313,7 +312,7 @@ fun = require "fun"
 
 	d.Function("get_opponent_guids", "Get the guids of opponents (actors) of a certain actor. If the player had 2 enemies, ``get_opponent_guids(PLAYER_ID)`` would return a table with 2 strings containing the guids of these actors.", "Table", "guid : String")
 	l.SetGlobal("get_opponent_guids", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetOpponentGUIDs(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.GetOpponentGUIDs(state.ToString(1))))
 		return 1
 	}))
 
@@ -360,14 +359,14 @@ fun = require "fun"
 	d.Function("get_artifact", "Returns the artifact definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.", "Table", "id : String")
 	l.SetGlobal("get_artifact", l.NewFunction(func(state *lua.LState) int {
 		art, _ := session.GetArtifact(state.ToString(1))
-		state.Push(luhelp.ToLua(state, art))
+		state.Push(luhelp2.ToLua(state, art))
 		return 1
 	}))
 
 	d.Function("get_artifact_instance", "Returns the artifact instance by guid.", "", "guid : String")
 	l.SetGlobal("get_artifact_instance", l.NewFunction(func(state *lua.LState) int {
 		_, instance := session.GetArtifact(state.ToString(1))
-		state.Push(luhelp.ToLua(state, instance))
+		state.Push(luhelp2.ToLua(state, instance))
 		return 1
 	}))
 
@@ -405,19 +404,19 @@ fun = require "fun"
 
 	d.Function("get_actor_status_effects", "Returns the guids of all status effects that belong to a actor.", "Array", "actorId : String")
 	l.SetGlobal("get_actor_status_effects", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetActorStatusEffects(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.GetActorStatusEffects(state.ToString(1))))
 		return 1
 	}))
 
 	d.Function("get_status_effect", "Returns the status effect definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.", "Table", "id : String")
 	l.SetGlobal("get_status_effect", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetStatusEffect(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.GetStatusEffect(state.ToString(1))))
 		return 1
 	}))
 
 	d.Function("get_status_effect_instance", "Returns the status effect instance.", "Table", "effectGuid : String")
 	l.SetGlobal("get_status_effect_instance", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetStatusEffectInstance(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.GetStatusEffectInstance(state.ToString(1))))
 		return 1
 	}))
 
@@ -445,21 +444,21 @@ fun = require "fun"
 
 	d.Function("get_cards", "Returns all the card guids from the given actor.", "Array", "actorGuid : String")
 	l.SetGlobal("get_cards", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetCards(state.ToString(1))))
+		state.Push(luhelp2.ToLua(state, session.GetCards(state.ToString(1))))
 		return 1
 	}))
 
 	d.Function("get_card", "Returns the card type definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.", "Table", "id : String")
 	l.SetGlobal("get_card", l.NewFunction(func(state *lua.LState) int {
 		card, _ := session.GetCard(state.ToString(1))
-		state.Push(luhelp.ToLua(state, card))
+		state.Push(luhelp2.ToLua(state, card))
 		return 1
 	}))
 
 	d.Function("get_card_instance", "Returns the instance object of a card.", "Table", "cardGuid : String")
 	l.SetGlobal("get_card_instance", l.NewFunction(func(state *lua.LState) int {
 		_, instance := session.GetCard(state.ToString(1))
-		state.Push(luhelp.ToLua(state, instance))
+		state.Push(luhelp2.ToLua(state, instance))
 		return 1
 	}))
 
@@ -509,9 +508,9 @@ fun = require "fun"
 		}
 
 		if state.GetTop() == 3 {
-			state.Push(luhelp.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), false)))
+			state.Push(luhelp2.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), false)))
 		} else {
-			state.Push(luhelp.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), bool(state.ToBool(4)))))
+			state.Push(luhelp2.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), bool(state.ToBool(4)))))
 		}
 		return 1
 	}))
@@ -572,7 +571,7 @@ fun = require "fun"
 
 	d.Function("get_merchant", "Returns the merchant state.", "Table")
 	l.SetGlobal("get_merchant", l.NewFunction(func(state *lua.LState) int {
-		state.Push(luhelp.ToLua(state, session.GetMerchant()))
+		state.Push(luhelp2.ToLua(state, session.GetMerchant()))
 		return 1
 	}))
 
@@ -635,4 +634,9 @@ fun = require "fun"
 	}))
 
 	return l, d
+}
+
+// removeAnsiReset removes the first ansi reset code from a string.
+func removeAnsiReset(s string) string {
+	return strings.Replace(s, "\x1b[0m", "", 1)
 }

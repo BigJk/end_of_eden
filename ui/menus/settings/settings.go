@@ -2,8 +2,8 @@ package settings
 
 import (
 	"fmt"
-	"github.com/BigJk/end_of_eden/audio"
-	"github.com/BigJk/end_of_eden/localization"
+	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/key"

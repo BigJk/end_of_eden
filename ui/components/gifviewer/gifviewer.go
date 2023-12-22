@@ -2,7 +2,7 @@ package gifviewer
 
 import (
 	"fmt"
-	"github.com/BigJk/end_of_eden/image"
+	image2 "github.com/BigJk/end_of_eden/system/image"
 	"github.com/BigJk/end_of_eden/ui"
 	tea "github.com/charmbracelet/bubbletea"
 	"math/rand"
@@ -26,17 +26,17 @@ type Model struct {
 }
 
 func New(parent tea.Model, file string, fps int, width int, height int) (tea.Model, error) {
-	var options []image.Option
+	var options []image2.Option
 
 	if width > 0 && height == 0 {
-		options = append(options, image.WithMaxWidth(width))
+		options = append(options, image2.WithMaxWidth(width))
 	} else if width > 0 && height > 0 {
-		options = append(options, image.WithResize(width, height))
+		options = append(options, image2.WithResize(width, height))
 	} else {
-		options = append(options, image.WithMaxWidth(100))
+		options = append(options, image2.WithMaxWidth(100))
 	}
 
-	frames, err := image.FetchAnimation(file, options...)
+	frames, err := image2.FetchAnimation(file, options...)
 	if err != nil {
 		return nil, err
 	}

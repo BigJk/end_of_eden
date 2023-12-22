@@ -3,7 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
-	"github.com/BigJk/end_of_eden/lua/luhelp"
+	luhelp2 "github.com/BigJk/end_of_eden/internal/lua/luhelp"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/olahol/melody"
@@ -46,7 +46,7 @@ func ExposeDebug(port int, session *Session, l *lua.LState, log *log.Logger) fun
 	e := echo.New()
 	mtx := sync.Mutex{}
 	m := melody.New()
-	mapper := luhelp.NewMapper(l)
+	mapper := luhelp2.NewMapper(l)
 
 	e.GET("/ws", func(c echo.Context) error {
 		_ = m.HandleRequest(c.Response().Writer, c.Request())
@@ -56,7 +56,7 @@ func ExposeDebug(port int, session *Session, l *lua.LState, log *log.Logger) fun
 	l.SetGlobal("debug_r", l.NewFunction(func(state *lua.LState) int {
 		_ = m.Broadcast([]byte(strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
 			val := state.Get(1 + index)
-			return luhelp.ToString(val, mapper)
+			return luhelp2.ToString(val, mapper)
 		}), " ")))
 		return 0
 	}))

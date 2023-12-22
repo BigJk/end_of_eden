@@ -6,11 +6,11 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/BigJk/end_of_eden/gen"
-	"github.com/BigJk/end_of_eden/gen/faces"
-	"github.com/BigJk/end_of_eden/localization"
-	"github.com/BigJk/end_of_eden/lua/ludoc"
-	"github.com/BigJk/end_of_eden/util"
+	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
+	"github.com/BigJk/end_of_eden/system/gen"
+	"github.com/BigJk/end_of_eden/system/gen/faces"
+	"github.com/BigJk/end_of_eden/system/localization"
+	"github.com/BigJk/end_of_eden/ui"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/exp/slices"
@@ -368,10 +368,10 @@ func (s *Session) PushState(events map[StateEvent]any) {
 
 	// Only have the current session have the state checkpoints
 	savedState.stateCheckpoints = make([]StateCheckpoint, 0)
-	savedState.actors = lo.MapValues(util.CopyMap(savedState.actors), func(actor Actor, key string) Actor {
+	savedState.actors = lo.MapValues(CopyMap(savedState.actors), func(actor Actor, key string) Actor {
 		return actor.Clone()
 	})
-	savedState.instances = util.CopyMap(savedState.instances)
+	savedState.instances = CopyMap(savedState.instances)
 
 	s.stateCheckpoints = append(s.stateCheckpoints, StateCheckpoint{
 		Session: &savedState,
@@ -958,8 +958,8 @@ func (s *Session) GetInstance(guid string) any {
 // specified in the game data. This allows the game data to control the order of effects.
 func (s *Session) TraverseArtifactsStatus(guids []string, artifact func(instance ArtifactInstance, artifact *Artifact), status func(instance StatusEffectInstance, statusEffect *StatusEffect)) {
 	sort.SliceStable(guids, func(i, j int) bool {
-		oa := util.Max(s.GetArtifactOrder(guids[i]), s.GetStatusEffectOrder(guids[i]))
-		ob := util.Max(s.GetArtifactOrder(guids[j]), s.GetStatusEffectOrder(guids[j]))
+		oa := ui.Max(s.GetArtifactOrder(guids[i]), s.GetStatusEffectOrder(guids[i]))
+		ob := ui.Max(s.GetArtifactOrder(guids[j]), s.GetStatusEffectOrder(guids[j]))
 		return oa > ob
 	})
 

@@ -1,9 +1,9 @@
 package mods
 
 import (
-	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
-	"github.com/BigJk/end_of_eden/settings"
+	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/settings"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/key"

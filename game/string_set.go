@@ -3,7 +3,6 @@ package game
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/BigJk/end_of_eden/util"
 	"github.com/samber/lo"
 	"sort"
 )
@@ -54,7 +53,7 @@ func (s *StringSet) ToSlice() []string {
 }
 
 func (s *StringSet) Clone() *StringSet {
-	return &StringSet{values: util.CopyMap(s.values)}
+	return &StringSet{values: CopyMap(s.values)}
 }
 
 func (s *StringSet) GobEncode() ([]byte, error) {
@@ -78,4 +77,13 @@ func (s *StringSet) GobDecode(data []byte) error {
 	s.Append(keys...)
 
 	return nil
+}
+
+// CopyMap copies a map. If the value is a pointer, the pointer is copied, not the value.
+func CopyMap[K comparable, V any](m map[K]V) map[K]V {
+	result := make(map[K]V)
+	for k, v := range m {
+		result[k] = v
+	}
+	return result
 }

@@ -1,7 +1,7 @@
 package game
 
 import (
-	"github.com/BigJk/end_of_eden/lua/luhelp"
+	"github.com/BigJk/end_of_eden/internal/lua/luhelp"
 )
 
 type StoryTeller struct {

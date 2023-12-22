@@ -2,14 +2,13 @@ package eventview
 
 import (
 	"fmt"
-	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
-	"github.com/BigJk/end_of_eden/image"
+	"github.com/BigJk/end_of_eden/system/audio"
+	image2 "github.com/BigJk/end_of_eden/system/image"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
-	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
@@ -137,11 +136,11 @@ func (m Model) eventUpdateSize(width, height int, init bool) Model {
 	verticalMarginHeight := headerHeight + footerHeight + m.eventChoiceHeight()
 
 	if init {
-		m.viewport = viewport.New(util.Min(width, 100), height-verticalMarginHeight)
+		m.viewport = viewport.New(ui.Min(width, 100), height-verticalMarginHeight)
 		m.viewport.YPosition = headerHeight
 		m = m.eventUpdateContent()
 	} else {
-		m.viewport.Width = util.Min(width, 100)
+		m.viewport.Width = ui.Min(width, 100)
 		m.viewport.Height = height - verticalMarginHeight
 	}
 
@@ -189,7 +188,7 @@ func (m Model) eventUpdateContent() Model {
 				}
 				res = string(ansRes)
 			} else {
-				imgRes, err := image.Fetch(file, image.WithMaxWidth(100))
+				imgRes, err := image2.Fetch(file, image2.WithMaxWidth(100))
 				if err != nil {
 					continue
 				}
@@ -231,7 +230,7 @@ func (m Model) eventHeaderView() string {
 	}
 
 	title := titleStyle.Render(m.session.GetEvent().Name)
-	line := style.GrayTextDarker.Render(strings.Repeat("━", util.Max(0, m.viewport.Width-lipgloss.Width(title))))
+	line := style.GrayTextDarker.Render(strings.Repeat("━", ui.Max(0, m.viewport.Width-lipgloss.Width(title))))
 	return "\n" + lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }
 
@@ -246,7 +245,7 @@ func (m Model) eventFooterView() string {
 	}
 
 	info := infoStyle.Render(fmt.Sprintf("%3.f%%", perc))
-	line := style.GrayTextDarker.Render(strings.Repeat("━", util.Max(0, m.viewport.Width-lipgloss.Width(info))))
+	line := style.GrayTextDarker.Render(strings.Repeat("━", ui.Max(0, m.viewport.Width-lipgloss.Width(info))))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
@@ -257,9 +256,9 @@ func (m Model) eventChoices() []string {
 
 	choices := lo.Map(m.session.GetEvent().Choices, func(item game.EventChoice, i int) string {
 		if m.selectedChoice == i {
-			return choiceSelectedStyle.Width(util.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", i+1, m.session.GetEventChoiceDescription(i)), util.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
+			return choiceSelectedStyle.Width(ui.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", i+1, m.session.GetEventChoiceDescription(i)), ui.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
 		}
-		return choiceStyle.Width(util.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", i+1, m.session.GetEventChoiceDescription(i)), util.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
+		return choiceStyle.Width(ui.Min(m.Size.Width, 100)).Render(wordwrap.String(fmt.Sprintf("%d. %s", i+1, m.session.GetEventChoiceDescription(i)), ui.Min(m.Size.Width, 100-choiceStyle.GetHorizontalFrameSize())))
 	})
 
 	return lo.Map(choices, func(item string, index int) string {

@@ -2,8 +2,8 @@ package gameview
 
 import (
 	"fmt"
-	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"

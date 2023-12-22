@@ -2,13 +2,12 @@ package merchant
 
 import (
 	"fmt"
-	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
-	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -208,7 +207,7 @@ func (m Model) View() string {
 			{Title: "Price", Width: 10},
 		})
 		m.table.SetWidth(m.Size.Width - faceSectionWidth - 40)
-		m.table.SetHeight(util.Min(m.Size.Height-4-10, len(m.table.Rows())+1))
+		m.table.SetHeight(ui.Min(m.Size.Height-4-10, len(m.table.Rows())+1))
 
 		canBuy := false
 		selectedItem := m.merchantGetSelected()
@@ -237,7 +236,7 @@ func (m Model) View() string {
 			{Title: "Level", Width: 10},
 		})
 		m.table.SetWidth(m.Size.Width - faceSectionWidth - 40)
-		m.table.SetHeight(util.Min(m.Size.Height-4-10, len(m.table.Rows())+1))
+		m.table.SetHeight(ui.Min(m.Size.Height-4-10, len(m.table.Rows())+1))
 
 		selectedItem := m.playerCardGetSelected()
 		var selectedItemLook string
@@ -274,7 +273,7 @@ func (m Model) View() string {
 
 func (m Model) merchantLeft(buttons []string, textOverwrite string) string {
 	merchant := m.session.GetMerchant()
-	merchantWidth := util.Max(lipgloss.Width(merchant.Face), 30)
+	merchantWidth := ui.Max(lipgloss.Width(merchant.Face), 30)
 
 	faceSection := lipgloss.JoinVertical(
 		lipgloss.Top,

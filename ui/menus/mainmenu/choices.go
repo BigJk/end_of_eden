@@ -1,7 +1,7 @@
 package mainmenu
 
 import (
-	"github.com/BigJk/end_of_eden/audio"
+	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"

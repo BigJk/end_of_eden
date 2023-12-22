@@ -5,7 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/BigJk/end_of_eden/settings"
+	"github.com/BigJk/end_of_eden/system/settings"
 	"github.com/BigJk/end_of_eden/ui/menus/mainmenu"
 	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/charmbracelet/lipgloss"

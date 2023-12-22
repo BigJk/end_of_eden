@@ -3,8 +3,8 @@ package components
 import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
-	"github.com/BigJk/end_of_eden/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/samber/lo"
@@ -40,7 +40,7 @@ func HalfCard(session *game.Session, guid string, active bool, baseHeight int, m
 
 	if active {
 		return cardStyle.
-			Height(util.Min(maxHeight-1, baseHeight+5)).
+			Height(ui.Min(maxHeight-1, baseHeight+5)).
 			Render(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), cardState))
 	}
 

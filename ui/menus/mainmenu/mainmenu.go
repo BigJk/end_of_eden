@@ -2,10 +2,10 @@ package mainmenu
 
 import (
 	"fmt"
-	"github.com/BigJk/end_of_eden/audio"
 	"github.com/BigJk/end_of_eden/game"
-	"github.com/BigJk/end_of_eden/image"
-	"github.com/BigJk/end_of_eden/settings"
+	"github.com/BigJk/end_of_eden/system/audio"
+	image2 "github.com/BigJk/end_of_eden/system/image"
+	"github.com/BigJk/end_of_eden/system/settings"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components/loader"
 	"github.com/BigJk/end_of_eden/ui/menus/about"
@@ -39,7 +39,7 @@ type Model struct {
 }
 
 func NewModel(zones *zone.Manager, settings settings.Settings, values []uiset.Value, saver uiset.Saver) Model {
-	img, _ := image.Fetch("title.png", image.WithResize(180, 9))
+	img, _ := image2.Fetch("title.png", image2.WithResize(180, 9))
 
 	audio.PlayMusic("planet_mining")
 
@@ -66,7 +66,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.settings.GetBool("experimental") {
 			l, done, _ := loader.New(intro.New(m), "Initial loading")
 			go func() {
-				_, _ = image.FetchAnimation("intro.gif", image.WithMaxWidth(100))
+				_, _ = image2.FetchAnimation("intro.gif", image2.WithMaxWidth(100))
 				done <- true
 			}()
 			return l, nil
@@ -101,8 +101,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
 				lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 			)
-			image.ResetSearchPaths()
-			image.AddSearchPaths(lo.Map(session.GetLoadedMods(), func(item string, index int) string {
+			image2.ResetSearchPaths()
+			image2.AddSearchPaths(lo.Map(session.GetLoadedMods(), func(item string, index int) string {
 				return fmt.Sprintf("./mods/%s/images/", item)
 			})...)
 
@@ -124,8 +124,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			panic(err)
 		}
 
-		image.ResetSearchPaths()
-		image.AddSearchPaths(lo.Map(m.settings.GetStrings("mods"), func(item string, index int) string {
+		image2.ResetSearchPaths()
+		image2.AddSearchPaths(lo.Map(m.settings.GetStrings("mods"), func(item string, index int) string {
 			return fmt.Sprintf("./mods/%s/images/", item)
 		})...)
 
