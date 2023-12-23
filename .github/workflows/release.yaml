@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1
         with:
-          goversion: 1.20
+          goversion: "1.20"
           md5sum: FALSE
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev && ./internal/misc/build_index.sh ./assets"
