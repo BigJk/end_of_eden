@@ -3,6 +3,25 @@ on:
     types: [created]
 
 jobs:
+  release-wasm:
+    permissions: write-all
+    name: release js/wasm
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: 1
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1
+        with:
+          md5sum: FALSE
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev && ./internal/misc/build_index.sh ./assets"
+          project_path: "./cmd/game_wasm"
+          binary_name: "eoe.wasm"
+          extra_files: "./assets/ ./cmd/game_wasm/index.html ./cmd/game_wasm/wasm_exec.js"
+          ldflags: "-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'"
+          goos: js
+          goarch: wasm
   release-linux-term-amd64:
     permissions: write-all
     name: release linux/amd64 term
