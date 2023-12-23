@@ -13,6 +13,7 @@ jobs:
         with:
           goversion: "1.20"
           md5sum: FALSE
+          compress_assets: "zip"
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev && ./internal/misc/build_index.sh ./assets"
           project_path: "./cmd/game_wasm"
