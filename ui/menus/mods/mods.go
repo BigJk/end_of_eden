@@ -2,6 +2,7 @@ package mods
 
 import (
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/system/settings"
 	"github.com/BigJk/end_of_eden/ui"
@@ -13,7 +14,6 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
 	"log"
-	"os"
 	"path/filepath"
 	"sort"
 )
@@ -182,7 +182,7 @@ func (m Model) modActive(mod string) bool {
 }
 
 func (m Model) fetchMods() Model {
-	entries, err := os.ReadDir("./mods")
+	entries, err := fs.ReadDir("./mods")
 	if err != nil {
 		log.Println("Error while reading mods directory:", err)
 		return m

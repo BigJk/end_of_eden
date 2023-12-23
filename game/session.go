@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
 	"github.com/BigJk/end_of_eden/system/gen"
 	"github.com/BigJk/end_of_eden/system/gen/faces"
@@ -15,10 +16,8 @@ import (
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/exp/slices"
 	"io"
-	"io/fs"
 	"log"
 	"math/rand"
-	"os"
 	"oss.terrastruct.com/d2/d2graph"
 	"oss.terrastruct.com/d2/d2layouts/d2dagrelayout"
 	"oss.terrastruct.com/d2/d2lib"
@@ -330,18 +329,20 @@ func (s *Session) loadMods(mods []string) {
 			log.Println("Loading mod:", mod.Name)
 		}
 
-		_ = filepath.Walk(filepath.Join("./mods", mods[i]), func(path string, info fs.FileInfo, err error) error {
+		_ = fs.Walk(filepath.Join("./mods", mods[i]), func(path string, isDir bool) error {
 			// If we find a locals folder we add it to the localization
-			if info.IsDir() && info.Name() == "locals" {
+			if isDir && filepath.Base(path) == "locals" {
 				_ = localization.Global.AddFolder(path)
 			}
 
-			if err != nil {
-				return nil
-			}
+			if isDir && strings.HasSuffix(path, ".lua") {
+				luaBytes, err := fs.ReadFile(path)
+				if err != nil {
+					// TODO: error handling
+					panic(err)
+				}
 
-			if !info.IsDir() && strings.HasSuffix(path, ".lua") {
-				if err := s.luaState.DoFile(path); err != nil {
+				if err := s.luaState.DoString(string(luaBytes)); err != nil {
 					s.logLuaError("ModLoader", "", err)
 				}
 			}
@@ -466,7 +467,7 @@ func (s *Session) SetupFight() {
 		if err != nil {
 			s.log.Println("Error saving file:", save)
 		} else {
-			if err := os.WriteFile("./session.save", save, 0666); err != nil {
+			if err := fs.WriteFile("./session.save", save); err != nil {
 				s.log.Println("Error saving file:", save)
 			}
 		}

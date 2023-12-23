@@ -1,12 +1,12 @@
 package game
 
 import (
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
 	luhelp2 "github.com/BigJk/end_of_eden/internal/lua/luhelp"
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/system/gen/faces"
 	"github.com/BigJk/end_of_eden/system/localization"
-	"io/fs"
 	"path/filepath"
 	"strings"
 
@@ -24,14 +24,19 @@ func SessionAdapter(session *Session) (*lua.LState, *ludoc.Docs) {
 
 	mapper := luhelp2.NewMapper(l)
 
-	_ = filepath.Walk("./assets/scripts/libs", func(path string, info fs.FileInfo, _ error) error {
-		if info != nil && info.IsDir() || !strings.HasSuffix(path, ".lua") {
+	_ = fs.Walk("./assets/scripts/libs", func(path string, isDir bool) error {
+		if isDir || !strings.HasSuffix(path, ".lua") {
 			return nil
 		}
 
 		name := strings.Split(filepath.Base(path), ".")[0]
 
-		mod, err := l.LoadFile(path)
+		luaBytes, err := fs.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		mod, err := l.LoadString(string(luaBytes))
 		if err != nil {
 			session.log.Println("Can't LoadFile module:", path)
 			return nil

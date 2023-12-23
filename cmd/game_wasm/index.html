@@ -1,0 +1,125 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<script src="./wasm_exec.js"></script>
+	<style>
+      html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          font-family: 'Inconsolata', monospace;
+          background-color: #1a1a1a !important;
+      }
+
+      .terminal-container {
+          /* this is important */
+          overflow: hidden;
+      }
+
+      .xterm .xterm-viewport {
+          /* see : https://github.com/xtermjs/xterm.js/issues/3564#issuecomment-1004417440 */
+          width: initial !important;
+      }
+	</style>
+</head>
+<body>
+<div class="terminal-container" style="height: 100%; width: 100%;">
+	<div id="terminal" style="height: 100%"></div>
+</div>
+<script>
+	globalThis.settings = {
+		get(key, emptyValue) {
+			console.log("get", key, emptyValue)
+			try {
+				return JSON.parse(window.localStorage.getItem(key))
+			} catch (e) {
+				return emptyValue !== undefined ? emptyValue : null
+			}
+		},
+		getString(key) {
+			return window.settings.get(key, "")
+		},
+		getInt(key) {
+			return window.settings.get(key, 0)
+		},
+		getBool(key) {
+			return window.settings.get(key, false)
+		},
+		getFloat(key) {
+			return window.settings.get(key, 0.0)
+		},
+		getStrings(key) {
+			return window.settings.get(key, [])
+		},
+		set(key, value) {
+			window.localStorage.setItem(key, JSON.stringify(value))
+		},
+		setDefault(key, value) {
+			if (window.localStorage.getItem(key) !== null) {
+				return
+			}
+			window.localStorage.setItem(key, value)
+		}
+	}
+</script>
+<script>
+	function initTerminal() {
+		const term = new Terminal({
+			fontSize: 18,
+			fontFamily: 'Inconsolata',
+			theme: {
+				background: '#1a1a1a'
+			}
+		});
+		const fitAddon = new FitAddon.FitAddon();
+		term.loadAddon(fitAddon);
+		term.open(document.getElementById('terminal'));
+
+		// Register terminal resize
+		fitAddon.fit();
+		window.addEventListener('resize', () => (fitAddon.fit()));
+
+		// Initial resize
+		bubbletea_resize(term.cols, term.rows)
+
+		// Read from bubbletea and write to xterm
+		setInterval(() => {
+			const read = bubbletea_read();
+			if (read && read.length > 0) {
+				term.write(read);
+			}
+		}, 1000 / 30);
+
+		// Resize on terminal resize
+		term.onResize((size) => (bubbletea_resize(term.cols, term.rows)));
+
+		// Write xterm output to bubbletea
+		term.onData((data) => (bubbletea_write(data)));
+	}
+
+	function init() {
+		const go = new Go();
+		WebAssembly.instantiateStreaming(fetch("./eoe.wasm"), go.importObject).then((result) => {
+			// Run wasm
+			go.run(result.instance).then(() => {
+				console.log("wasm finished");
+			});
+
+			// Init terminal. This should be done after bubbletea is initialized. For now, I use a timeout.
+			setTimeout(() => {
+				document.fonts.load('16px "Inconsolata"').then(() => {initTerminal();});
+			}, 1000);
+		})
+	}
+
+	init();
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@ import (
 	teadapter "github.com/BigJk/crt/bubbletea"
 	"github.com/BigJk/crt/shader"
 	"github.com/BigJk/end_of_eden/cmd/testargs"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/system/gen"
 	"github.com/BigJk/end_of_eden/system/gen/faces"
@@ -183,7 +184,7 @@ func main() {
 
 	// Setup grain shader
 	if settings.GetBool("grain") {
-		res, _ := os.ReadFile("./assets/shader/grain.go")
+		res, _ := fs.ReadFile("./assets/shader/grain.go")
 		grain, err := ebiten.NewShader(res)
 
 		if err != nil {

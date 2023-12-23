@@ -1,9 +1,9 @@
 package gen
 
 import (
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"log"
 	"math/rand"
-	"os"
 	"strings"
 )
 
@@ -13,14 +13,14 @@ var data = map[string][]string{}
 // The data is stored in a map with the type as key and a slice of strings, which are the lines
 // of the file, as value.
 func InitGen() {
-	files, err := os.ReadDir("./assets/gen")
+	files, err := fs.ReadDir("./assets/gen")
 	if err != nil {
 		panic(err)
 	}
 
 	for _, file := range files {
 		if !file.IsDir() && strings.HasSuffix(file.Name(), ".txt") {
-			bytes, err := os.ReadFile("./assets/gen/" + file.Name())
+			bytes, err := fs.ReadFile("./assets/gen/" + file.Name())
 			if err != nil {
 				log.Println("Error reading file:", err.Error())
 			}

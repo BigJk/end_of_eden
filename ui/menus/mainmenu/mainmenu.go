@@ -3,6 +3,7 @@ package mainmenu
 import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/system/audio"
 	image2 "github.com/BigJk/end_of_eden/system/image"
 	"github.com/BigJk/end_of_eden/system/settings"
@@ -91,8 +92,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ChoiceContinue:
 		audio.Play("btn_menu")
 
-		if saved, err := os.ReadFile("./session.save"); err == nil {
-			f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		if saved, err := fs.ReadFile("./session.save"); err == nil {
+			f, err := fs.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 			if err != nil {
 				panic(err)
 			}
@@ -119,7 +120,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		audio.Play("btn_menu")
 
 		_ = os.Mkdir("./logs", 0777)
-		f, err := os.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		f, err := fs.OpenFile("./logs/S "+strings.ReplaceAll(time.Now().Format(time.DateTime), ":", "-")+".txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
 			panic(err)
 		}

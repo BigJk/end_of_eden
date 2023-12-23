@@ -2,13 +2,12 @@ package game
 
 import (
 	"fmt"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
 	luhelp2 "github.com/BigJk/end_of_eden/internal/lua/luhelp"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
-	"io/fs"
 	"log"
-	"path/filepath"
 	"strings"
 )
 
@@ -67,18 +66,20 @@ func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger
 	man.defineDocs(docs)
 
 	// Load all local scripts
-	_ = filepath.Walk("./assets/scripts", func(path string, info fs.FileInfo, err error) error {
+	_ = fs.Walk("./assets/scripts", func(path string, isDir bool) error {
 		// Don't load libs
 		if strings.Contains(path, "scripts/libs") {
 			return nil
 		}
 
-		if err != nil {
-			return nil
-		}
+		if !isDir && strings.HasSuffix(path, ".lua") {
+			luaBytes, err := fs.ReadFile(path)
+			if err != nil {
+				// TODO: error handling
+				panic(err)
+			}
 
-		if !info.IsDir() && strings.HasSuffix(path, ".lua") {
-			if err := man.luaState.DoFile(path); err != nil {
+			if err := man.luaState.DoString(string(luaBytes)); err != nil {
 				// TODO: error handling
 				panic(err)
 			}

@@ -2,6 +2,12 @@ module github.com/BigJk/end_of_eden
 
 go 1.20
 
+replace github.com/containerd/console => github.com/containerd/console v1.0.4-0.20230706203907-8f6c4e4faef5
+
+replace github.com/atotto/clipboard => github.com/BigJk/clipboard v0.0.0-20230514080810-a7e7bd3670a5
+
+replace github.com/charmbracelet/bubbletea => github.com/BigJk/bubbletea v0.0.0-20231222122351-25c0e0b15c34
+
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161
 	github.com/BigJk/crt v0.0.13
@@ -36,6 +42,7 @@ require (
 	github.com/yuin/gopher-lua v1.1.0
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
 	golang.org/x/sys v0.13.0
+	gopkg.in/yaml.v3 v3.0.1
 	oss.terrastruct.com/d2 v0.4.1
 )
 
@@ -109,6 +116,5 @@ require (
 	gonum.org/v1/plot v0.12.0 // indirect
 	google.golang.org/genproto v0.0.0-20230222225845-10f96fb3dbec // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	oss.terrastruct.com/util-go v0.0.0-20230320053557-dcb5aac7d972 // indirect
 )

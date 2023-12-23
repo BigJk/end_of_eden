@@ -2,8 +2,8 @@ package localization
 
 import (
 	"fmt"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"gopkg.in/yaml.v3"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -44,8 +44,8 @@ func (l *Localization) Add(locale string, translations map[string]string) {
 // AddFolder adds all locales from the given folder. Will walk through all
 // sub-folders and add all .yaml and .yml files.
 func (l *Localization) AddFolder(folder string) error {
-	return filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
+	return fs.Walk(folder, func(path string, isDir bool) error {
+		if isDir {
 			return nil
 		}
 
@@ -61,7 +61,7 @@ func (l *Localization) AddFolder(folder string) error {
 func (l *Localization) AddFile(file string) error {
 	var parsed map[string]map[string]any
 
-	data, err := os.ReadFile(file)
+	data, err := fs.ReadFile(file)
 	if err != nil {
 		return err
 	}

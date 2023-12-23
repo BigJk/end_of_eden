@@ -3,7 +3,9 @@
 package image
 
 import (
+	"bytes"
 	"errors"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/imeji"
 	"github.com/BigJk/imeji/charmaps"
 	"github.com/charmbracelet/log"
@@ -11,8 +13,11 @@ import (
 	"image"
 	"image/draw"
 	"image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -42,6 +47,11 @@ func buildOption(options ...Option) (Options, []imeji.Option) {
 
 		imejiOptions = append(imejiOptions, imeji.WithPattern(pattern...))
 		data.tag += os.Getenv("EOE_IMG_PATTERN")
+	}
+
+	if runtime.GOOS == "js" {
+		imejiOptions = append(imejiOptions, imeji.WithTrueColor())
+		data.tag += "truecolor"
 	}
 
 	switch termenv.DefaultOutput().Profile {
@@ -82,7 +92,17 @@ func Fetch(name string, options ...Option) (string, error) {
 	}
 
 	for i := range searchPaths {
-		res, err := imeji.FileString(filepath.Join(searchPaths[i], name), imejiOptions...)
+		file, err := fs.ReadFile(filepath.Join(searchPaths[i], name))
+		if err != nil {
+			continue
+		}
+
+		image, _, err := image.Decode(bytes.NewBuffer(file))
+		if err != nil {
+			continue
+		}
+
+		res, err := imeji.ImageString(image, imejiOptions...)
 		if err == nil {
 			if err := setCache(hash, res); err != nil {
 				log.Warn("could not cache image: %s", err)
@@ -113,13 +133,12 @@ func FetchAnimation(name string, options ...Option) ([]string, error) {
 
 	var frames []string
 	for i := range searchPaths {
-		f, err := os.Open(filepath.Join(searchPaths[i], name))
+		fileBytes, err := fs.ReadFile(filepath.Join(searchPaths[i], name))
 		if err != nil {
 			continue
 		}
-		defer f.Close()
 
-		g, err := gif.DecodeAll(f)
+		g, err := gif.DecodeAll(bytes.NewBuffer(fileBytes))
 		if err != nil {
 			continue
 		}

@@ -2,7 +2,7 @@ package game
 
 import (
 	"encoding/json"
-	"os"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"path/filepath"
 )
 
@@ -15,7 +15,7 @@ type Mod struct {
 }
 
 func ModDescription(folder string) (Mod, error) {
-	data, err := os.ReadFile(filepath.Join(folder, "/meta.json"))
+	data, err := fs.ReadFile(filepath.Join(folder, "/meta.json"))
 	if err != nil {
 		return Mod{}, err
 	}

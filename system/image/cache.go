@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/samber/lo"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,7 +20,7 @@ func init() {
 // search paths, an error is returned.
 func hashFile(path string) (string, error) {
 	for i := range searchPaths {
-		data, err := ioutil.ReadFile(filepath.Join(searchPaths[i], path))
+		data, err := fs.ReadFile(filepath.Join(searchPaths[i], path))
 		if err != nil {
 			continue
 		}
@@ -43,7 +43,7 @@ func hash(name string, options Options) (string, error) {
 // getCache returns the cached data for the given hash.
 func getCache(hash string) (interface{}, error) {
 	path := filepath.Join("./cache", hash)
-	data, err := ioutil.ReadFile(path)
+	data, err := fs.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -75,5 +75,5 @@ func setCache(hash string, data interface{}) error {
 	}
 
 	path := filepath.Join("./cache", hash)
-	return ioutil.WriteFile(path, []byte(strings.Join(lines, "\n")), 0644)
+	return fs.WriteFile(path, []byte(strings.Join(lines, "\n")))
 }

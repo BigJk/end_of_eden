@@ -1,12 +1,13 @@
-//go:build !no_audio
-// +build !no_audio
+//go:build !no_audio && !js
+// +build !no_audio,!js
 
 // Package audio handles all audio playback. It uses the beep library to play audio files.
 package audio
 
 import (
+	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/system/settings"
-	"io/fs"
+
 	"log"
 	"os"
 	"path/filepath"
@@ -41,11 +42,7 @@ func InitAudio() {
 	go func() {
 		wg := &sync.WaitGroup{}
 
-		_ = filepath.Walk("./assets/audio", func(path string, info fs.FileInfo, err error) error {
-			if err != nil {
-				return nil
-			}
-
+		_ = fs.Walk("./assets/audio", func(path string, isDir bool) error {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -53,7 +50,7 @@ func InitAudio() {
 				var streamer beep.StreamSeekCloser
 				var format beep.Format
 
-				if !info.IsDir() {
+				if !isDir {
 					if strings.HasSuffix(path, ".mp3") {
 						f, err := os.Open(path)
 						if err != nil {

@@ -1,5 +1,5 @@
-//go:build !no_audio
-// +build !no_audio
+//go:build !no_audio && !js
+// +build !no_audio,!js
 
 package audio
 

@@ -51,6 +51,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.size = msg
@@ -73,6 +75,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.stack[curIndex], cmd = m.stack[curIndex].Update(msg)
 
+	if cmd != nil {
+		cmds = append(cmds, cmd)
+	}
+
 	if menu, ok := m.stack[curIndex].(ui.Menu); ok && !menu.HasSize() {
 		return m, tea.Batch(cmd, func() tea.Msg {
 			return m.size
@@ -80,10 +86,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.stack[curIndex] == nil {
+		// If we remove the top model, we need to send a window size message to the new top model
+		// to avoid the layout to be broken.
+		cmds = append(cmds, func() tea.Msg {
+			return tea.WindowSizeMsg{
+				Width:  m.size.Width,
+				Height: m.size.Height,
+			}
+		})
 		m.stack = m.stack[:len(m.stack)-1]
 	}
 
-	return m, cmd
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
