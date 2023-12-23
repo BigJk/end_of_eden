@@ -34,6 +34,53 @@
 	<div id="terminal" style="height: 100%"></div>
 </div>
 <script>
+	// Define variables to keep track of the audio elements
+	let sound = new Audio();
+	let music = new Audio();
+	let currentMusicUrl = "";
+	let userInteracted = false;
+
+	// Function to play a sound based on URL
+	globalThis.playSound = (url) => {
+		sound.src = url;
+		sound.volume = 0.1;
+		sound.play();
+	}
+
+	// Function to loop a music song based on URL
+	globalThis.loopMusic = (url) => {
+		if (!userInteracted) {
+			// If user hasn't interacted, set up a listener for user interaction
+			document.addEventListener('click', function() {
+				userInteracted = true;
+				loopMusic(url); // Start playing the music after user interaction
+			}, { once: true }); // Remove the listener after the first interaction
+			return;
+		}
+
+		if (currentMusicUrl === url) {
+			return;
+		} else {
+			// If a new song is requested, stop the current song and set the new one
+			music.src = url;
+			music.volume = 0.1;
+			currentMusicUrl = url;
+		}
+
+		music.loop = true; // Loop the music
+		music.play(); // Play the music
+	}
+
+	globalThis.fsRead = (path) => {
+		console.log("fsRead", path)
+		return window.localStorage.getItem(path)
+	}
+
+	globalThis.fsWrite = (path, data) => {
+		console.log("fsWrite", path)
+		window.localStorage.setItem(path, data)
+	}
+
 	globalThis.settings = {
 		get(key, emptyValue) {
 			console.log("get", key, emptyValue)
@@ -71,6 +118,14 @@
 </script>
 <script>
 	function initTerminal() {
+		// Check if bubbletea is initialized
+		if (bubbletea_resize === undefined || bubbletea_read === undefined || bubbletea_write === undefined) {
+			setTimeout(() => {
+				initTerminal();
+			}, 500);
+			return;
+		}
+
 		const term = new Terminal({
 			fontSize: 18,
 			fontFamily: 'Inconsolata',
