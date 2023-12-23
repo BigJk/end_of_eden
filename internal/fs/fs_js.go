@@ -30,7 +30,7 @@ func (noOpWriteCloser) Close() error {
 var fileIndex = make(map[string]FileInfo)
 
 func init() {
-	data, err := ReadFile("/assets/file_index.json")
+	data, err := ReadFile("./assets/file_index.json")
 	if err != nil {
 		panic(err)
 	}

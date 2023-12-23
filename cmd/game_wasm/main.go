@@ -136,6 +136,7 @@ func main() {
 		{Key: "audio", Name: "Audio", Description: "Enable or disable audio", Type: uiset.Bool, Val: settings.GetBool("audio"), Min: nil, Max: nil},
 		{Key: "volume", Name: "Volume", Description: "Change the volume", Type: uiset.Float, Val: settings.GetFloat("volume"), Min: 0.0, Max: 2.0},
 		{Key: "language", Name: "Language", Description: fmt.Sprintf("Change the language (supported: %s)", strings.Join(localization.Global.GetLocales(), ", ")), Type: uiset.String, Val: settings.GetString("language")},
+		{Key: "font_size", Name: "Font Size", Description: "Change the font size (page reload required)", Type: uiset.Float, Val: settings.GetFloat("font_size"), Min: 6.0, Max: 64.0},
 	}
 
 	// Setup game

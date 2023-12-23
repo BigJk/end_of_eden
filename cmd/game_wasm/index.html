@@ -30,6 +30,7 @@
 	</style>
 </head>
 <body>
+<div id='loading' style='color: white; margin: 20px;'>Loading... This can take some time...</div>
 <div class="terminal-container" style="height: 100%; width: 100%;">
 	<div id="terminal" style="height: 100%"></div>
 </div>
@@ -117,17 +118,23 @@
 	}
 </script>
 <script>
+	globalThis.settings.setDefault("font_size", 14);
+
 	function initTerminal() {
 		// Check if bubbletea is initialized
-		if (bubbletea_resize === undefined || bubbletea_read === undefined || bubbletea_write === undefined) {
+		if (globalThis.bubbletea_resize === undefined || globalThis.bubbletea_read === undefined || globalThis.bubbletea_write === undefined) {
 			setTimeout(() => {
+				console.log("waiting for bubbletea");
 				initTerminal();
 			}, 500);
 			return;
 		}
 
+		// Remove loading text
+		document.getElementById('loading').remove();
+
 		const term = new Terminal({
-			fontSize: 18,
+			fontSize: globalThis.settings.getInt("font_size") ?? 14,
 			fontFamily: 'Inconsolata',
 			theme: {
 				background: '#1a1a1a'
@@ -168,9 +175,7 @@
 			});
 
 			// Init terminal. This should be done after bubbletea is initialized. For now, I use a timeout.
-			setTimeout(() => {
-				document.fonts.load('16px "Inconsolata"').then(() => {initTerminal();});
-			}, 1000);
+			document.fonts.load('16px "Inconsolata"').then(() => (initTerminal()));
 		})
 	}
 
