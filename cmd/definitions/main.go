@@ -46,8 +46,6 @@ func main() {
 			builder.WriteString("\n" + glob.Name + " = \"\"\n\n")
 		}
 
-		builder.WriteString("-- Functions\n")
-
 		for _, key := range functions {
 			fn := docs.Functions[key]
 			if fn.Category != cat.Name {
@@ -56,20 +54,22 @@ func main() {
 			builder.WriteString(fmt.Sprintf(`--[[
 %s
 --]]`, fn.Description))
-			builder.WriteString("\n" + strings.Join(lo.Map(fn.Args, func(item string, index int) string {
-				isOptional := strings.HasPrefix(item, "(optional) ")
-				if isOptional {
-					item = strings.TrimPrefix(item, "(optional) ")
-				}
+			if len(fn.Args) > 0 {
+				builder.WriteString("\n" + strings.Join(lo.Map(fn.Args, func(item string, index int) string {
+					isOptional := strings.HasPrefix(item, "(optional) ")
+					if isOptional {
+						item = strings.TrimPrefix(item, "(optional) ")
+					}
 
-				t := "any"
-				split := strings.Split(item, ":")
-				if len(split) > 1 {
-					t = strings.TrimSpace(split[1])
-				}
+					t := "any"
+					split := strings.Split(item, ":")
+					if len(split) > 1 {
+						t = strings.TrimSpace(split[1])
+					}
 
-				return "---@param " + strings.TrimSpace(split[0]) + lo.Ternary(isOptional, "?", "") + " " + t
-			}), "\n"))
+					return "---@param " + strings.TrimSpace(split[0]) + lo.Ternary(isOptional, "?", "") + " " + t
+				}), "\n"))
+			}
 			if fn.Return != "" {
 				builder.WriteString("\n---@return " + fn.Return)
 			}

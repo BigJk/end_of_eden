@@ -44,12 +44,10 @@ Player actor id for use in functions where the guid is needed, for example: ``de
 --]]
 PLAYER_ID = ""
 
--- Functions
 -- #####################################
 -- Utility
 -- #####################################
 
--- Functions
 --[[
 Fetches a value from the persistent store
 --]]
@@ -60,7 +58,6 @@ function fetch(key) end
 --[[
 returns a new random guid.
 --]]
-
 ---@return guid
 function guid() end
 
@@ -75,7 +72,6 @@ function store(key, value) end
 -- Styling
 -- #####################################
 
--- Functions
 --[[
 Makes the text background colored. Takes hex values like #ff0000.
 --]]
@@ -117,7 +113,6 @@ function text_underline(value) end
 -- Logging
 -- #####################################
 
--- Functions
 --[[
 Log at **danger** level to player log.
 --]]
@@ -152,7 +147,6 @@ function print(value, value, value...) end
 -- Audio
 -- #####################################
 
--- Functions
 --[[
 Plays a sound effect. If you want to play ``button.mp3`` you call ``play_audio("button")``.
 --]]
@@ -169,7 +163,6 @@ function play_music(sound) end
 -- Game State
 -- #####################################
 
--- Functions
 --[[
 Gets the ids of all the encountered events in the order of occurrence.
 --]]
@@ -234,7 +227,6 @@ function set_game_state(state) end
 -- Actor Operations
 -- #####################################
 
--- Functions
 --[[
 Increases the hp value of a actor by a number. Can be negative value to decrease it. This won't trigger any on_damage callbacks
 --]]
@@ -288,7 +280,6 @@ function get_opponent_guids(guid) end
 --[[
 Get the player actor. Equivalent to ``get_actor(PLAYER_ID)``
 --]]
-
 ---@return actor
 function get_player() end
 
@@ -302,7 +293,6 @@ function remove_actor(guid) end
 -- Artifact Operations
 -- #####################################
 
--- Functions
 --[[
 Returns the artifact definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.
 --]]
@@ -335,7 +325,6 @@ function remove_artifact(guid) end
 -- Status Effect Operations
 -- #####################################
 
--- Functions
 --[[
 Adds to the stack count of a status effect. Negative values are also allowed.
 --]]
@@ -389,7 +378,6 @@ function set_status_effect_stacks(guid, count) end
 -- Card Operations
 -- #####################################
 
--- Functions
 --[[
 Tries to cast a card with a guid and optional target. If the cast isn't successful returns false.
 --]]
@@ -451,7 +439,6 @@ function upgrade_random_card(actor_guid) end
 -- Damage & Heal
 -- #####################################
 
--- Functions
 --[[
 Deal damage to a enemy from one source. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
 --]]
@@ -484,11 +471,9 @@ function heal(source, target, amount) end
 -- Player Operations
 -- #####################################
 
--- Functions
 --[[
 Finishes the player turn.
 --]]
-
 function finish_player_turn() end
 
 --[[
@@ -527,30 +512,25 @@ function player_give_action_points(points) end
 -- Merchant Operations
 -- #####################################
 
--- Functions
 --[[
 Adds another random artifact to the merchant
 --]]
-
 function add_merchant_artifact() end
 
 --[[
 Adds another random card to the merchant
 --]]
-
 function add_merchant_card() end
 
 --[[
 Returns the merchant state.
 --]]
-
 ---@return table
 function get_merchant() end
 
 --[[
 Returns the maximum value of artifacts and cards that the merchant will sell. Good to scale ``random_card`` and ``random_artifact``.
 --]]
-
 ---@return number
 function get_merchant_gold_max() end
 
@@ -558,7 +538,6 @@ function get_merchant_gold_max() end
 -- Random Utility
 -- #####################################
 
--- Functions
 --[[
 Generates a random face.
 --]]
@@ -584,7 +563,6 @@ function random_card(max_price) end
 -- Localization
 -- #####################################
 
--- Functions
 --[[
 Returns the localized string for the given key. Examples on locals definition can be found in `/assets/locals`. Example: ``
 l('cards.MY_CARD.name', "English Default Name")``
@@ -598,7 +576,6 @@ function l(key, default) end
 -- Content Registry
 -- #####################################
 
--- Functions
 --[[
 Deletes all base game content. Useful if you don't want to include base game content in your mod.
 
