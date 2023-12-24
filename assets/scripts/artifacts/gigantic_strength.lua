@@ -12,11 +12,11 @@ register_artifact("GIGANTIC_STRENGTH", {
         end
     },
     test = function()
-        dummy = add_actor_by_enemy("DUMMY")
+        local dummy = add_actor_by_enemy("DUMMY")
 
-        hp_before = get_actor(dummy).hp
+        local hp_before = get_actor(dummy).hp
         deal_damage(PLAYER_ID, dummy, 1)
-        hp_after = get_actor(dummy).hp
+        local hp_after = get_actor(dummy).hp
 
         if hp_after == hp_before - 2 then
             return nil
