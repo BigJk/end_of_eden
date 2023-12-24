@@ -6,7 +6,7 @@ register_artifact("REPULSION_STONE", {
     callbacks = {
         on_damage = function(ctx)
             if ctx.target == ctx.owner then
-                heal(ctx.owner, 2)
+                heal(ctx.owner, ctx.owner, 2)
             end
             return nil
         end

@@ -342,6 +342,10 @@ func (s *Session) loadMods(mods []string) {
 					panic(err)
 				}
 
+				if strings.HasPrefix(string(luaBytes), "---@meta") {
+					return nil
+				}
+
 				if err := s.luaState.DoString(string(luaBytes)); err != nil {
 					s.logLuaError("ModLoader", "", err)
 				}

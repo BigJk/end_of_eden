@@ -12,10 +12,10 @@ register_artifact("GOLD_CONVERTER", {
         end
     },
     test = function()
-        dummy = add_actor_by_enemy("DUMMY")
+        local dummy = add_actor_by_enemy("DUMMY")
         deal_damage(PLAYER_ID, dummy, 10000)
         if get_player().gold == 10 then
-            return true
+            return nil
         end
         return "Expected 10 gold, got " .. get_player().gold
     end

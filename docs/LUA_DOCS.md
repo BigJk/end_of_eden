@@ -5,6 +5,7 @@
 - The [luafun](https://github.com/luafun/luafun) functional library is available by default to provide functions like `map`, `filter`, etc. which are very helpful. Check the [luafun docs](https://luafun.github.io/index.html) for more information.
 - If you are new to lua: [Learn Lua in 15 Minutes](https://tylerneylon.com/a/learn-lua/)
 - For usage examples check the game scripts in `./assets/scripts`
+- LUA definitions for the API are available in `./assets/scripts/definitions`. If you use Visual Studio Code with this [Lua](https://marketplace.visualstudio.com/items?itemName=sumneko.lua) extension you should get autocompletion and a lot of type checking out of the box.
 
 ## Game API
 

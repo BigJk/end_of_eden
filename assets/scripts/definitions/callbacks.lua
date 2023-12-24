@@ -1,0 +1,31 @@
+---@meta
+
+---Callbacks context table. This table is passed to all callbacks but not all fields are used in all callbacks.
+---@class ctx
+---@field type_id? type_id
+---@field guid? guid
+---@field source? guid
+---@field target? guid
+---@field owner? guid
+---@field caster? guid
+---@field level? number
+---@field damage? number
+---@field heal? number
+---@field stacks? number
+---@field round? number
+
+---@class callbacks
+---@field on_actor_die? fun(ctx:ctx):nil
+---@field on_cast? fun(ctx:ctx):nil
+---@field on_damage? fun(ctx:ctx):nil
+---@field on_damage_calc? fun(ctx:ctx):number
+---@field on_heal_calc? fun(ctx:ctx):number
+---@field on_init? fun(ctx:ctx):nil
+---@field on_pick_up? fun(ctx:ctx):nil
+---@field on_player_turn? fun(ctx:ctx):nil
+---@field on_remove? fun(ctx:ctx):nil
+---@field on_status_add? fun(ctx:ctx):nil
+---@field on_status_remove? fun(ctx:ctx):nil
+---@field on_status_stack? fun(ctx:ctx):nil
+---@field on_turn? fun(ctx:ctx):boolean|nil
+

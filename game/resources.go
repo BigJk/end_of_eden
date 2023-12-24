@@ -68,7 +68,7 @@ func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger
 	// Load all local scripts
 	_ = fs.Walk("./assets/scripts", func(path string, isDir bool) error {
 		// Don't load libs
-		if strings.Contains(path, "scripts/libs") {
+		if strings.Contains(path, "scripts/libs") || strings.Contains(path, "scripts/definitions") {
 			return nil
 		}
 
@@ -77,6 +77,10 @@ func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger
 			if err != nil {
 				// TODO: error handling
 				panic(err)
+			}
+
+			if strings.HasPrefix(string(luaBytes), "---@meta") {
+				return nil
 			}
 
 			if err := man.luaState.DoString(string(luaBytes)); err != nil {
@@ -313,7 +317,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
             end,
         }
     }
-)`), "", "id : String", "definition : Table")
+)`), "", "id : type_id", "definition : artifact")
 
 	docs.Function("register_card", fmt.Sprintf("Registers a new card.\n\n```lua\n%s\n```", `register_card("MELEE_HIT",
     {
@@ -334,7 +338,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
             end,
         }
     }
-)`), "", "id : String", "definition : Table")
+)`), "", "id : type_id", "definition : card")
 
 	docs.Function("register_enemy", fmt.Sprintf("Registers a new enemy.\n\n```lua\n%s\n```", `register_enemy("RUST_MITE",
     {
@@ -357,12 +361,12 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
             end
         }
     }
-)`), "", "id : String", "definition : Table")
+)`), "", "id : type_id", "definition : enemy")
 
 	docs.Function("register_event", fmt.Sprintf("Registers a new event.\n\n```lua\n%s\n```", `register_event("SOME_EVENT",
 	{
 		name = "Event Name",
-		description = [[Flavor Text... Can include **Markdown** Syntax!]],
+		description = "Flavor Text... Can include **Markdown** Syntax!",
 		choices = {
 			{
 				description = "Go...",
@@ -391,47 +395,64 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
 			return GAME_STATE_RANDOM
 		end,
 	}
-)`), "", "id : String", "definition : Table")
+)`), "", "id : type_id", "definition : event")
 
-	docs.Function("register_status_effect", fmt.Sprintf("Registers a new status effect.\n\n```lua\n%s\n```", `register_artifact("REPULSION_STONE",
-    {
-        name = "Repulsion Stone",
-        description = "For each damage taken heal for 2",
-        price = 100,
-        order = 0,
-        callbacks = {
-            on_damage = function(ctx)
-                if ctx.target == ctx.owner then
-                    heal(ctx.owner, 2)
-                end
-                return nil
-            end,
-        }
+	docs.Function("register_status_effect", fmt.Sprintf("Registers a new status effect.\n\n```lua\n%s\n```", `register_status_effect("BLOCK", {
+    name = "Block",
+    description = "Decreases incoming damage for each stack",
+    look = "Blk",
+    foreground = "#219ebc",
+    state = function(ctx)
+        return "Takes " .. highlight(ctx.stacks) .. " less damage"
+    end,
+    can_stack = true,
+    decay = DECAY_ALL,
+    rounds = 1,
+    order = 100,
+    callbacks = {
+        on_damage_calc = function(ctx)
+            if ctx.target == ctx.owner then
+                add_status_effect_stacks(ctx.guid, -ctx.damage)
+                return ctx.damage - ctx.stacks
+            end
+            return ctx.damage
+        end
     }
-)`), "", "id : String", "definition : Table")
+})`), "", "id : type_id", "definition : status_effect")
 
-	docs.Function("register_story_teller", fmt.Sprintf("Registers a new story teller.\n\n```lua\n%s\n```", `register_artifact("REPULSION_STONE",
-    {
-        name = "Repulsion Stone",
-        description = "For each damage taken heal for 2",
-        price = 100,
-        order = 0,
-        callbacks = {
-            on_damage = function(ctx)
-                if ctx.target == ctx.owner then
-                    heal(ctx.owner, 2)
-                end
-                return nil
-            end,
-        }
-    }
-)`), "", "id : String", "definition : Table")
+	docs.Function("register_story_teller", fmt.Sprintf("Registers a new story teller.\n\n```lua\n%s\n```", `register_story_teller("STORY_TELLER_XYZ", {
+    active = function(ctx)
+        if not had_events_any({ "A", "B", "C" }) then
+            return 1
+        end
+        return 0
+    end,
+    decide = function(ctx)
+        local stage = get_stages_cleared()
 
-	docs.Function("delete_event", fmt.Sprintf("Deletes an event.\n\n```lua\n%s\n```", `delete_event("SOME_EVENT")`), "", "id : String")
-	docs.Function("delete_card", fmt.Sprintf("Deletes a card.\n\n```lua\n%s\n```", `delete_card("SOME_CARD")`), "", "id : String")
-	docs.Function("delete_enemy", fmt.Sprintf("Deletes an enemy.\n\n```lua\n%s\n```", `delete_enemy("SOME_ENEMY")`), "", "id : String")
-	docs.Function("delete_status_effect", fmt.Sprintf("Deletes a status effect.\n\n```lua\n%s\n```", `delete_status_effect("SOME_STATUS_EFFECT")`), "", "id : String")
-	docs.Function("delete_story_teller", fmt.Sprintf("Deletes a story teller.\n\n```lua\n%s\n```", `delete_story_teller("SOME_STORY_TELLER")`), "", "id : String")
+        if stage >= 3 then
+            set_event("SOME_EVENT")
+            return GAME_STATE_EVENT
+        end
+
+        -- Fight against rust mites or clean bots
+        local d = math.random(2)
+        if d == 1 then
+            add_actor_by_enemy("RUST_MITE")
+        elseif d == 2 then
+            add_actor_by_enemy("CLEAN_BOT")
+        end
+
+        return GAME_STATE_FIGHT
+    end
+})
+)`), "", "id : type_id", "definition : story_teller")
+
+	docs.Function("delete_event", fmt.Sprintf("Deletes an event.\n\n```lua\n%s\n```", `delete_event("SOME_EVENT")`), "", "id : type_id")
+	docs.Function("delete_card", fmt.Sprintf("Deletes a card.\n\n```lua\n%s\n```", `delete_card("SOME_CARD")`), "", "id : type_id")
+	docs.Function("delete_enemy", fmt.Sprintf("Deletes an enemy.\n\n```lua\n%s\n```", `delete_enemy("SOME_ENEMY")`), "", "id : type_id")
+	docs.Function("delete_status_effect", fmt.Sprintf("Deletes a status effect.\n\n```lua\n%s\n```", `delete_status_effect("SOME_STATUS_EFFECT")`), "", "id : type_id")
+	docs.Function("delete_story_teller", fmt.Sprintf("Deletes a story teller.\n\n```lua\n%s\n```", `delete_story_teller("SOME_STORY_TELLER")`), "", "id : type_id")
 
 	docs.Function("delete_base_game", fmt.Sprintf("Deletes all base game content. Useful if you don't want to include base game content in your mod.\n\n```lua\n%s\n```", `delete_base_game() -- delete all base game content
 delete_base_game("artifact") -- deletes all artifacts
@@ -440,5 +461,5 @@ delete_base_game("enemy") -- deletes all enemies
 delete_base_game("event") -- deletes all events
 delete_base_game("status_effect") -- deletes all status effects
 delete_base_game("story_teller") -- deletes all story tellers
-`), "", "(optional) type : String")
+`), "", "(optional) type : string")
 }

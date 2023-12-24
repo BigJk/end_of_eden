@@ -91,7 +91,7 @@ Fetches a value from the persistent store
 **Signature:**
 
 ```
-fetch(key : String) -> Any
+fetch(key : string) -> any
 ```
 
 </details>
@@ -103,7 +103,7 @@ returns a new random guid.
 **Signature:**
 
 ```
-guid() -> String
+guid() -> guid
 ```
 
 </details>
@@ -115,7 +115,7 @@ Stores a persistent value for this run that will be restored after a save load. 
 **Signature:**
 
 ```
-store(key : String, value : Any) -> None
+store(key : string, value : any) -> None
 ```
 
 </details>
@@ -136,7 +136,7 @@ Makes the text background colored. Takes hex values like #ff0000.
 **Signature:**
 
 ```
-text_bg(color : String, value) -> String
+text_bg(color : string, value : any) -> string
 ```
 
 </details>
@@ -148,7 +148,7 @@ Makes the text bold.
 **Signature:**
 
 ```
-text_bold(value) -> String
+text_bold(value : any) -> string
 ```
 
 </details>
@@ -160,7 +160,7 @@ Makes the text foreground colored. Takes hex values like #ff0000.
 **Signature:**
 
 ```
-text_color(color : String, value) -> String
+text_color(color : string, value : any) -> string
 ```
 
 </details>
@@ -172,7 +172,7 @@ Makes the text italic.
 **Signature:**
 
 ```
-text_italic(value) -> String
+text_italic(value : any) -> string
 ```
 
 </details>
@@ -184,7 +184,7 @@ Makes the text underlined.
 **Signature:**
 
 ```
-text_underline(value) -> String
+text_underline(value : any) -> string
 ```
 
 </details>
@@ -205,7 +205,7 @@ Log at **danger** level to player log.
 **Signature:**
 
 ```
-log_d(value) -> None
+log_d(value : any) -> None
 ```
 
 </details>
@@ -217,7 +217,7 @@ Log at **information** level to player log.
 **Signature:**
 
 ```
-log_i(value) -> None
+log_i(value : any) -> None
 ```
 
 </details>
@@ -229,7 +229,7 @@ Log at **success** level to player log.
 **Signature:**
 
 ```
-log_s(value) -> None
+log_s(value : any) -> None
 ```
 
 </details>
@@ -241,7 +241,7 @@ Log at **warning** level to player log.
 **Signature:**
 
 ```
-log_w(value) -> None
+log_w(value : any) -> None
 ```
 
 </details>
@@ -274,7 +274,7 @@ Plays a sound effect. If you want to play ``button.mp3`` you call ``play_audio("
 **Signature:**
 
 ```
-play_audio(sound : String) -> None
+play_audio(sound : string) -> None
 ```
 
 </details>
@@ -286,7 +286,7 @@ Start a song for the background loop. If you want to play ``song.mp3`` you call 
 **Signature:**
 
 ```
-play_music(sound : String) -> None
+play_music(sound : string) -> None
 ```
 
 </details>
@@ -307,7 +307,7 @@ Gets the ids of all the encountered events in the order of occurrence.
 **Signature:**
 
 ```
-get_event_history() -> Array
+get_event_history() -> string[]
 ```
 
 </details>
@@ -319,7 +319,7 @@ Gets the fight state. This contains the player hand, used, exhausted and round i
 **Signature:**
 
 ```
-get_fight() -> Table
+get_fight() -> table
 ```
 
 </details>
@@ -331,7 +331,7 @@ Gets the number of stages cleared.
 **Signature:**
 
 ```
-get_fight_round() -> Number
+get_fight_round() -> number
 ```
 
 </details>
@@ -343,7 +343,7 @@ Checks if the event happened at least once.
 **Signature:**
 
 ```
-had_event(eventId : String) -> Bool
+had_event(event_id : type_id) -> boolean
 ```
 
 </details>
@@ -355,7 +355,7 @@ Checks if all the events happened at least once.
 **Signature:**
 
 ```
-had_events(eventIds : Array) -> Bool
+had_events(event_ids : type_id[]) -> boolean
 ```
 
 </details>
@@ -367,7 +367,7 @@ Checks if any of the events happened at least once.
 **Signature:**
 
 ```
-had_events_any(eventIds : Array) -> Bool
+had_events_any(eventIds : string[]) -> boolean
 ```
 
 </details>
@@ -379,7 +379,7 @@ Set event by id.
 **Signature:**
 
 ```
-set_event(eventId : String) -> None
+set_event(eventId : string) -> None
 ```
 
 </details>
@@ -391,7 +391,7 @@ Set the current fight description. This will be shown on the top right in the ga
 **Signature:**
 
 ```
-set_fight_description(desc : String) -> None
+set_fight_description(desc : string) -> None
 ```
 
 </details>
@@ -403,7 +403,7 @@ Set the current game state. See globals.
 **Signature:**
 
 ```
-set_game_state(state : String) -> None
+set_game_state(state : string) -> None
 ```
 
 </details>
@@ -424,7 +424,7 @@ Increases the hp value of a actor by a number. Can be negative value to decrease
 **Signature:**
 
 ```
-actor_add_hp(guid : String, amount : Number) -> None
+actor_add_hp(guid : guid, amount : number) -> None
 ```
 
 </details>
@@ -436,7 +436,7 @@ Increases the max hp value of a actor by a number. Can be negative value to decr
 **Signature:**
 
 ```
-actor_add_max_hp(guid : String, amount : Number) -> None
+actor_add_max_hp(guid : guid, amount : number) -> None
 ```
 
 </details>
@@ -448,7 +448,7 @@ Creates a new enemy fighting against the player. Example ``add_actor_by_enemy("R
 **Signature:**
 
 ```
-add_actor_by_enemy(enemyId : String) -> String
+add_actor_by_enemy(enemy_id : type_id) -> string
 ```
 
 </details>
@@ -460,7 +460,7 @@ Get a actor by guid.
 **Signature:**
 
 ```
-get_actor(guid : String) -> Table
+get_actor(guid : guid) -> actor
 ```
 
 </details>
@@ -472,7 +472,7 @@ Get opponent (actor) by index of a certain actor. ``get_opponent_by_index(PLAYER
 **Signature:**
 
 ```
-get_opponent_by_index(guid : String, index : Number) -> Table
+get_opponent_by_index(guid : guid, index : number) -> actor
 ```
 
 </details>
@@ -484,7 +484,7 @@ Get the number of opponents (actors) of a certain actor. ``get_opponent_count(PL
 **Signature:**
 
 ```
-get_opponent_count(guid : String) -> Table
+get_opponent_count(guid : guid) -> number
 ```
 
 </details>
@@ -496,7 +496,7 @@ Get the guids of opponents (actors) of a certain actor. If the player had 2 enem
 **Signature:**
 
 ```
-get_opponent_guids(guid : String) -> Table
+get_opponent_guids(guid : guid) -> guid[]
 ```
 
 </details>
@@ -508,7 +508,7 @@ Get the player actor. Equivalent to ``get_actor(PLAYER_ID)``
 **Signature:**
 
 ```
-get_player() -> Table
+get_player() -> actor
 ```
 
 </details>
@@ -520,7 +520,7 @@ Deletes a actor by id.
 **Signature:**
 
 ```
-remove_actor(guid : String) -> None
+remove_actor(guid : guid) -> None
 ```
 
 </details>
@@ -541,7 +541,7 @@ Returns the artifact definition. Can take either a guid or a typeId. If it's a g
 **Signature:**
 
 ```
-get_artifact(id : String) -> Table
+get_artifact(id : string) -> artifact
 ```
 
 </details>
@@ -553,7 +553,7 @@ Returns the artifact instance by guid.
 **Signature:**
 
 ```
-get_artifact_instance(guid : String) -> None
+get_artifact_instance(guid : guid) -> artifact_instance
 ```
 
 </details>
@@ -565,7 +565,7 @@ Gives a actor a artifact. Returns the guid of the newly created artifact.
 **Signature:**
 
 ```
-give_artifact(typeId : String, actor : String) -> String
+give_artifact(type_id : type_id, actor : guid) -> string
 ```
 
 </details>
@@ -577,7 +577,7 @@ Removes a artifact.
 **Signature:**
 
 ```
-remove_artifact(guid : String) -> None
+remove_artifact(guid : guid) -> None
 ```
 
 </details>
@@ -598,7 +598,7 @@ Adds to the stack count of a status effect. Negative values are also allowed.
 **Signature:**
 
 ```
-add_status_effect_stacks(guid : String, count : Number) -> None
+add_status_effect_stacks(guid : guid, count : number) -> None
 ```
 
 </details>
@@ -610,7 +610,7 @@ Returns the guids of all status effects that belong to a actor.
 **Signature:**
 
 ```
-get_actor_status_effects(actorId : String) -> Array
+get_actor_status_effects(actorId : string) -> guid[]
 ```
 
 </details>
@@ -622,7 +622,7 @@ Returns the status effect definition. Can take either a guid or a typeId. If it'
 **Signature:**
 
 ```
-get_status_effect(id : String) -> Table
+get_status_effect(id : string) -> status_effect
 ```
 
 </details>
@@ -634,7 +634,7 @@ Returns the status effect instance.
 **Signature:**
 
 ```
-get_status_effect_instance(effectGuid : String) -> Table
+get_status_effect_instance(effect_guid : guid) -> status_effect_instance
 ```
 
 </details>
@@ -646,7 +646,7 @@ Gives a status effect to a actor. If count is not specified a stack of 1 is appl
 **Signature:**
 
 ```
-give_status_effect(typeId : String, actorGuid : String, (optional) count : Number) -> None
+give_status_effect(type_id : string, actor_guid : string, (optional) count : number) -> None
 ```
 
 </details>
@@ -658,7 +658,7 @@ Removes a status effect.
 **Signature:**
 
 ```
-remove_status_effect(guid : String) -> None
+remove_status_effect(guid : guid) -> None
 ```
 
 </details>
@@ -670,7 +670,7 @@ Sets the stack count of a status effect by guid.
 **Signature:**
 
 ```
-set_status_effect_stacks(guid : String, count : Number) -> None
+set_status_effect_stacks(guid : guid, count : number) -> None
 ```
 
 </details>
@@ -691,7 +691,7 @@ Tries to cast a card with a guid and optional target. If the cast isn't successf
 **Signature:**
 
 ```
-cast_card(cardGuid : String, (optional) targetActorGuid : String) -> Bool
+cast_card(card_guid : guid, (optional) target_actor_guid : guid) -> boolean
 ```
 
 </details>
@@ -703,7 +703,7 @@ Returns the card type definition. Can take either a guid or a typeId. If it's a 
 **Signature:**
 
 ```
-get_card(id : String) -> Table
+get_card(id : type_id) -> card
 ```
 
 </details>
@@ -715,7 +715,7 @@ Returns the instance object of a card.
 **Signature:**
 
 ```
-get_card_instance(cardGuid : String) -> Table
+get_card_instance(card_guid : guid) -> card_instance
 ```
 
 </details>
@@ -727,7 +727,7 @@ Returns all the card guids from the given actor.
 **Signature:**
 
 ```
-get_cards(actorGuid : String) -> Array
+get_cards(actor_guid : string) -> guid[]
 ```
 
 </details>
@@ -739,7 +739,7 @@ Gives a card.
 **Signature:**
 
 ```
-give_card(cardTypeId : String, ownerActorId : String) -> String
+give_card(card_type_id : type_id, owner_actor_id : guid) -> string
 ```
 
 </details>
@@ -751,7 +751,7 @@ Removes a card.
 **Signature:**
 
 ```
-remove_card(cardGuid : String) -> None
+remove_card(cardGuid : string) -> None
 ```
 
 </details>
@@ -763,7 +763,7 @@ Upgrade a card without paying for it.
 **Signature:**
 
 ```
-upgrade_card(cardGuid : String) -> Bool
+upgrade_card(card_guid : guid) -> boolean
 ```
 
 </details>
@@ -775,7 +775,7 @@ Upgrade a random card without paying for it.
 **Signature:**
 
 ```
-upgrade_random_card(actorGuid : String) -> Bool
+upgrade_random_card(actor_guid : guid) -> boolean
 ```
 
 </details>
@@ -791,24 +791,24 @@ None
 ### Functions
 <details> <summary><b><code>deal_damage</code></b> </summary> <br/>
 
-Deal damage to a enemy from one source. If flat is true the damage can't be modified by status effects or artifacts.
+Deal damage to a enemy from one source. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
 
 **Signature:**
 
 ```
-deal_damage(source : String, target : String, damage : Number, flat : Bool) -> None
+deal_damage(source : guid, target : guid, damage : number, (optional) flat : boolean) -> number
 ```
 
 </details>
 
 <details> <summary><b><code>deal_damage_multi</code></b> </summary> <br/>
 
-Deal damage to multiple enemies from one source. If flat is true the damage can't be modified by status effects or artifacts.
+Deal damage to multiple enemies from one source. If flat is true the damage can't be modified by status effects or artifacts. Returns a array of damages for each actor hit.
 
 **Signature:**
 
 ```
-deal_damage_multi(source : String, targets : Array, damage : Number, flat : Bool) -> None
+deal_damage_multi(source : guid, targets : guid[], damage : number, (optional) flat : boolean) -> number[]
 ```
 
 </details>
@@ -820,7 +820,7 @@ Heals the target triggered by the source.
 **Signature:**
 
 ```
-heal(source : String, target : String, amount : Number) -> None
+heal(source : guid, target : guid, amount : number) -> None
 ```
 
 </details>
@@ -853,7 +853,7 @@ Gives the player gold.
 **Signature:**
 
 ```
-give_player_gold(amount : Number) -> None
+give_player_gold(amount : number) -> None
 ```
 
 </details>
@@ -865,7 +865,7 @@ Let the player buy the artifact with the given id. This will deduct the price fo
 **Signature:**
 
 ```
-player_buy_artifact(artifactId : String) -> Bool
+player_buy_artifact(card_id : type_id) -> boolean
 ```
 
 </details>
@@ -877,7 +877,7 @@ Let the player buy the card with the given id. This will deduct the price form t
 **Signature:**
 
 ```
-player_buy_card(cardId : String) -> Bool
+player_buy_card(card_id : type_id) -> boolean
 ```
 
 </details>
@@ -889,7 +889,7 @@ Let the player draw additional cards for this turn.
 **Signature:**
 
 ```
-player_draw_card(amount : Number) -> None
+player_draw_card(amount : number) -> None
 ```
 
 </details>
@@ -901,7 +901,7 @@ Gives the player more action points for this turn.
 **Signature:**
 
 ```
-player_give_action_points(points : Number) -> None
+player_give_action_points(points : number) -> None
 ```
 
 </details>
@@ -946,7 +946,7 @@ Returns the merchant state.
 **Signature:**
 
 ```
-get_merchant() -> Table
+get_merchant() -> table
 ```
 
 </details>
@@ -958,7 +958,7 @@ Returns the maximum value of artifacts and cards that the merchant will sell. Go
 **Signature:**
 
 ```
-get_merchant_gold_max() -> Number
+get_merchant_gold_max() -> number
 ```
 
 </details>
@@ -979,7 +979,7 @@ Generates a random face.
 **Signature:**
 
 ```
-gen_face((optional) category : Number) -> String
+gen_face((optional) category : number) -> string
 ```
 
 </details>
@@ -991,7 +991,7 @@ Returns the type id of a random artifact.
 **Signature:**
 
 ```
-random_artifact(maxPrice : Number) -> String
+random_artifact(max_price : number) -> type_id
 ```
 
 </details>
@@ -1003,7 +1003,7 @@ Returns the type id of a random card.
 **Signature:**
 
 ```
-random_card(maxPrice : Number) -> String
+random_card(max_price : number) -> type_id
 ```
 
 </details>
@@ -1025,7 +1025,7 @@ l('cards.MY_CARD.name', "English Default Name")``
 **Signature:**
 
 ```
-l(key : String, (optional) default : String) -> String
+l(key : string, (optional) default : string) -> string
 ```
 
 </details>
@@ -1057,7 +1057,7 @@ delete_base_game("story_teller") -- deletes all story tellers
 **Signature:**
 
 ```
-delete_base_game((optional) type : String) -> None
+delete_base_game((optional) type : string) -> None
 ```
 
 </details>
@@ -1073,7 +1073,7 @@ delete_card("SOME_CARD")
 **Signature:**
 
 ```
-delete_card(id : String) -> None
+delete_card(id : type_id) -> None
 ```
 
 </details>
@@ -1089,7 +1089,7 @@ delete_enemy("SOME_ENEMY")
 **Signature:**
 
 ```
-delete_enemy(id : String) -> None
+delete_enemy(id : type_id) -> None
 ```
 
 </details>
@@ -1105,7 +1105,7 @@ delete_event("SOME_EVENT")
 **Signature:**
 
 ```
-delete_event(id : String) -> None
+delete_event(id : type_id) -> None
 ```
 
 </details>
@@ -1121,7 +1121,7 @@ delete_status_effect("SOME_STATUS_EFFECT")
 **Signature:**
 
 ```
-delete_status_effect(id : String) -> None
+delete_status_effect(id : type_id) -> None
 ```
 
 </details>
@@ -1137,7 +1137,7 @@ delete_story_teller("SOME_STORY_TELLER")
 **Signature:**
 
 ```
-delete_story_teller(id : String) -> None
+delete_story_teller(id : type_id) -> None
 ```
 
 </details>
@@ -1168,7 +1168,7 @@ register_artifact("REPULSION_STONE",
 **Signature:**
 
 ```
-register_artifact(id : String, definition : Table) -> None
+register_artifact(id : type_id, definition : artifact) -> None
 ```
 
 </details>
@@ -1203,7 +1203,7 @@ register_card("MELEE_HIT",
 **Signature:**
 
 ```
-register_card(id : String, definition : Table) -> None
+register_card(id : type_id, definition : card) -> None
 ```
 
 </details>
@@ -1240,7 +1240,7 @@ register_enemy("RUST_MITE",
 **Signature:**
 
 ```
-register_enemy(id : String, definition : Table) -> None
+register_enemy(id : type_id, definition : enemy) -> None
 ```
 
 </details>
@@ -1253,7 +1253,7 @@ Registers a new event.
 register_event("SOME_EVENT",
 	{
 		name = "Event Name",
-		description = [[Flavor Text... Can include **Markdown** Syntax!]],
+		description = "Flavor Text... Can include **Markdown** Syntax!",
 		choices = {
 			{
 				description = "Go...",
@@ -1288,7 +1288,7 @@ register_event("SOME_EVENT",
 **Signature:**
 
 ```
-register_event(id : String, definition : Table) -> None
+register_event(id : type_id, definition : event) -> None
 ```
 
 </details>
@@ -1298,28 +1298,34 @@ register_event(id : String, definition : Table) -> None
 Registers a new status effect.
 
 ```lua
-register_artifact("REPULSION_STONE",
-    {
-        name = "Repulsion Stone",
-        description = "For each damage taken heal for 2",
-        price = 100,
-        order = 0,
-        callbacks = {
-            on_damage = function(ctx)
-                if ctx.target == ctx.owner then
-                    heal(ctx.owner, 2)
-                end
-                return nil
-            end,
-        }
+register_status_effect("BLOCK", {
+    name = "Block",
+    description = "Decreases incoming damage for each stack",
+    look = "Blk",
+    foreground = "#219ebc",
+    state = function(ctx)
+        return "Takes " .. highlight(ctx.stacks) .. " less damage"
+    end,
+    can_stack = true,
+    decay = DECAY_ALL,
+    rounds = 1,
+    order = 100,
+    callbacks = {
+        on_damage_calc = function(ctx)
+            if ctx.target == ctx.owner then
+                add_status_effect_stacks(ctx.guid, -ctx.damage)
+                return ctx.damage - ctx.stacks
+            end
+            return ctx.damage
+        end
     }
-)
+})
 ```
 
 **Signature:**
 
 ```
-register_status_effect(id : String, definition : Table) -> None
+register_status_effect(id : type_id, definition : status_effect) -> None
 ```
 
 </details>
@@ -1329,28 +1335,39 @@ register_status_effect(id : String, definition : Table) -> None
 Registers a new story teller.
 
 ```lua
-register_artifact("REPULSION_STONE",
-    {
-        name = "Repulsion Stone",
-        description = "For each damage taken heal for 2",
-        price = 100,
-        order = 0,
-        callbacks = {
-            on_damage = function(ctx)
-                if ctx.target == ctx.owner then
-                    heal(ctx.owner, 2)
-                end
-                return nil
-            end,
-        }
-    }
+register_story_teller("STORY_TELLER_XYZ", {
+    active = function(ctx)
+        if not had_events_any({ "A", "B", "C" }) then
+            return 1
+        end
+        return 0
+    end,
+    decide = function(ctx)
+        local stage = get_stages_cleared()
+
+        if stage >= 3 then
+            set_event("SOME_EVENT")
+            return GAME_STATE_EVENT
+        end
+
+        -- Fight against rust mites or clean bots
+        local d = math.random(2)
+        if d == 1 then
+            add_actor_by_enemy("RUST_MITE")
+        elseif d == 2 then
+            add_actor_by_enemy("CLEAN_BOT")
+        end
+
+        return GAME_STATE_FIGHT
+    end
+})
 )
 ```
 
 **Signature:**
 
 ```
-register_story_teller(id : String, definition : Table) -> None
+register_story_teller(id : type_id, definition : story_teller) -> None
 ```
 
 </details>

@@ -1,0 +1,14 @@
+---@meta
+
+---Actor represents a player or enemy.
+---@class actor
+---@field guid guid
+---@field type_id type_id
+---@field name string
+---@field description string
+---@field max_hp number
+---@field hp number
+---@field gold number
+---@field artifacts guid[]
+---@field cards guid[]
+---@field status_effects guid[]
