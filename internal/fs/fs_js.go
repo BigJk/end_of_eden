@@ -6,6 +6,7 @@ package fs
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/samber/lo"
 	"io"
@@ -68,6 +69,10 @@ func ReadFile(path string) ([]byte, error) {
 	jsRes := js.Global().Call("fsRead", path)
 	if !jsRes.IsNull() && !jsRes.IsUndefined() {
 		return base64.StdEncoding.DecodeString(jsRes.String())
+	}
+
+	if !strings.HasPrefix(filepath.Clean(path), "assets") {
+		return nil, errors.New("could not load file: file not found")
 	}
 
 	// Check for asset
