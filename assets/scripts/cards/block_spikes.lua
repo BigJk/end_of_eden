@@ -45,5 +45,20 @@ register_card("BLOCK_SPIKES", {
 
             return nil
         end
-    }
+    },
+    test = function ()
+        give_status_effect("BLOCK", PLAYER_ID, 10)
+        return assert_chain({
+            function () assert_status_effect_count(1) end,
+            function () assert_status_effect("BLOCK", 10) end,
+            function () 
+                local dummy = add_actor_by_enemy("DUMMY")
+                local cards = get_cards(PLAYER_ID)
+                cast_card(cards[1], dummy)
+                if get_actor(dummy).hp ~= 90 then
+                    return "Expected 90 health, got " .. get_actor(dummy).hp
+                end
+            end
+        })
+    end
 })
