@@ -32,7 +32,7 @@ jobs:
             exit 0
           else
             echo "Changes found in .go or .lua files. Running tests."
-            go test ./cmd/internal/tester -json > TestResults-${{ matrix.go-version }}.json
+             EOE_TESTER_WORKING_DIR=$(pwd) go test ./cmd/internal/tester -json > TestResults-${{ matrix.go-version }}.json
           fi
           '
       - name: Upload Go test results

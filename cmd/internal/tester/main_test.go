@@ -20,6 +20,17 @@ func TestGame(t *testing.T) {
 		return len(item) > 0
 	})
 
+	// Change working dir if EOE_TESTER_WORKING_DIR is set. This is needed for the CI pipeline,
+	// because the working dir is not the root of the project but we need to load the resources
+	// from the root of the project.
+	if len(os.Getenv("EOE_TESTER_WORKING_DIR")) > 0 {
+		err := os.Chdir(os.Getenv("EOE_TESTER_WORKING_DIR"))
+		if err != nil {
+			t.Errorf("Error while changing working dir: %s", err.Error())
+			return
+		}
+	}
+
 	session := game.NewSession(game.WithMods(mods))
 	resources := session.GetResources()
 
