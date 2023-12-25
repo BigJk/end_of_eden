@@ -61,7 +61,7 @@ fun = require "fun"
 
 	d.Category("Game Constants", "General game constants.", 0)
 
-	d.Global("PLAYER_ID", "Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_id, 10)``.")
+	d.Global("PLAYER_ID", "Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_guid, 10)``.")
 
 	l.SetGlobal("PLAYER_ID", lua.LString(PlayerActorID))
 
@@ -190,7 +190,7 @@ fun = require "fun"
 		return 0
 	}))
 
-	d.Function("print", "Log to session log.", "", "value, value, value...")
+	d.Function("print", "Log to session log.", "", "...")
 	if err := l.DoString("print = debug_log"); err != nil {
 		panic("Can't overwrite print with debug_log")
 	}
@@ -215,13 +215,13 @@ fun = require "fun"
 
 	d.Category("Game State", "Functions that modify the general game state.", 5)
 
-	d.Function("set_event", "Set event by id.", "", "eventId : string")
+	d.Function("set_event", "Set event by id.", "", "event_id : type_id")
 	l.SetGlobal("set_event", l.NewFunction(func(state *lua.LState) int {
 		session.SetEvent(state.ToString(1))
 		return 0
 	}))
 
-	d.Function("set_game_state", "Set the current game state. See globals.", "", "state : string")
+	d.Function("set_game_state", "Set the current game state. See globals.", "", "state : next_game_state")
 	l.SetGlobal("set_game_state", l.NewFunction(func(state *lua.LState) int {
 		session.SetGameState(GameState(state.ToString(1)))
 		return 0
@@ -233,25 +233,25 @@ fun = require "fun"
 		return 0
 	}))
 
-	d.Function("get_fight_round", "Gets the fight round.", "number", "")
+	d.Function("get_fight_round", "Gets the fight round.", "number")
 	l.SetGlobal("get_fight_round", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LNumber(session.GetFightRound()))
 		return 1
 	}))
 
-	d.Function("get_fight_round", "Gets the number of stages cleared.", "number", "")
+	d.Function("get_fight_round", "Gets the number of stages cleared.", "number")
 	l.SetGlobal("get_stages_cleared", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LNumber(session.GetStagesCleared()))
 		return 1
 	}))
 
-	d.Function("get_fight", "Gets the fight state. This contains the player hand, used, exhausted and round information.", "table", "")
+	d.Function("get_fight", "Gets the fight state. This contains the player hand, used, exhausted and round information.", "fight_state")
 	l.SetGlobal("get_fight", l.NewFunction(func(state *lua.LState) int {
 		state.Push(luhelp2.ToLua(state, session.GetFight()))
 		return 1
 	}))
 
-	d.Function("get_event_history", "Gets the ids of all the encountered events in the order of occurrence.", "string[]", "")
+	d.Function("get_event_history", "Gets the ids of all the encountered events in the order of occurrence.", "string[]")
 	l.SetGlobal("get_event_history", l.NewFunction(func(state *lua.LState) int {
 		state.Push(luhelp2.ToLua(state, session.GetEventHistory()))
 		return 1
@@ -339,7 +339,7 @@ fun = require "fun"
 		return 0
 	}))
 
-	d.Function("add_actor_by_enemy", "Creates a new enemy fighting against the player. Example ``add_actor_by_enemy(\"RUST_MITE\")``.", "string", "enemy_id : type_id")
+	d.Function("add_actor_by_enemy", "Creates a new enemy fighting against the player. Example ``add_actor_by_enemy(\"RUST_MITE\")``.", "string", "enemy_guid : type_id")
 	l.SetGlobal("add_actor_by_enemy", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(session.AddActorFromEnemy(state.ToString(1))))
 		return 1
@@ -407,7 +407,7 @@ fun = require "fun"
 		return 0
 	}))
 
-	d.Function("get_actor_status_effects", "Returns the guids of all status effects that belong to a actor.", "guid[]", "actorId : string")
+	d.Function("get_actor_status_effects", "Returns the guids of all status effects that belong to a actor.", "guid[]", "actor_guid : string")
 	l.SetGlobal("get_actor_status_effects", l.NewFunction(func(state *lua.LState) int {
 		state.Push(luhelp2.ToLua(state, session.GetActorStatusEffects(state.ToString(1))))
 		return 1
@@ -429,13 +429,13 @@ fun = require "fun"
 
 	d.Category("Card Operations", "Functions that modify or access the cards.", 9)
 
-	d.Function("give_card", "Gives a card.", "string", "card_type_id : type_id", "owner_actor_id : guid")
+	d.Function("give_card", "Gives a card.", "string", "card_type_id : type_id", "owner_actor_guid : guid")
 	l.SetGlobal("give_card", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(session.GiveCard(state.ToString(1), state.ToString(2))))
 		return 1
 	}))
 
-	d.Function("remove_card", "Removes a card.", "", "cardGuid : string")
+	d.Function("remove_card", "Removes a card.", "", "card_guid : string")
 	l.SetGlobal("remove_card", l.NewFunction(func(state *lua.LState) int {
 		session.RemoveCard(state.ToString(1))
 		return 0
@@ -574,7 +574,7 @@ fun = require "fun"
 
 	d.Category("Merchant Operations", "Functions that are related to the merchant.", 12)
 
-	d.Function("get_merchant", "Returns the merchant state.", "table")
+	d.Function("get_merchant", "Returns the merchant state.", "merchant_state")
 	l.SetGlobal("get_merchant", l.NewFunction(func(state *lua.LState) int {
 		state.Push(luhelp2.ToLua(state, session.GetMerchant()))
 		return 1

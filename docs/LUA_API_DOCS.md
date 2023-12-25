@@ -67,7 +67,7 @@ Represents the random game state in which the active story teller will decide wh
 
 <details> <summary><b><code>PLAYER_ID</code></b> </summary> <br/>
 
-Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_id, 10)``.
+Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_guid, 10)``.
 
 </details>
 
@@ -253,7 +253,7 @@ Log to session log.
 **Signature:**
 
 ```
-print(value, value, value...) -> None
+print(...) -> None
 ```
 
 </details>
@@ -319,7 +319,7 @@ Gets the fight state. This contains the player hand, used, exhausted and round i
 **Signature:**
 
 ```
-get_fight() -> table
+get_fight() -> fight_state
 ```
 
 </details>
@@ -379,7 +379,7 @@ Set event by id.
 **Signature:**
 
 ```
-set_event(eventId : string) -> None
+set_event(event_id : type_id) -> None
 ```
 
 </details>
@@ -403,7 +403,7 @@ Set the current game state. See globals.
 **Signature:**
 
 ```
-set_game_state(state : string) -> None
+set_game_state(state : next_game_state) -> None
 ```
 
 </details>
@@ -448,7 +448,7 @@ Creates a new enemy fighting against the player. Example ``add_actor_by_enemy("R
 **Signature:**
 
 ```
-add_actor_by_enemy(enemy_id : type_id) -> string
+add_actor_by_enemy(enemy_guid : type_id) -> string
 ```
 
 </details>
@@ -610,7 +610,7 @@ Returns the guids of all status effects that belong to a actor.
 **Signature:**
 
 ```
-get_actor_status_effects(actorId : string) -> guid[]
+get_actor_status_effects(actor_guid : string) -> guid[]
 ```
 
 </details>
@@ -739,7 +739,7 @@ Gives a card.
 **Signature:**
 
 ```
-give_card(card_type_id : type_id, owner_actor_id : guid) -> string
+give_card(card_type_id : type_id, owner_actor_guid : guid) -> string
 ```
 
 </details>
@@ -751,7 +751,7 @@ Removes a card.
 **Signature:**
 
 ```
-remove_card(cardGuid : string) -> None
+remove_card(card_guid : string) -> None
 ```
 
 </details>
@@ -946,7 +946,7 @@ Returns the merchant state.
 **Signature:**
 
 ```
-get_merchant() -> table
+get_merchant() -> merchant_state
 ```
 
 </details>
@@ -1361,7 +1361,6 @@ register_story_teller("STORY_TELLER_XYZ", {
         return GAME_STATE_FIGHT
     end
 })
-)
 ```
 
 **Signature:**

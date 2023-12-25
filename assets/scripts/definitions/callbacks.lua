@@ -18,8 +18,8 @@
 ---@field on_actor_die? fun(ctx:ctx):nil
 ---@field on_cast? fun(ctx:ctx):nil
 ---@field on_damage? fun(ctx:ctx):nil
----@field on_damage_calc? fun(ctx:ctx):number
----@field on_heal_calc? fun(ctx:ctx):number
+---@field on_damage_calc? fun(ctx:ctx):number|nil
+---@field on_heal_calc? fun(ctx:ctx):number|nil
 ---@field on_init? fun(ctx:ctx):nil
 ---@field on_pick_up? fun(ctx:ctx):nil
 ---@field on_player_turn? fun(ctx:ctx):nil

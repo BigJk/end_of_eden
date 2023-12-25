@@ -40,9 +40,9 @@ func main() {
 			if glob.Category != cat.Name {
 				continue
 			}
-			builder.WriteString(fmt.Sprintf(`--[[
-%s
---]]`, glob.Description))
+			builder.WriteString(strings.Join(lo.Map(strings.Split(glob.Description, "\n"), func(item string, index int) string {
+				return "--- " + item
+			}), "\n"))
 			builder.WriteString("\n" + glob.Name + " = \"\"\n\n")
 		}
 
@@ -51,9 +51,9 @@ func main() {
 			if fn.Category != cat.Name {
 				continue
 			}
-			builder.WriteString(fmt.Sprintf(`--[[
-%s
---]]`, fn.Description))
+			builder.WriteString(strings.Join(lo.Map(strings.Split(fn.Description, "\n"), func(item string, index int) string {
+				return "--- " + item
+			}), "\n"))
 			if len(fn.Args) > 0 {
 				builder.WriteString("\n" + strings.Join(lo.Map(fn.Args, func(item string, index int) string {
 					isOptional := strings.HasPrefix(item, "(optional) ")

@@ -445,8 +445,7 @@ func (man *ResourcesManager) defineDocs(docs *ludoc.Docs) {
 
         return GAME_STATE_FIGHT
     end
-})
-)`), "", "id : type_id", "definition : story_teller")
+})`), "", "id : type_id", "definition : story_teller")
 
 	docs.Function("delete_event", fmt.Sprintf("Deletes an event.\n\n```lua\n%s\n```", `delete_event("SOME_EVENT")`), "", "id : type_id")
 	docs.Function("delete_card", fmt.Sprintf("Deletes a card.\n\n```lua\n%s\n```", `delete_card("SOME_CARD")`), "", "id : type_id")
