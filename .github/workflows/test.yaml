@@ -32,14 +32,9 @@ jobs:
             exit 0
           else
             echo "Changes found in .go or .lua files. Running tests."
-             EOE_TESTER_WORKING_DIR=$(pwd) go test ./cmd/internal/tester -json > TestResults-${{ matrix.go-version }}.json
+            EOE_TESTER_WORKING_DIR=$(pwd) go test ./cmd/internal/tester
           fi
           '
-      - name: Upload Go test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: Go-results-${{ matrix.go-version }}
-          path: TestResults-${{ matrix.go-version }}.json
       - name: Build Fuzzy Tester
         run: go build -o ./fuzzy_tester ./cmd/internal/fuzzy_tester
       - name: Running Fuzzy Tester
