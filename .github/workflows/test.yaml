@@ -21,7 +21,18 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev
       - name: Test Game Content
-        run: go test ./cmd/internal/tester -json > TestResults-${{ matrix.go-version }}.json
+        run: |
+          bash -c '
+          changed_files=$(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep -E "\.go$|\.lua$")
+          if [ -z "$changed_files" ]; then
+            echo "No .go or .lua files were modified. Exiting."
+            echo "" > TestResults-${{ matrix.go-version }}.json
+            exit 0
+          else
+            echo "Changes found in .go or .lua files. Running tests."
+            go test ./cmd/internal/tester -json > TestResults-${{ matrix.go-version }}.json
+          fi
+          '
       - name: Upload Go test results
         uses: actions/upload-artifact@v3
         with:
@@ -30,4 +41,14 @@ jobs:
       - name: Build Fuzzy Tester
         run: go build -o ./fuzzy_tester ./cmd/internal/fuzzy_tester
       - name: Running Fuzzy Tester
-        run: ./fuzzy_tester -n 2 -timeout 30s
+        run: |
+          bash -c '
+          changed_files=$(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep -E "\.go$|\.lua$")
+          if [ -z "$changed_files" ]; then
+            echo "No .go or .lua files were modified. Exiting."
+            exit 0
+          else
+            echo "Changes found in .go or .lua files. Running fuzzy tester."
+            ./fuzzy_tester -n 2 -timeout 30s
+          fi
+          '
