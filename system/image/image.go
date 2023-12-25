@@ -87,6 +87,12 @@ func Fetch(name string, options ...Option) (string, error) {
 		return "", err
 	}
 
+	// If we are running in the browser, we reduce the color pair count to 2
+	// as the algorithm is very slow running in WASM.
+	if runtime.GOOS == "js" {
+		imejiOptions = append(imejiOptions, imeji.WithColorPairMax(2))
+	}
+
 	if res, err := getCache(hash); err == nil {
 		return string(res.([]byte)), nil
 	}
@@ -125,6 +131,12 @@ func FetchAnimation(name string, options ...Option) ([]string, error) {
 	hash, err := hash(name, data)
 	if err != nil {
 		return nil, err
+	}
+
+	// If we are running in the browser, we reduce the color pair count to 2
+	// as the algorithm is very slow running in WASM.
+	if runtime.GOOS == "js" {
+		imejiOptions = append(imejiOptions, imeji.WithColorPairMax(2))
 	}
 
 	if res, err := getCache(hash); err == nil {
