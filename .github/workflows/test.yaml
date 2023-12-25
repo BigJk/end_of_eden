@@ -1,0 +1,31 @@
+name: Game Tests
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.20' ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Display Go version
+        run: go version
+      - name: Test Game Content
+        run: go test ./cmd/internal/tester -json > TestResults-${{ matrix.go-version }}.json
+      - name: Upload Go test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Go-results-${{ matrix.go-version }}
+          path: TestResults-${{ matrix.go-version }}.json
+      - name: Build Fuzzy Tester
+        run: go build -o ./fuzzy_tester ./cmd/internal/fuzzy_tester
+      - name: Running Fuzzy Tester
+        run: ./fuzzy_tester -n 2 -timeout 30s
