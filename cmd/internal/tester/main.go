@@ -111,8 +111,8 @@ func main() {
 	for _, statusEffect := range resources.StatusEffects {
 		if statusEffect.Test != nil {
 			setupClean(session)
-			session.GiveStatusEffect(statusEffect.ID, game.PlayerActorID, 1)
 			setupFight(session)
+			session.GiveStatusEffect(statusEffect.ID, game.PlayerActorID, 1)
 
 			res, err := statusEffect.Test.Call()
 			if err != nil {

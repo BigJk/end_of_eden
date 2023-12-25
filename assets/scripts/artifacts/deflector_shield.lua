@@ -13,6 +13,9 @@ register_artifact("DEFLECTOR_SHIELD", {
     },
     test = function()
         add_actor_by_enemy("DUMMY")
-        return assert_chain({ assert_status_effect_count(1), assert_status_effect("BLOCK", 8) })
+        return assert_chain({
+            function () return assert_status_effect_count(1) end,
+            function () return assert_status_effect("BLOCK", 8) end
+        })
     end
 });

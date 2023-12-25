@@ -18,5 +18,23 @@ register_status_effect("BLOCK", {
             end
             return ctx.damage
         end
-    }
+    },
+    test = function()
+        return assert_chain({
+            function() return assert_status_effect_count(1) end,
+            function() return assert_status_effect("BLOCK", 1) end,
+            function ()
+                local dummy = add_actor_by_enemy("DUMMY")
+                local damage = deal_damage(dummy, PLAYER_ID, 1)
+                if damage ~= 0 then
+                    return "Expected 0 damage, got " .. damage
+                end
+
+                damage = deal_damage(dummy, PLAYER_ID, 2)
+                if damage ~= 2 then
+                    return "Expected 2 damage, got " .. damage
+                end
+            end
+        })
+    end
 })

@@ -19,15 +19,15 @@ register_card("SHIELD_BASH", {
         end
     },
     test = function()
-        dummy = add_actor_by_enemy("DUMMY")
-        cards = get_cards(PLAYER_ID)
+        local dummy = add_actor_by_enemy("DUMMY")
+        local cards = get_cards(PLAYER_ID)
 
         -- Check if the card is in the player's hand
         if not cards[1] then
             return "Card not in hand"
         end
 
-        card = get_card_instance(cards[1])
+        local card = get_card_instance(cards[1])
         if card.type_id ~= "SHIELD_BASH" then
             return "Card has wrong type: " .. card.type_id
         end
@@ -35,9 +35,12 @@ register_card("SHIELD_BASH", {
         cast_card(cards[1], dummy)
 
         if get_actor(dummy).hp ~= 96 then
-            return "Expected 96 health, got " .. get_actor_health(dummy)
+            return "Expected 96 health, got " .. get_actor(dummy).hp
         end
 
-        return assert_chain({ assert_status_effect_count(1), assert_status_effect("BLOCK", 4) })
+        return assert_chain({
+            function () assert_status_effect_count(1) end,
+            function () assert_status_effect("BLOCK", 4) end
+        })
     end
 })
