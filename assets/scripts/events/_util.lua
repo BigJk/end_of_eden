@@ -21,7 +21,8 @@ function create_artifact_choice(artifacts, options)
 
     local def = {
         name = "Artifact",
-        description = [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]],
+        description =
+        [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]],
         choices = choices,
         on_end = function()
             return GAME_STATE_RANDOM
@@ -70,7 +71,8 @@ function create_card_choice(cards, options)
 
     local def = {
         name = "Cards",
-        description = [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]],
+        description =
+        [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]],
         choices = choices,
         on_end = function()
             return GAME_STATE_RANDOM

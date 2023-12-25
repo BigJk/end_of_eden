@@ -2,8 +2,9 @@ register_card("BERSERKER_RAGE", {
     name = "Berserker Rage",
     description = "Gain " .. highlight("3 action points") .. ", but take 30% (-10% per level) of your HP as damage.",
     state = function(ctx)
-        return "Gain " .. highlight("3 action points") .. ", but take " .. highlight(tostring(30 - ctx.level * 10) .. "%") .. " (" ..
-                   tostring(get_player().hp * (0.3 - ctx.level * 0.1)) .. ") of your HP as damage."
+        return "Gain " ..
+            highlight("3 action points") .. ", but take " .. highlight(tostring(30 - ctx.level * 10) .. "%") .. " (" ..
+            tostring(get_player().hp * (0.3 - ctx.level * 0.1)) .. ") of your HP as damage."
     end,
     max_level = 0,
     color = "#d8a448",

@@ -26,11 +26,11 @@ The creature assures you that there are dangers to wielding such power and that 
                 return nil
             end
         }, {
-            description = "Leave...",
-            callback = function()
-                return nil
-            end
-        }
+        description = "Leave...",
+        callback = function()
+            return nil
+        end
+    }
     },
     on_end = function()
         return GAME_STATE_RANDOM

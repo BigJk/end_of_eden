@@ -13,11 +13,11 @@ register_event("RAISING_THE_BAR", {
                 return nil
             end
         }, {
-            description = "Leave...",
-            callback = function()
-                return nil
-            end
-        }
+        description = "Leave...",
+        callback = function()
+            return nil
+        end
+    }
     },
     on_end = function()
         return GAME_STATE_RANDOM

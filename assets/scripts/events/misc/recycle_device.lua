@@ -13,11 +13,11 @@ register_event("RECYCLE_DEVICE", {
                 return nil
             end
         }, {
-            description = "Leave...",
-            callback = function()
-                return nil
-            end
-        }
+        description = "Leave...",
+        callback = function()
+            return nil
+        end
+    }
     },
     on_end = function()
         return GAME_STATE_RANDOM
@@ -26,8 +26,9 @@ register_event("RECYCLE_DEVICE", {
 
 register_card("RECYCLE", {
     name = "Recycle",
-    description = "Deal " .. highlight(12) .. " damage. If " .. highlight("fatal") .. " upgrade random card. " .. highlight("Exhaust") ..
-            ".",
+    description = "Deal " ..
+        highlight(12) .. " damage. If " .. highlight("fatal") .. " upgrade random card. " .. highlight("Exhaust") ..
+        ".",
     state = function(ctx)
         return nil
     end,

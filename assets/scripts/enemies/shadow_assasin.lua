@@ -7,9 +7,11 @@ register_enemy("SHADOW_ASSASSIN", {
     max_hp = 20,
     gold = 30,
     intend = function(ctx)
-        local bleeds = fun.iter(pairs(get_actor_status_effects(PLAYER_ID))):map(get_status_effect_instance):filter(function(val)
-            return val.type_id == "BLEED"
-        end):totable()
+        local bleeds = fun.iter(pairs(get_actor_status_effects(PLAYER_ID)))
+            :map(get_status_effect_instance)
+            :filter(function(val)
+                return val.type_id == "BLEED"
+            end):totable()
 
         if #bleeds > 0 then
             return "Deal " .. highlight(10) .. " damage"
@@ -24,9 +26,12 @@ register_enemy("SHADOW_ASSASSIN", {
     callbacks = {
         on_turn = function(ctx)
             -- Count bleed stacks
-            local bleeds = fun.iter(pairs(get_actor_status_effects(PLAYER_ID))):map(get_status_effect_instance):filter(function(val)
-                return val.type_id == "BLEED"
-            end):totable()
+            local bleeds = fun.iter(pairs(get_actor_status_effects(PLAYER_ID)))
+                :map(get_status_effect_instance)
+                :filter(function(
+                    val)
+                    return val.type_id == "BLEED"
+                end):totable()
 
             if #bleeds > 0 then
                 -- If bleeding do more damage

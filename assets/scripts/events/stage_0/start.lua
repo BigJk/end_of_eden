@@ -25,11 +25,11 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
                 return nil
             end
         }, {
-            description = "Gather your strength and attack it!",
-            callback = function()
-                return nil
-            end
-        }
+        description = "Gather your strength and attack it!",
+        callback = function()
+            return nil
+        end
+    }
     },
     on_enter = function()
         play_music("energetic_orthogonal_expansions")
