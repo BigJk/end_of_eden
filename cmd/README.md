@@ -1,6 +1,12 @@
 # Executables
 
-# Game
+This directory contains all executables of the game. The game is split into multiple executables to allow for different use cases. The game is written in go and can be compiled with ``go build`` or run with ``go run``.
+
+## Game Binaries
+
+These are the main executables of the game. They are found in ``cmd``.
+
+### Game
 
 ```
 End Of Eden :: Game
@@ -19,11 +25,11 @@ End Of Eden :: Game
         show help
 ```
 
-# Game Win
+### Game Win
 
 - The base game but running in a window
 
-# Game SSH
+### Game SSH
 
 ```
 End Of Eden :: SSH Server
@@ -39,7 +45,7 @@ Each SSH session creates it's own game session. Modding and audio not supported.
         ssh idle timeout
 ```
 
-# Environment Variables
+### Environment Variables
 
 - ``EOE_NO_PROTECT=1``: Disables lua safety and kills the program if a lua error is encountered. Good for debugging.
 - ``EOE_DEBUG=1``: Enables the debugging api access if a game is started.
@@ -48,12 +54,12 @@ Each SSH session creates it's own game session. Modding and audio not supported.
 
 These tools are found in ``cmd/internal`` and are not meant to be used by the player. These are used to generate documentation and test the game. Can be useful for modders.
 
-# Docs
+### Docs
 
 - Generates the LUA documentation of the game and prints a markdown formatted text to stdout.
 - ``go run ./cmd/internal/docs > LUA_API_DOCS.md``
 
-# Tester
+### Tester
 
 The tester is used to test all artifacts, cards and status effects. This can be used to check if the game is still working after a change. Can be embedded in CI and is also useful for modders.
 
@@ -73,7 +79,7 @@ The tester tests all artifacts, cards and status effects based on their test fun
 
 ```
 
-# Fuzzy Tester
+### Fuzzy Tester
 
 The fuzzy tester is used to test the game for panics. It will run a game session with a random number of operations and try to trigger a panic. This is useful to find bugs that are not found by the normal tester.
 
