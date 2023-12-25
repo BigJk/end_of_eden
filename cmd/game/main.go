@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/BigJk/end_of_eden/cmd/testargs"
+	"github.com/BigJk/end_of_eden/cmd/internal/testargs"
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/system/gen"
 	"github.com/BigJk/end_of_eden/system/gen/faces"

@@ -51,13 +51,15 @@ func main() {
 	wg := &sync.WaitGroup{}
 	for i := 0; i < *routines; i++ {
 		wg.Add(1)
-		tester(i, wg)
+		go tester(i, wg)
 	}
 
 	wg.Wait()
 }
 
 func tester(index int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	rnd := rand.New(rand.NewSource(seed + int64(index)))
 	opKeys := lo.Keys(Operations)
 	stack := [][]string{}
@@ -67,7 +69,7 @@ func tester(index int, wg *sync.WaitGroup) {
 			fmt.Println(stack)
 			fmt.Println(r)
 			fmt.Println(string(debug.Stack()))
-			os.Exit(-1)
+			os.Exit(1)
 		}
 	}()
 

@@ -10,7 +10,7 @@ RUN apt-get install -y libasound2-dev
 
 RUN go build -tags no_audio -o /app/end_of_eden ./cmd/game
 RUN go build -tags no_audio -o /app/end_of_eden_ssh ./cmd/game_ssh
-RUN go build -tags no_audio -o /app/fuzzy-tester ./cmd/fuzzy-tester
+RUN go build -tags no_audio -o /app/fuzzy_tester ./cmd/internal/fuzzy_tester
 
 # Release image
 FROM debian:bullseye

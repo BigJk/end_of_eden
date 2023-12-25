@@ -23,28 +23,6 @@ End Of Eden :: Game
 
 - The base game but running in a window
 
-# Game Browser
-
-- The base game but running in browser
-- ``ttyd`` is needed as dependency, either in your path or in the sub-folder of the working directory
-
-### ttyd search paths
-
-```
-ttyd
-./ttyd/ttyd.win32.exe
-./ttyd/ttyd.aarch64
-./ttyd/ttyd.arm
-./ttyd/ttyd.armhf
-./ttyd/ttyd.i686
-./ttyd/ttyd.mips
-./ttyd/ttyd.mips64
-./ttyd/ttyd.mips64el
-./ttyd/ttyd.mipsel
-./ttyd/ttyd.s390x
-./ttyd/ttyd.x86_64
-```
-
 # Game SSH
 
 ```
@@ -61,16 +39,28 @@ Each SSH session creates it's own game session. Modding and audio not supported.
         ssh idle timeout
 ```
 
+# Environment Variables
+
+- ``EOE_NO_PROTECT=1``: Disables lua safety and kills the program if a lua error is encountered. Good for debugging.
+- ``EOE_DEBUG=1``: Enables the debugging api access if a game is started.
+
+## Internal Tools
+
+These tools are found in ``cmd/internal`` and are not meant to be used by the player. These are used to generate documentation and test the game. Can be useful for modders.
+
 # Docs
 
 - Generates the LUA documentation of the game and prints a markdown formatted text to stdout.
-- ``go run ./cmd/docs > LUA_API_DOCS.md``
+- ``go run ./cmd/internal/docs > LUA_API_DOCS.md``
 
 # Tester
 
+The tester is used to test all artifacts, cards and status effects. This can be used to check if the game is still working after a change. Can be embedded in CI and is also useful for modders.
+
 - Runs the ``test`` function of all artifacts, cards and status effects
 - Reports the results
-- ``go run ./cmd/tester -mods=mod1,mod2,mod3``
+- ``go run ./cmd/internal/tester -mods=mod1,mod2,mod3``
+- Will exit with a non-zero exit code if any test fails
 
 ```
 End Of Eden :: Tester
@@ -84,6 +74,8 @@ The tester tests all artifacts, cards and status effects based on their test fun
 ```
 
 # Fuzzy Tester
+
+The fuzzy tester is used to test the game for panics. It will run a game session with a random number of operations and try to trigger a panic. This is useful to find bugs that are not found by the normal tester.
 
 ```
 End Of Eden :: Fuzzy Tester
@@ -100,8 +92,3 @@ The fuzzy tester hits a game session with a random number of operations and trie
   -timeout duration
         length of testing (default 1m0s)
 ```
-
-# Environment Variables
-
-- ``EOE_NO_PROTECT=1``: Disables lua safety and kills the program if a lua error is encountered. Good for debugging.
-- ``EOE_DEBUG=1``: Enables the debugging api access if a game is started.

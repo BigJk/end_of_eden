@@ -66,7 +66,7 @@ mkdir -p ./bin
 $GOEXE build -o ./bin/end_of_eden$EXT ./cmd/game/
 $GOEXE build -o ./bin/end_of_eden_win$EXT ./cmd/game/
 $GOEXE build -o ./bin/end_of_eden_browser$EXT ./cmd/game_browser/
-$GOEXE build -o ./bin/fuzzy_tester$EXT ./cmd/fuzzy-tester/
+$GOEXE build -o ./bin/fuzzy_tester$EXT ./cmd/internal/fuzzy_tester/
 
 # Disable SSH version for now:
 # go build -o ./bin/end_of_eden_ssh$EXT ./cmd/game_ssh/

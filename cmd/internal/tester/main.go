@@ -4,8 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/log"
 	"github.com/samber/lo"
+	"os"
 	"strings"
 )
 
@@ -51,6 +53,7 @@ func main() {
 		return len(item) > 0
 	})
 
+	allPassed := true
 	session := game.NewSession(game.WithMods(mods))
 	resources := session.GetResources()
 
@@ -69,6 +72,7 @@ func main() {
 				switch res := res.(type) {
 				case string:
 					log.Error("Error while testing artifact", "id", artifact.ID, "res", res)
+					allPassed = false
 				default:
 					log.Info("Tested artifact successfully", "id", artifact.ID)
 				}
@@ -93,6 +97,7 @@ func main() {
 				switch res := res.(type) {
 				case string:
 					log.Error("Error while testing card", "id", card.ID, "res", res)
+					allPassed = false
 				default:
 					log.Info("Tested card successfully", "id", card.ID)
 				}
@@ -116,6 +121,7 @@ func main() {
 				switch res := res.(type) {
 				case string:
 					log.Error("Error while testing status effect", "id", statusEffect.ID, "res", res)
+					allPassed = false
 				default:
 					log.Info("Tested status effect successfully", "id", statusEffect.ID)
 				}
@@ -123,5 +129,12 @@ func main() {
 		} else {
 			log.Warn("Status effect has no test function", "id", statusEffect.ID)
 		}
+	}
+
+	if allPassed {
+		fmt.Println("\n--- " + style.GreenText.Render("All tests passed!"))
+	} else {
+		fmt.Println("\n--- " + style.RedText.Render("Some tests failed!"))
+		os.Exit(1)
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/BigJk/crt"
 	teadapter "github.com/BigJk/crt/bubbletea"
 	"github.com/BigJk/crt/shader"
-	"github.com/BigJk/end_of_eden/cmd/testargs"
+	"github.com/BigJk/end_of_eden/cmd/internal/testargs"
 	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/system/gen"
