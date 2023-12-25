@@ -1,6 +1,6 @@
 register_event("THE_WASTELAND", {
     name = "The Wasteland",
-    description = [[!!dark_city1.png
+    description = [[!!dark_city1.jpg
 
 You finally find a way leading to the outside, and with a deep breath, you step out into the unforgiving wasteland.
 

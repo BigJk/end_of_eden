@@ -1,6 +1,6 @@
 register_event("START", {
     name = "Waking up...",
-    description = [[!!cryo_start.png
+    description = [[!!cryo_start.jpg
 
 You wake up in a dimly lit room, the faint glow of a red emergency light casting an eerie hue over the surroundings. The air is musty and stale, the metallic scent of the cryo-chamber still lingering in your nostrils. You feel groggy and disoriented, your mind struggling to process what's happening.
 

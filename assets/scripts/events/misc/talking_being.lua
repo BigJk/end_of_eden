@@ -1,6 +1,6 @@
 register_event("TALKING_BEING", {
     name = "Talking Being",
-    description = [[!!alien2.png
+    description = [[!!alien2.jpg
 
 Suddenly, a massive vine with a gaping, tooth-filled maw emerges from the shadows. It towers over you, its presence imposing and otherworldly.
 

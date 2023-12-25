@@ -1,6 +1,6 @@
 register_event("RECYCLE_DEVICE", {
     name = "Talking Being",
-    description = [[!!artifact_chest.png
+    description = [[!!artifact_chest.jpg
 
 ...]],
     choices = {

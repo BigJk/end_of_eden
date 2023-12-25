@@ -1,6 +1,6 @@
 register_event("RAISING_THE_BAR", {
     name = "Raising The Bar",
-    description = [[!!red_room.png
+    description = [[!!red_room.jpg
 
 ...]],
     choices = {

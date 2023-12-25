@@ -1,6 +1,6 @@
 register_event("BIO_KINGDOM", {
     name = "Bio Kingdom",
-    description = [[!!plant_enviroment.png
+    description = [[!!plant_enviroment.jpg
 
 You finally find a way leading to the outside, and step out of the cryo facility into a world you no longer recognize.
 

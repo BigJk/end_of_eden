@@ -1,7 +1,7 @@
 register_event("MERCHANT", {
     name = "A strange figure",
     description =
-    [[!!merchant.png
+    [[!!merchant.jpg
     
 The merchant is a tall, lanky figure draped in a long, tattered coat made of plant fibers and animal hides. Their face is hidden behind a mask made of twisted roots and vines, giving them an unsettling, almost alien appearance.
 

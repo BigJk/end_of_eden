@@ -1,6 +1,6 @@
 register_event("THE_CORE", {
     name = "The Wasteland",
-    description = [[!!underground1.png
+    description = [[!!underground1.jpg
 
 You finally find a way you thought would lead to the outside, only to discover that you're still inside the massive facility known as *"The Core."*
 

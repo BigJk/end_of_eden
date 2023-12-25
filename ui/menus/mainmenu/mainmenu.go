@@ -40,7 +40,7 @@ type Model struct {
 }
 
 func NewModel(zones *zone.Manager, settings settings.Settings, values []uiset.Value, saver uiset.Saver) Model {
-	img, _ := image2.Fetch("title.png", image2.WithResize(180, 9))
+	img, _ := image2.Fetch("title.jpg", image2.WithResize(180, 9))
 
 	audio.PlayMusic("planet_mining")
 
