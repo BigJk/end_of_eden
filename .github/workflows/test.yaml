@@ -19,7 +19,7 @@ jobs:
       - name: Display Go version
         run: go version
       - name: Install dependencies
-        run: apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev
       - name: Test Game Content
         run: go test ./cmd/internal/tester -json > TestResults-${{ matrix.go-version }}.json
       - name: Upload Go test results
