@@ -31,7 +31,7 @@ register_status_effect("BLOCK", {
                 end
 
                 damage = deal_damage(dummy, PLAYER_ID, 2)
-                if damage ~= 3 then
+                if damage ~= 2 then
                     return "Expected 2 damage, got " .. damage
                 end
             end
