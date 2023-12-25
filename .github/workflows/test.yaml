@@ -23,7 +23,7 @@ jobs:
       - name: Test Game Content
         run: |
           bash -c '
-          changed_files=$(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep -E "\.go$|\.lua$")
+          changed_files=$(git diff --name-only --diff-filter=ACMRTUXB HEAD~1 | grep -E "\.go$|\.lua$")
           if [ -z "$changed_files" ]; then
             echo "No .go or .lua files were modified. Exiting."
             echo "" > TestResults-${{ matrix.go-version }}.json
@@ -43,7 +43,7 @@ jobs:
       - name: Running Fuzzy Tester
         run: |
           bash -c '
-          changed_files=$(git diff --name-only --diff-filter=ACMRTUXB HEAD^ | grep -E "\.go$|\.lua$")
+          changed_files=$(git diff --name-only --diff-filter=ACMRTUXB HEAD~1 | grep -E "\.go$|\.lua$")
           if [ -z "$changed_files" ]; then
             echo "No .go or .lua files were modified. Exiting."
             exit 0
