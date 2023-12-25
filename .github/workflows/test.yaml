@@ -32,7 +32,7 @@ jobs:
             exit 0
           else
             echo "Changes found in .go or .lua files. Running tests."
-            EOE_TESTER_WORKING_DIR=$(pwd) go test ./cmd/internal/tester
+            EOE_TESTER_WORKING_DIR=$(pwd) go test ./cmd/internal/tester -v
           fi
           '
       - name: Build Fuzzy Tester
