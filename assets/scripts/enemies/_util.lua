@@ -1,10 +1,10 @@
--- cast_random
---
--- casts a random card onto a target from the cards that the actor specified by guid owns.
+---cast_random casts a random card onto a target from the cards that the actor specified by guid owns.
+---@param guid guid
+---@param target guid
 function cast_random(guid, target)
     local cards = get_cards(guid)
     if #cards == 0 then
-        debug_log("can't cast_random with zero cards available!")
+        print("can't cast_random with zero cards available!")
     else
         cast_card(cards[math.random(#cards)], target)
     end

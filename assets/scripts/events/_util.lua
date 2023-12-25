@@ -1,4 +1,6 @@
--- create_artifact_choice creates an event that allows the player to choose an artifact from a list of artifacts.
+---create_artifact_choice creates an event that allows the player to choose an artifact from a list of artifacts.
+---@param artifacts type_id[]
+---@param options table
 function create_artifact_choice(artifacts, options)
     local id = guid()
     local choices = fun.iter(artifacts):map(function(type)
@@ -48,7 +50,9 @@ function create_artifact_choice(artifacts, options)
     return id
 end
 
--- create_card_choice creates an event that allows the player to choose a card from a list of cards.
+---create_card_choice creates an event that allows the player to choose a card from a list of cards.
+---@param cards type_id[]
+---@param options table
 function create_card_choice(cards, options)
     local id = guid()
     local choices = fun.iter(cards):map(function(type)
