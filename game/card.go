@@ -14,6 +14,7 @@ type Card struct {
 	ID          string
 	Name        string
 	Description string
+	Tags        []string
 	State       luhelp.OwnedCallback
 	Color       string
 	PointCost   int

@@ -4,6 +4,7 @@ register_card("RUPTURE", {
     state = function(ctx)
         return "Inflict your enemy with " .. highlight(tostring(1 + ctx.level) .. " Vulnerable") .. "."
     end,
+    tags = { "ATK" },
     max_level = 3,
     color = "#cf532d",
     need_target = true,

@@ -1346,6 +1346,9 @@ func (s *Session) CastCard(guid string, target string) bool {
 			s.logLuaError(CallbackOnCast, instance.TypeID, err)
 		}
 		if val, ok := res.(bool); ok {
+			if val {
+				s.TriggerCallbackAll(CallbackOnActorDidCast, CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level, "tags", card.Tags))
+			}
 			return val
 		}
 	}
@@ -1964,6 +1967,29 @@ func (s *Session) TriggerOnPlayerTurn() {
 		if enemy := s.GetEnemy(actor.TypeID); enemy != nil {
 			if _, err := enemy.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", enemy.ID, "guid", actor.GUID, "round", s.GetFightRound())); err != nil {
 				s.logLuaError(CallbackOnPlayerTurn, enemy.ID, err)
+			}
+		}
+	})
+}
+
+// TriggerCallbackAll triggers a callback on all artifacts, status effects and enemies.
+func (s *Session) TriggerCallbackAll(callback string, ctx Context) {
+	s.TraverseArtifactsStatus(lo.Keys(s.instances),
+		func(instance ArtifactInstance, artifact *Artifact) {
+			if _, err := artifact.Callbacks[callback].Call(ctx); err != nil {
+				s.logLuaError(callback, instance.TypeID, err)
+			}
+		},
+		func(instance StatusEffectInstance, statusEffect *StatusEffect) {
+			if _, err := statusEffect.Callbacks[callback].Call(ctx); err != nil {
+				s.logLuaError(callback, instance.TypeID, err)
+			}
+		},
+	)
+	lo.ForEach(s.GetOpponents(PlayerActorID), func(actor Actor, index int) {
+		if enemy := s.GetEnemy(actor.TypeID); enemy != nil {
+			if _, err := enemy.Callbacks[callback].Call(ctx); err != nil {
+				s.logLuaError(callback, enemy.ID, err)
 			}
 		}
 	})

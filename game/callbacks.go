@@ -7,6 +7,7 @@ const (
 	CallbackOnDamageCalc    = "OnDamageCalc"
 	CallbackOnHealCalc      = "OnHealCalc"
 	CallbackOnCast          = "OnCast"
+	CallbackOnActorDidCast  = "OnActorDidCast"
 	CallbackOnInit          = "OnInit"
 	CallbackOnPickUp        = "OnPickUp"
 	CallbackOnTurn          = "OnTurn"

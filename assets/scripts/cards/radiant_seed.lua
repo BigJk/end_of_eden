@@ -5,6 +5,7 @@ register_card("RADIANT_SEED", {
         return "Inflict " .. highlight(10 + ctx.level * 2) .. " damage to all enemies, but also causes " .. highlight(5 - ctx.level * 2) ..
                    " damage to the caster."
     end,
+    tags = { "ATK" },
     max_level = 1,
     color = "#82c93e",
     need_target = false,

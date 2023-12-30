@@ -9,6 +9,7 @@
 ---@field owner? guid
 ---@field caster? guid
 ---@field level? number
+---@field tags? string[]
 ---@field damage? number
 ---@field heal? number
 ---@field stacks? number
@@ -17,6 +18,7 @@
 ---@class callbacks
 ---@field on_actor_die? fun(ctx:ctx):nil
 ---@field on_cast? fun(ctx:ctx):nil
+---@field on_actor_did_cast? fun(ctx:ctx):nil
 ---@field on_damage? fun(ctx:ctx):nil
 ---@field on_damage_calc? fun(ctx:ctx):number|nil
 ---@field on_heal_calc? fun(ctx:ctx):number|nil

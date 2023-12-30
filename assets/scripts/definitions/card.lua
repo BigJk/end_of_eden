@@ -11,6 +11,7 @@
 ---@field id? type_id
 ---@field name string
 ---@field description string
+---@field tags? string[]
 ---@field state? fun(ctx:card_state_ctx):nil
 ---@field color string
 ---@field point_cost number

@@ -6,6 +6,7 @@ register_card("BERSERKER_RAGE", {
             highlight("3 action points") .. ", but take " .. highlight(tostring(30 - ctx.level * 10) .. "%") .. " (" ..
             tostring(get_player().hp * (0.3 - ctx.level * 0.1)) .. ") of your HP as damage."
     end,
+    tags = { "BUFF" },
     max_level = 0,
     color = "#d8a448",
     need_target = false,

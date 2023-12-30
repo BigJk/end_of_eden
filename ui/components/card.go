@@ -26,6 +26,7 @@ func HalfCard(session *game.Session, guid string, active bool, baseHeight int, m
 	if !canCast {
 		pointText = cantCastStyle.Render(pointText)
 	}
+	tagsText := strings.Join(card.Tags, ", ")
 
 	cardCol, _ := colorful.Hex(card.Color)
 	bgCol, _ := colorful.MakeColor(style.BaseGrayDarker)
@@ -41,7 +42,7 @@ func HalfCard(session *game.Session, guid string, active bool, baseHeight int, m
 	if active {
 		return cardStyle.
 			Height(ui.Min(maxHeight-1, baseHeight+5)).
-			Render(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), cardState))
+			Render(fmt.Sprintf("%s%s%s\n\n%s\n\n%s", pointText, strings.Repeat(" ", 30-2-len(pointText)-len(tagsText)), tagsText, style.BoldStyle.Render(card.Name), cardState))
 	}
 
 	if minimal {
@@ -52,6 +53,6 @@ func HalfCard(session *game.Session, guid string, active bool, baseHeight int, m
 
 	return cardStyle.
 		Height(baseHeight).
-		Render(fmt.Sprintf("%s\n\n%s\n\n%s", pointText, style.BoldStyle.Render(card.Name), cardState))
+		Render(fmt.Sprintf("%s%s%s\n\n%s\n\n%s", pointText, strings.Repeat(" ", 30-2-len(pointText)-len(tagsText)), tagsText, style.BoldStyle.Render(card.Name), cardState))
 
 }

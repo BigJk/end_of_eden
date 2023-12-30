@@ -4,6 +4,7 @@ register_card("COMBINED_SHOT", {
     state = function(ctx)
         return "Deal " .. highlight((5 + ctx.level * 5) * #get_opponent_guids(ctx.owner)) .. " damage for each enemy."
     end,
+    tags = { "ATK" },
     max_level = 1,
     color = "#d8a448",
     need_target = true,

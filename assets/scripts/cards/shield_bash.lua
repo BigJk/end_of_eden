@@ -6,6 +6,7 @@ register_card("SHIELD_BASH", {
         return "Deal " .. highlight(4 + ctx.level * 2) .. " damage to the enemy and gain " .. highlight("block") ..
                    " status effect equal to the damage dealt."
     end,
+    tags = { "ATK" },
     max_level = 1,
     color = "#ff5722",
     need_target = true,

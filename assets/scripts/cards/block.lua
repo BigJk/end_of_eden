@@ -4,6 +4,7 @@ register_card("BLOCK", {
     state = function(ctx)
         return "Shield yourself and gain " .. highlight(5 + ctx.level * 3) .. " block."
     end,
+    tags = { "DEF" },
     max_level = 1,
     color = "#219ebc",
     need_target = false,

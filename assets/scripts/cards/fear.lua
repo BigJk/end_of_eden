@@ -4,6 +4,7 @@ register_card("FEAR", {
     state = function(ctx)
         return nil
     end,
+    tags = { "CC" },
     max_level = 0,
     color = "#725e9c",
     need_target = true,
