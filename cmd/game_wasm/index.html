@@ -4,17 +4,34 @@
 	<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 	<script src="./wasm_exec.js"></script>
 	<style>
+      @font-face {
+          font-family: 'IosevkaTermNerdFontMono';
+          src: url('assets/fonts/IosevkaTermNerdFontMono-Bold.ttf') format('truetype');
+          font-weight: bold;
+          font-style: normal;
+      }
+
+      @font-face {
+          font-family: 'IosevkaTermNerdFontMono';
+          src: url('assets/fonts/IosevkaTermNerdFontMono-Regular.ttf') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+      }
+
+      @font-face {
+          font-family: 'IosevkaTermNerdFontMono';
+          src: url('assets/fonts/IosevkaTermNerdFontMono-Italic.ttf') format('truetype');
+          font-weight: normal;
+          font-style: italic;
+      }
+
       html, body {
           height: 100%;
           margin: 0;
           padding: 0;
-          font-family: 'Inconsolata', monospace;
+          font-family: 'IosevkaTermNerdFontMono', monospace;
           background-color: #1a1a1a !important;
       }
 
@@ -135,7 +152,7 @@
 
 		const term = new Terminal({
 			fontSize: globalThis.settings.getInt("font_size") ?? 14,
-			fontFamily: 'Inconsolata',
+			fontFamily: 'IosevkaTermNerdFontMono',
 			theme: {
 				background: '#1a1a1a'
 			}
@@ -176,7 +193,7 @@
 			});
 
 			// Init terminal. This should be done after bubbletea is initialized. For now, I use a timeout.
-			document.fonts.load('16px "Inconsolata"').then(() => (initTerminal()));
+			document.fonts.load((globalThis.settings.getInt("font_size") ?? 14) + 'px "IosevkaTermNerdFontMono"').then(() => (initTerminal()));
 		})
 	}
 
