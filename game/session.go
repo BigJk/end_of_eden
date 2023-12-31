@@ -36,6 +36,7 @@ func init() {
 	gob.Register(MerchantState{})
 }
 
+// GameState represents the current state of the game.
 type GameState string
 
 const (
@@ -463,7 +464,9 @@ func (s *Session) SetupFight() {
 	s.RemoveAllStatusEffects()
 	s.CleanUpFight()
 	s.PlayerDrawCard(DrawSize)
-	s.TriggerOnPlayerTurn()
+
+	// Trigger OnPlayerTurn callbacks
+	TriggerCallbackSimple(s, CallbackOnPlayerTurn, TriggerAll, nil)
 
 	// Save after each fight
 	{
@@ -559,7 +562,9 @@ func (s *Session) FinishPlayerTurn() {
 	s.currentFight.Hand = []string{}
 
 	s.PlayerDrawCard(DrawSize)
-	s.TriggerOnPlayerTurn()
+
+	// Trigger OnPlayerTurn callbacks
+	TriggerCallbackSimple(s, CallbackOnPlayerTurn, TriggerAll, nil)
 }
 
 // EnemyTurn lets all enemies act. This will also trigger the OnTurn callbacks of all status effects and
@@ -1347,7 +1352,7 @@ func (s *Session) CastCard(guid string, target string) bool {
 		}
 		if val, ok := res.(bool); ok {
 			if val {
-				s.TriggerCallbackAll(CallbackOnActorDidCast, CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level, "tags", card.Tags))
+				TriggerCallbackSimple(s, CallbackOnActorDidCast, TriggerAll, EmptyContext, CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level, "tags", card.Tags))
 			}
 			return val
 		}
@@ -1532,16 +1537,20 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 		return 0
 	}
 
-	guids := lo.Flatten([][]string{
-		s.GetActor(source).Artifacts.ToSlice(),
-		s.GetActor(target).Artifacts.ToSlice(),
-		s.GetActor(target).StatusEffects.ToSlice(),
-		s.GetActor(source).StatusEffects.ToSlice(),
-	})
-
 	// If not flat we will modify the damage based on the OnDamageCalc callbacks.
 	if !flat {
-		damage = s.TriggerOnDamageCalc(guids, source, target, damage)
+		reducer := func(cur float64, val float64) float64 {
+			return val
+		}
+		damage = int(TriggerCallbackReduce[float64](
+			s,
+			CallbackOnDamageCalc,
+			TriggerAll,
+			reducer,
+			float64(damage),
+			"damage",
+			CreateContext("source", source, "target", target, "damage", damage)),
+		)
 	}
 
 	if source == PlayerActorID {
@@ -1558,7 +1567,7 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 	}
 
 	// Trigger OnDamage callbacks
-	s.TriggerOnDamage(guids, source, target, damage)
+	TriggerCallbackSimple(s, CallbackOnDamage, TriggerAll, CreateContext("source", source, "target", target, "damage", damage))
 
 	// Re-fetch actor in case the OnDamage callback triggered some kind of damage or healing.
 	val = s.actors[target]
@@ -1576,7 +1585,10 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 		})
 		s.Log(LogTypeSuccess, fmt.Sprintf("%s died and dropped %d gold!", val.Name, val.Gold))
 		s.GivePlayerGold(val.Gold)
-		s.TriggerOnActorDie(guids, source, target, damage)
+
+		// Trigger OnActorDie callbacks
+		TriggerCallbackSimple(s, CallbackOnActorDie, TriggerAll, CreateContext("source", source, "target", target, "damage", damage))
+
 		s.RemoveActor(target)
 	} else {
 		s.PushState(map[StateEvent]any{
@@ -1878,120 +1890,6 @@ func (s *Session) GivePlayerGold(amount int) {
 			},
 		})
 		return true
-	})
-}
-
-//
-// Misc Callback
-//
-
-// TriggerOnDamageCalc triggers the OnDamageCalc callback for all artifacts and status effects
-func (s *Session) TriggerOnDamageCalc(guids []string, source string, target string, damage int) int {
-	s.TraverseArtifactsStatus(guids,
-		func(instance ArtifactInstance, art *Artifact) {
-			res, err := art.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
-			if err != nil {
-				s.logLuaError(CallbackOnDamageCalc, instance.TypeID, err)
-			} else if res != nil {
-				if newDamage, ok := res.(float64); ok {
-					damage = int(newDamage)
-				}
-			}
-		},
-		func(instance StatusEffectInstance, se *StatusEffect) {
-			res, err := se.Callbacks[CallbackOnDamageCalc].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
-			if err != nil {
-				s.logLuaError(CallbackOnDamageCalc, instance.TypeID, err)
-			} else if res != nil {
-				if newDamage, ok := res.(float64); ok {
-					damage = int(newDamage)
-				}
-			}
-		},
-	)
-	return damage
-}
-
-// TriggerOnDamage triggers the OnDamage callback for all artifacts and status effects.
-func (s *Session) TriggerOnDamage(guids []string, source string, target string, damage int) {
-	s.TraverseArtifactsStatus(guids,
-		func(instance ArtifactInstance, art *Artifact) {
-			_, err := art.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
-			if err != nil {
-				s.logLuaError(CallbackOnDamage, instance.TypeID, err)
-			}
-		},
-		func(instance StatusEffectInstance, se *StatusEffect) {
-			_, err := se.Callbacks[CallbackOnDamage].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
-			if err != nil {
-				s.logLuaError(CallbackOnDamage, instance.TypeID, err)
-			}
-		},
-	)
-}
-
-// TriggerOnActorDie trigger the OnActorDie callback on all artifacts and status effects.
-func (s *Session) TriggerOnActorDie(guids []string, source string, target string, damage int) {
-	s.TraverseArtifactsStatus(guids,
-		func(instance ArtifactInstance, art *Artifact) {
-			_, err := art.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", art.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "damage", damage))
-			if err != nil {
-				s.logLuaError(CallbackOnActorDie, instance.TypeID, err)
-			}
-		},
-		func(instance StatusEffectInstance, se *StatusEffect) {
-			_, err := se.Callbacks[CallbackOnActorDie].Call(CreateContext("type_id", se.ID, "guid", instance.GUID, "source", source, "target", target, "owner", instance.Owner, "stacks", instance.Stacks, "damage", damage))
-			if err != nil {
-				s.logLuaError(CallbackOnActorDie, instance.TypeID, err)
-			}
-		},
-	)
-}
-
-// TriggerOnPlayerTurn trigger the OnPlayerTurn callback for all artifacts and status effects.
-func (s *Session) TriggerOnPlayerTurn() {
-	s.TraverseArtifactsStatus(lo.Keys(s.instances),
-		func(instance ArtifactInstance, artifact *Artifact) {
-			if _, err := artifact.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", artifact.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound())); err != nil {
-				s.logLuaError(CallbackOnPlayerTurn, instance.TypeID, err)
-			}
-		},
-		func(instance StatusEffectInstance, statusEffect *StatusEffect) {
-			if _, err := statusEffect.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", statusEffect.ID, "guid", instance.GUID, "owner", instance.Owner, "round", s.GetFightRound(), "stacks", instance.Stacks)); err != nil {
-				s.logLuaError(CallbackOnPlayerTurn, instance.TypeID, err)
-			}
-		},
-	)
-
-	lo.ForEach(s.GetOpponents(PlayerActorID), func(actor Actor, index int) {
-		if enemy := s.GetEnemy(actor.TypeID); enemy != nil {
-			if _, err := enemy.Callbacks[CallbackOnPlayerTurn].Call(CreateContext("type_id", enemy.ID, "guid", actor.GUID, "round", s.GetFightRound())); err != nil {
-				s.logLuaError(CallbackOnPlayerTurn, enemy.ID, err)
-			}
-		}
-	})
-}
-
-// TriggerCallbackAll triggers a callback on all artifacts, status effects and enemies.
-func (s *Session) TriggerCallbackAll(callback string, ctx Context) {
-	s.TraverseArtifactsStatus(lo.Keys(s.instances),
-		func(instance ArtifactInstance, artifact *Artifact) {
-			if _, err := artifact.Callbacks[callback].Call(ctx); err != nil {
-				s.logLuaError(callback, instance.TypeID, err)
-			}
-		},
-		func(instance StatusEffectInstance, statusEffect *StatusEffect) {
-			if _, err := statusEffect.Callbacks[callback].Call(ctx); err != nil {
-				s.logLuaError(callback, instance.TypeID, err)
-			}
-		},
-	)
-	lo.ForEach(s.GetOpponents(PlayerActorID), func(actor Actor, index int) {
-		if enemy := s.GetEnemy(actor.TypeID); enemy != nil {
-			if _, err := enemy.Callbacks[callback].Call(ctx); err != nil {
-				s.logLuaError(callback, enemy.ID, err)
-			}
-		}
 	})
 }
 

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
 	"io"
@@ -27,7 +28,7 @@ register_card("MELEE_HIT",
 
 func TestCards(t *testing.T) {
 	s := lua.NewState()
-	man := NewResourcesManager(s, log.New(io.Discard, "", 0))
+	man := NewResourcesManager(s, ludoc.New(), log.New(io.Discard, "", 0))
 
 	// Evaluate lua
 	if !assert.NoError(t, s.DoString(TestCardLua)) {
