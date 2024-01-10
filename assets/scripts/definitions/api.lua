@@ -61,16 +61,15 @@ function text_bg(color, value) end
 ---@return string
 function text_bold(value) end
 
---- Makes the text foreground colored. Takes hex values like #ff0000.
----@param color string
----@param value any
----@return string
-function text_color(color, value) end
-
 --- Makes the text italic.
 ---@param value any
 ---@return string
 function text_italic(value) end
+
+--- Makes the text colored red.
+---@param value any
+---@return string
+function text_red(value) end
 
 --- Makes the text underlined.
 ---@param value any
@@ -125,9 +124,13 @@ function get_event_history() end
 ---@return fight_state
 function get_fight() end
 
---- Gets the number of stages cleared.
+--- Gets the fight round.
 ---@return number
 function get_fight_round() end
+
+--- Gets the number of stages cleared.
+---@return number
+function get_stages_cleared() end
 
 --- Checks if the event happened at least once.
 ---@param event_id type_id
@@ -169,6 +172,16 @@ function actor_add_hp(guid, amount) end
 ---@param guid guid
 ---@param amount number
 function actor_add_max_hp(guid, amount) end
+
+--- Sets the hp value of a actor to a number. This won't trigger any on_damage callbacks
+---@param guid guid
+---@param amount number
+function actor_set_hp(guid, amount) end
+
+--- Sets the max hp value of a actor to a number.
+---@param guid guid
+---@param amount number
+function actor_set_max_hp(guid, amount) end
 
 --- Creates a new enemy fighting against the player. Example ``add_actor_by_enemy("RUST_MITE")``.
 ---@param enemy_guid type_id
@@ -217,6 +230,11 @@ function get_artifact(id) end
 ---@param guid guid
 ---@return artifact_instance
 function get_artifact_instance(guid) end
+
+--- Returns all the artifacts guids from the given actor.
+---@param actor_guid string
+---@return guid[]
+function get_artifacts(actor_guid) end
 
 --- Gives a actor a artifact. Returns the guid of the newly created artifact.
 ---@param type_id type_id
@@ -316,7 +334,7 @@ function upgrade_random_card(actor_guid) end
 -- Damage & Heal
 -- #####################################
 
---- Deal damage to a enemy from one source. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
+--- Deal damage from one source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
 ---@param source guid
 ---@param target guid
 ---@param damage number
@@ -337,6 +355,14 @@ function deal_damage_multi(source, targets, damage, flat) end
 ---@param target guid
 ---@param amount number
 function heal(source, target, amount) end
+
+--- Simulate damage from a source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that would be dealt.
+---@param source guid
+---@param target guid
+---@param damage number
+---@param flat? boolean
+---@return number
+function simulate_deal_damage(source, target, damage, flat) end
 
 -- #####################################
 -- Player Operations

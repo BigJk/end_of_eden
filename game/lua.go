@@ -127,9 +127,9 @@ fun = require "fun"
 		return 1
 	}))
 
-	d.Function("text_color", "Makes the text foreground colored. Takes hex values like #ff0000.", "string", "color : string", "value : any")
-	l.SetGlobal("text_color", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString(removeAnsiReset(lipgloss.NewStyle().Foreground(lipgloss.Color(luhelp2.ToString(state.Get(1), mapper))).Render(luhelp2.ToString(state.Get(2), mapper)))))
+	d.Function("text_red", "Makes the text colored red.", "string", "value : any")
+	l.SetGlobal("text_red", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LString("\x1b[38;5;9m" + luhelp2.ToString(state.Get(1), mapper)))
 		return 1
 	}))
 
@@ -239,7 +239,7 @@ fun = require "fun"
 		return 1
 	}))
 
-	d.Function("get_fight_round", "Gets the number of stages cleared.", "number")
+	d.Function("get_stages_cleared", "Gets the number of stages cleared.", "number")
 	l.SetGlobal("get_stages_cleared", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LNumber(session.GetStagesCleared()))
 		return 1
@@ -333,9 +333,27 @@ fun = require "fun"
 		return 0
 	}))
 
+	d.Function("actor_set_max_hp", "Sets the max hp value of a actor to a number.", "", "guid : guid", "amount : number")
+	l.SetGlobal("actor_set_max_hp", l.NewFunction(func(state *lua.LState) int {
+		session.UpdateActor(state.ToString(1), func(actor *Actor) bool {
+			actor.MaxHP = int(state.ToNumber(2))
+			return true
+		})
+		return 0
+	}))
+
 	d.Function("actor_add_hp", "Increases the hp value of a actor by a number. Can be negative value to decrease it. This won't trigger any on_damage callbacks", "", "guid : guid", "amount : number")
 	l.SetGlobal("actor_add_hp", l.NewFunction(func(state *lua.LState) int {
 		session.ActorAddHP(state.ToString(1), int(state.ToNumber(2)))
+		return 0
+	}))
+
+	d.Function("actor_set_hp", "Sets the hp value of a actor to a number. This won't trigger any on_damage callbacks", "", "guid : guid", "amount : number")
+	l.SetGlobal("actor_set_hp", l.NewFunction(func(state *lua.LState) int {
+		session.UpdateActor(state.ToString(1), func(actor *Actor) bool {
+			actor.HP = int(state.ToNumber(2))
+			return true
+		})
 		return 0
 	}))
 
@@ -359,6 +377,12 @@ fun = require "fun"
 	l.SetGlobal("remove_artifact", l.NewFunction(func(state *lua.LState) int {
 		session.RemoveArtifact(state.ToString(1))
 		return 0
+	}))
+
+	d.Function("get_artifacts", "Returns all the artifacts guids from the given actor.", "guid[]", "actor_guid : string")
+	l.SetGlobal("get_artifacts", l.NewFunction(func(state *lua.LState) int {
+		state.Push(luhelp2.ToLua(state, session.GetArtifacts(state.ToString(1))))
+		return 1
 	}))
 
 	d.Function("get_artifact", "Returns the artifact definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.", "artifact", "id : string")
@@ -483,12 +507,22 @@ fun = require "fun"
 
 	d.Category("Damage & Heal", "Functions that deal damage or heal.", 10)
 
-	d.Function("deal_damage", "Deal damage to a enemy from one source. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.", "number", "source : guid", "target : guid", "damage : number", "(optional) flat : boolean")
+	d.Function("deal_damage", "Deal damage from one source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.", "number", "source : guid", "target : guid", "damage : number", "(optional) flat : boolean")
 	l.SetGlobal("deal_damage", l.NewFunction(func(state *lua.LState) int {
 		if state.GetTop() == 3 {
 			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), false)))
 		} else {
 			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), bool(state.ToBool(4)))))
+		}
+		return 1
+	}))
+
+	d.Function("simulate_deal_damage", "Simulate damage from a source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that would be dealt.", "number", "source : guid", "target : guid", "damage : number", "(optional) flat : boolean")
+	l.SetGlobal("simulate_deal_damage", l.NewFunction(func(state *lua.LState) int {
+		if state.GetTop() == 3 {
+			state.Push(lua.LNumber(session.SimulateDealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), false)))
+		} else {
+			state.Push(lua.LNumber(session.SimulateDealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), bool(state.ToBool(4)))))
 		}
 		return 1
 	}))

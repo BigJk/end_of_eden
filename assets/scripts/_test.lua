@@ -11,6 +11,48 @@ function assert_chain(tests)
     return nil
 end
 
+---assert_card_present asserts that the player's first card is of a certain type, returning an error message if not
+---@param id type_id
+---@return string|nil
+function assert_card_present(id)
+    local cards = get_cards(PLAYER_ID)
+
+    if not cards[1] then
+        return "Card not in hand"
+    end
+
+    local card = get_card_instance(cards[1])
+    if card.type_id ~= id then
+        return "Card has wrong type: " .. card.type_id
+    end
+
+    return nil
+end
+
+---assert_cast_damage asserts that the player's first card deals a certain amount of damage, returning an error message if not
+---@param id type_id
+---@param dmg number
+---@return string|nil
+function assert_cast_damage(id, dmg)
+    local dummy = add_actor_by_enemy("DUMMY")
+    local cards = get_cards(PLAYER_ID)
+
+    if not cards[1] then
+        return "Card not in hand"
+    end
+
+    local card = get_card_instance(cards[1])
+    if card.type_id ~= id then
+        return "Card has wrong type: " .. card.type_id
+    end
+
+    cast_card(cards[1], dummy)
+
+    if get_actor(dummy).hp ~= 100 - dmg then
+        return "Expected " .. tostring(100 - dmg) .. " health, got " .. get_actor(dummy).hp
+    end
+end
+
 ---assert_status_effect_count asserts that the player has a certain number of status effects, returning an error message if not
 ---@param count number
 ---@return string|nil

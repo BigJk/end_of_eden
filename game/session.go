@@ -61,6 +61,12 @@ const (
 	DrawSize = 3
 )
 
+type Hook string
+
+const (
+	HookNextFightEnd = Hook("NextFightEnd")
+)
+
 // FightState represents the current state of the fight in regard to the
 // deck of the player.
 type FightState struct {
@@ -107,6 +113,7 @@ type Session struct {
 	eventHistory  []string
 	randomHistory []string
 	ctxData       map[string]any
+	hooks         map[Hook][]func()
 
 	loadedMods       []string
 	stateCheckpoints []StateCheckpoint
@@ -125,11 +132,16 @@ func NewSession(options ...func(s *Session)) *Session {
 		actors: map[string]Actor{
 			PlayerActorID: NewActor(PlayerActorID),
 		},
-		instances:     map[string]any{},
-		ctxData:       map[string]any{},
+		instances: map[string]any{},
+		ctxData:   map[string]any{},
+		hooks: map[Hook][]func(){
+			HookNextFightEnd: {},
+		},
 		stagesCleared: 0,
 		onLuaError:    nil,
 		luaErrors:     make(chan LuaError, 25),
+		eventHistory:  []string{},
+		randomHistory: []string{},
 	}
 	session.SetOnLuaError(nil)
 
@@ -145,7 +157,6 @@ func NewSession(options ...func(s *Session)) *Session {
 	session.resources = NewResourcesManager(session.luaState, session.luaDocs, session.log)
 	session.resources.MarkBaseGame()
 	session.loadMods(session.loadedMods)
-	session.SetEvent("START")
 
 	session.log.Println("Session started!")
 
@@ -155,6 +166,8 @@ func NewSession(options ...func(s *Session)) *Session {
 		actor.Gold = 50 + rand.Intn(50)
 		return true
 	})
+
+	session.SetEvent("START")
 
 	return session
 }
@@ -331,12 +344,16 @@ func (s *Session) loadMods(mods []string) {
 		}
 
 		_ = fs.Walk(filepath.Join("./mods", mods[i]), func(path string, isDir bool) error {
+			if strings.Contains(path, "__") {
+				return nil
+			}
+
 			// If we find a locals folder we add it to the localization
 			if isDir && filepath.Base(path) == "locals" {
 				_ = localization.Global.AddFolder(path)
 			}
 
-			if isDir && strings.HasSuffix(path, ".lua") {
+			if !isDir && strings.HasSuffix(path, ".lua") {
 				luaBytes, err := fs.ReadFile(path)
 				if err != nil {
 					// TODO: error handling
@@ -505,10 +522,10 @@ func (s *Session) FinishPlayerTurn() {
 	for _, guid := range instanceKeys {
 		switch instance := s.instances[guid].(type) {
 		case StatusEffectInstance:
-			// If it was applied this round we never remove it.
-			if instance.RoundEntered == s.currentFight.Round {
-				continue
-			}
+			// TODO: investigate why this was here
+			// if instance.Owner == PlayerActorID && instance.RoundEntered == s.currentFight.Round {
+			// 	continue
+			// }
 
 			se := s.resources.StatusEffects[instance.TypeID]
 
@@ -625,6 +642,9 @@ func (s *Session) FinishFight() bool {
 		} else {
 			s.SetGameState(GameStateRandom)
 		}
+
+		// Trigger HookNextFightEnd
+		s.TriggerHooks(HookNextFightEnd)
 	}
 	return false
 }
@@ -649,22 +669,28 @@ func (s *Session) FinishEvent(choice int) {
 		if nextState != nil {
 			if len(nextState.(string)) > 0 {
 				s.SetGameState(GameState(nextState.(string)))
+			} else {
+				s.SetGameState(GameStateRandom)
 			}
-			_, _ = event.OnEnd(CreateContext("type_id", event.ID, "choice", choice+1))
+			_, _ = event.OnEnd.Call(CreateContext("type_id", event.ID, "choice", choice+1))
 			return
 		}
 
 		// Otherwise we allow OnEnd to dictate the new state
-		nextState, _ = event.OnEnd(CreateContext("type_id", event.ID, "choice", choice+1))
+		nextState, _ = event.OnEnd.Call(CreateContext("type_id", event.ID, "choice", choice+1))
 		if nextState != nil && len(nextState.(string)) > 0 {
 			s.SetGameState(GameState(nextState.(string)))
+		} else {
+			s.SetGameState(GameStateRandom)
 		}
 		return
 	}
 
-	nextState, _ := event.OnEnd(CreateContext("type_id", event.ID, "choice", nil))
+	nextState, _ := event.OnEnd.Call(CreateContext("type_id", event.ID, "choice", nil))
 	if nextState != nil && len(nextState.(string)) > 0 {
 		s.SetGameState(GameState(nextState.(string)))
+	} else {
+		s.SetGameState(GameStateRandom)
 	}
 }
 
@@ -1282,6 +1308,14 @@ func (s *Session) GiveArtifact(typeId string, owner string) string {
 		s.logLuaError(CallbackOnPickUp, instance.TypeID, err)
 	}
 
+	s.PushState(map[StateEvent]any{
+		StateEventArtifactAdded: StateEventArtifactAddedData{
+			Owner:  owner,
+			TypeID: typeId,
+			GUID:   instance.GUID,
+		},
+	})
+
 	return instance.GUID
 }
 
@@ -1293,6 +1327,14 @@ func (s *Session) RemoveArtifact(guid string) {
 	}
 	s.actors[instance.Owner].Artifacts.Remove(instance.GUID)
 	delete(s.instances, guid)
+
+	s.PushState(map[StateEvent]any{
+		StateEventArtifactRemoved: StateEventArtifactRemovedData{
+			Owner:  instance.Owner,
+			TypeID: instance.TypeID,
+			GUID:   instance.GUID,
+		},
+	})
 }
 
 //
@@ -1333,6 +1375,15 @@ func (s *Session) GiveCard(typeId string, owner string) string {
 	}
 	s.instances[instance.GUID] = instance
 	s.actors[owner].Cards.Add(instance.GUID)
+
+	s.PushState(map[StateEvent]any{
+		StateEventCardAdded: StateEventCardAddedData{
+			Owner:  owner,
+			TypeID: typeId,
+			GUID:   instance.GUID,
+		},
+	})
+
 	return instance.GUID
 }
 
@@ -1341,6 +1392,14 @@ func (s *Session) RemoveCard(guid string) {
 	instance := s.instances[guid].(CardInstance)
 	s.actors[instance.Owner].Cards.Remove(instance.GUID)
 	delete(s.instances, guid)
+
+	s.PushState(map[StateEvent]any{
+		StateEventCardRemoved: StateEventCardRemovedData{
+			Owner:  instance.Owner,
+			TypeID: instance.TypeID,
+			GUID:   instance.GUID,
+		},
+	})
 }
 
 // CastCard calls the OnCast callback for a card, casting it.
@@ -1351,13 +1410,15 @@ func (s *Session) CastCard(guid string, target string) bool {
 			s.logLuaError(CallbackOnCast, instance.TypeID, err)
 		}
 		if val, ok := res.(bool); ok {
-			if val {
-				TriggerCallbackSimple(s, CallbackOnActorDidCast, TriggerAll, EmptyContext, CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level, "tags", card.Tags))
+			if !val {
+				return false
 			}
-			return val
+
+			TriggerCallbackSimple(s, CallbackOnActorDidCast, TriggerAll, EmptyContext, CreateContext("type_id", card.ID, "guid", guid, "caster", instance.Owner, "target", target, "level", instance.Level, "tags", card.Tags))
+			return true
 		}
 	}
-	return false
+	return true
 }
 
 // GetCards returns all cards owned by a actor.
@@ -1398,7 +1459,8 @@ func (s *Session) PlayerCastHand(i int, target string) error {
 	cardId := s.currentFight.Hand[i]
 
 	// Only cast a card if castable and points are available and subtract them.
-	if card, _ := s.GetCard(cardId); card != nil {
+	card, _ := s.GetCard(cardId)
+	if card != nil {
 		if !card.Callbacks[CallbackOnCast].Present() {
 			return errors.New("card is not castable")
 		}
@@ -1418,11 +1480,15 @@ func (s *Session) PlayerCastHand(i int, target string) error {
 	})
 
 	// Cast and exhaust if needed.
-	exhaust := s.CastCard(cardId, target)
-	if exhaust {
-		s.currentFight.Exhausted = append(s.currentFight.Exhausted, cardId)
-	} else {
-		s.currentFight.Used = append(s.currentFight.Used, cardId)
+	didCast := s.CastCard(cardId, target)
+	if didCast {
+		if card.DoesExhaust {
+			s.currentFight.Exhausted = append(s.currentFight.Exhausted, cardId)
+		} else if card.DoesConsume {
+			s.RemoveCard(cardId)
+		} else {
+			s.currentFight.Used = append(s.currentFight.Used, cardId)
+		}
 	}
 
 	s.FinishFight()
@@ -1610,6 +1676,41 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 	return damage
 }
 
+// SimulateDealDamage will simulate damage to a target. If flat is true it will not trigger any callbacks which modify the damage.
+func (s *Session) SimulateDealDamage(source string, target string, damage int, flat bool) int {
+	if _, ok := s.actors[source]; !ok {
+		return 0
+	}
+
+	_, ok := s.actors[target]
+	if !ok {
+		return 0
+	}
+
+	// If not flat we will modify the damage based on the OnDamageCalc callbacks.
+	if !flat {
+		reducer := func(cur float64, val float64) float64 {
+			return val
+		}
+		damage = int(TriggerCallbackReduce[float64](
+			s,
+			CallbackOnDamageCalc,
+			TriggerAll,
+			reducer,
+			float64(damage),
+			"damage",
+			CreateContext("source", source, "target", target, "damage", damage, "simulated", true)),
+		)
+	}
+
+	// Negative damage aka heal is not allowed!
+	if damage < 0 {
+		return 0
+	}
+
+	return damage
+}
+
 // DealDamageMulti will deal damage to multiple targets and return the amount of damage dealt to each target.
 // If flat is true it will not trigger any OnDamageCalc callbacks which modify the damage.
 func (s *Session) DealDamageMulti(source string, targets []string, damage int, flat bool) []int {
@@ -1699,7 +1800,7 @@ func (s *Session) GetActor(id string) Actor {
 	return NewActor("")
 }
 
-// UpdateActor updates an actor.
+// UpdateActor updates an actor. If the update function returns true the actor will be updated.
 func (s *Session) UpdateActor(id string, update func(actor *Actor) bool) {
 	actor := s.GetActor(id)
 	if update(&actor) {
@@ -1891,6 +1992,23 @@ func (s *Session) GivePlayerGold(amount int) {
 		})
 		return true
 	})
+}
+
+//
+// Hooks
+//
+
+// AddHook adds a hook to the session.
+func (s *Session) AddHook(hook Hook, callback func()) {
+	s.hooks[hook] = append(s.hooks[hook], callback)
+}
+
+// TriggerHooks triggers all hooks of a certain type.
+func (s *Session) TriggerHooks(hook Hook) {
+	for _, callback := range s.hooks[hook] {
+		callback()
+	}
+	s.hooks[hook] = []func(){}
 }
 
 //

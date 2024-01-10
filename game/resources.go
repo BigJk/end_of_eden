@@ -67,8 +67,8 @@ func NewResourcesManager(state *lua.LState, docs *ludoc.Docs, logger *log.Logger
 
 	// Load all local scripts
 	_ = fs.Walk("./assets/scripts", func(path string, isDir bool) error {
-		// Don't load libs
-		if strings.Contains(path, "scripts/libs") || strings.Contains(path, "scripts/definitions") {
+		// Don't load libs, definitions and paths containing two __
+		if strings.Contains(path, "scripts/libs") || strings.Contains(path, "scripts/definitions") || strings.Contains(path, "__") {
 			return nil
 		}
 
@@ -132,7 +132,10 @@ func (man *ResourcesManager) luaRegisterArtifact(l *lua.LState) int {
 	man.log.Println("Registered artifact:", def.ID, def.Name)
 
 	man.Artifacts[def.ID] = &def
-	man.registered.RawGetString("artifact").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
+
+	table := l.ToTable(2)
+	l.SetTable(table, lua.LString("id"), lua.LString(def.ID))
+	man.registered.RawGetString("artifact").(*lua.LTable).RawSetString(def.ID, table)
 	return 0
 }
 
@@ -151,7 +154,10 @@ func (man *ResourcesManager) luaRegisterCard(l *lua.LState) int {
 	man.log.Println("Registered card:", def.ID, def.Name)
 
 	man.Cards[def.ID] = &def
-	man.registered.RawGetString("card").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
+
+	table := l.ToTable(2)
+	l.SetTable(table, lua.LString("id"), lua.LString(def.ID))
+	man.registered.RawGetString("card").(*lua.LTable).RawSetString(def.ID, table)
 	return 0
 }
 
@@ -170,7 +176,10 @@ func (man *ResourcesManager) luaRegisterEnemy(l *lua.LState) int {
 	man.log.Println("Registered enemy:", def.ID, def.Name)
 
 	man.Enemies[def.ID] = &def
-	man.registered.RawGetString("enemy").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
+
+	table := l.ToTable(2)
+	l.SetTable(table, lua.LString("id"), lua.LString(def.ID))
+	man.registered.RawGetString("enemy").(*lua.LTable).RawSetString(def.ID, table)
 	return 0
 }
 
@@ -187,7 +196,10 @@ func (man *ResourcesManager) luaRegisterEvent(l *lua.LState) int {
 	man.log.Println("Registered event:", def.ID, def.Name)
 
 	man.Events[def.ID] = &def
-	man.registered.RawGetString("event").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
+
+	table := l.ToTable(2)
+	l.SetTable(table, lua.LString("id"), lua.LString(def.ID))
+	man.registered.RawGetString("event").(*lua.LTable).RawSetString(def.ID, table)
 	return 0
 }
 
@@ -206,7 +218,10 @@ func (man *ResourcesManager) luaRegisterStatusEffect(l *lua.LState) int {
 	man.log.Println("Registered status_effect:", def.ID, def.Name)
 
 	man.StatusEffects[def.ID] = &def
-	man.registered.RawGetString("status_effect").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
+
+	table := l.ToTable(2)
+	l.SetTable(table, lua.LString("id"), lua.LString(def.ID))
+	man.registered.RawGetString("status_effect").(*lua.LTable).RawSetString(def.ID, table)
 	return 0
 }
 
@@ -223,7 +238,10 @@ func (man *ResourcesManager) luaRegisterStoryTeller(l *lua.LState) int {
 	man.log.Println("Registered story_teller:", def.ID)
 
 	man.StoryTeller[def.ID] = &def
-	man.registered.RawGetString("story_teller").(*lua.LTable).RawSetString(def.ID, l.ToTable(2))
+
+	table := l.ToTable(2)
+	l.SetTable(table, lua.LString("id"), lua.LString(def.ID))
+	man.registered.RawGetString("story_teller").(*lua.LTable).RawSetString(def.ID, table)
 	return 0
 }
 

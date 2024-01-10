@@ -1,8 +1,28 @@
+register_card("BLOCK", {
+    name = "Block",
+    description = "Shield yourself and gain 5 " .. highlight("block") .. ".",
+    state = function(ctx)
+        return "Shield yourself and gain " .. highlight(1 + ctx.level) .. " block."
+    end,
+    tags = { "DEF" },
+    max_level = 1,
+    color = COLOR_BLUE,
+    need_target = false,
+    point_cost = 1,
+    price = 40,
+    callbacks = {
+        on_cast = function(ctx)
+            give_status_effect("BLOCK", ctx.caster, 1 + ctx.level)
+            return nil
+        end
+    }
+})
+
 register_status_effect("BLOCK", {
     name = "Block",
     description = "Decreases incoming damage for each stack",
     look = "Blk",
-    foreground = "#219ebc",
+    foreground = COLOR_BLUE,
     state = function(ctx)
         return "Takes " .. highlight(ctx.stacks) .. " less damage"
     end,
@@ -12,12 +32,16 @@ register_status_effect("BLOCK", {
     order = 100,
     callbacks = {
         on_damage_calc = function(ctx)
+            if ctx.simulated then
+                return ctx.damage
+            end
+            
             if ctx.target == ctx.owner then
                 add_status_effect_stacks(ctx.guid, -ctx.damage)
                 return ctx.damage - ctx.stacks
             end
             return ctx.damage
-        end
+        end,
     },
     test = function()
         return assert_chain({

@@ -1,24 +1,24 @@
 register_enemy("RUST_MITE", {
-    name = "Rust Mite",
-    description = "Loves to eat metal.",
+    name = l("enemies.RUST_MITE.name", "Rust Mite"),
+    description = l("enemies.RUST_MITE.description", "A small robot that eats metal."),
     look = "/v\\",
     color = "#e6e65a",
-    initial_hp = 22,
-    max_hp = 22,
+    initial_hp = 12,
+    max_hp = 12,
     gold = 10,
     intend = function(ctx)
         if ctx.round % 4 == 0 then
-            return "Gather strength"
+            return "Load battery"
         end
 
-        return "Deal " .. highlight(6) .. " damage"
+        return "Deal " .. highlight(simulate_deal_damage(ctx.guid, PLAYER_ID, 1)) .. " damage"
     end,
     callbacks = {
         on_turn = function(ctx)
             if ctx.round % 4 == 0 then
-                give_status_effect("RITUAL", ctx.guid)
+                give_status_effect("CHARGED", ctx.guid)
             else
-                deal_damage(ctx.guid, PLAYER_ID, 6)
+                deal_damage(ctx.guid, PLAYER_ID, 1)
             end
 
             return nil
@@ -26,21 +26,23 @@ register_enemy("RUST_MITE", {
     }
 })
 
-register_status_effect("RITUAL", {
-    name = "Ritual",
-    description = "Gain strength each round",
-    look = "Rit",
-    foreground = "#bb3e03",
+register_status_effect("CHARGED", {
+    name = l("status_effects.CHARGED.name", "Charged"),
+    description = l("status_effects.CHARGED.description", "Attacks will deal more damage per stack."),
+    look = "CHRG",
+    foreground = "#207BE7",
     state = function(ctx)
-        return nil
+        return string.format(l("status_effects.CHARGED.state", "Attacks deal %s more damage"), highlight(ctx.stacks * 1))
     end,
     can_stack = true,
     decay = DECAY_NONE,
     rounds = 0,
     callbacks = {
-        on_player_turn = function(ctx)
-            local guid = give_status_effect("STRENGTH", ctx.owner)
-            set_status_effect_stacks(guid, 3 + ctx.stacks)
+        on_damage_calc = function(ctx)
+            if ctx.source == ctx.owner then
+                return ctx.damage + 1 * ctx.stacks
+            end
+            return nil
         end
     }
 })

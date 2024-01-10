@@ -13,6 +13,7 @@ type Artifact struct {
 	ID          string
 	Name        string
 	Description string
+	Tags        []string
 	Order       int
 	Price       int
 	Callbacks   map[string]luhelp.OwnedCallback

@@ -153,18 +153,6 @@ text_bold(value : any) -> string
 
 </details>
 
-<details> <summary><b><code>text_color</code></b> </summary> <br/>
-
-Makes the text foreground colored. Takes hex values like #ff0000.
-
-**Signature:**
-
-```
-text_color(color : string, value : any) -> string
-```
-
-</details>
-
 <details> <summary><b><code>text_italic</code></b> </summary> <br/>
 
 Makes the text italic.
@@ -173,6 +161,18 @@ Makes the text italic.
 
 ```
 text_italic(value : any) -> string
+```
+
+</details>
+
+<details> <summary><b><code>text_red</code></b> </summary> <br/>
+
+Makes the text colored red.
+
+**Signature:**
+
+```
+text_red(value : any) -> string
 ```
 
 </details>
@@ -326,12 +326,24 @@ get_fight() -> fight_state
 
 <details> <summary><b><code>get_fight_round</code></b> </summary> <br/>
 
-Gets the number of stages cleared.
+Gets the fight round.
 
 **Signature:**
 
 ```
 get_fight_round() -> number
+```
+
+</details>
+
+<details> <summary><b><code>get_stages_cleared</code></b> </summary> <br/>
+
+Gets the number of stages cleared.
+
+**Signature:**
+
+```
+get_stages_cleared() -> number
 ```
 
 </details>
@@ -437,6 +449,30 @@ Increases the max hp value of a actor by a number. Can be negative value to decr
 
 ```
 actor_add_max_hp(guid : guid, amount : number) -> None
+```
+
+</details>
+
+<details> <summary><b><code>actor_set_hp</code></b> </summary> <br/>
+
+Sets the hp value of a actor to a number. This won't trigger any on_damage callbacks
+
+**Signature:**
+
+```
+actor_set_hp(guid : guid, amount : number) -> None
+```
+
+</details>
+
+<details> <summary><b><code>actor_set_max_hp</code></b> </summary> <br/>
+
+Sets the max hp value of a actor to a number.
+
+**Signature:**
+
+```
+actor_set_max_hp(guid : guid, amount : number) -> None
 ```
 
 </details>
@@ -554,6 +590,18 @@ Returns the artifact instance by guid.
 
 ```
 get_artifact_instance(guid : guid) -> artifact_instance
+```
+
+</details>
+
+<details> <summary><b><code>get_artifacts</code></b> </summary> <br/>
+
+Returns all the artifacts guids from the given actor.
+
+**Signature:**
+
+```
+get_artifacts(actor_guid : string) -> guid[]
 ```
 
 </details>
@@ -791,7 +839,7 @@ None
 ### Functions
 <details> <summary><b><code>deal_damage</code></b> </summary> <br/>
 
-Deal damage to a enemy from one source. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
+Deal damage from one source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
 
 **Signature:**
 
@@ -821,6 +869,18 @@ Heals the target triggered by the source.
 
 ```
 heal(source : guid, target : guid, amount : number) -> None
+```
+
+</details>
+
+<details> <summary><b><code>simulate_deal_damage</code></b> </summary> <br/>
+
+Simulate damage from a source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that would be dealt.
+
+**Signature:**
+
+```
+simulate_deal_damage(source : guid, target : guid, damage : number, (optional) flat : boolean) -> number
 ```
 
 </details>

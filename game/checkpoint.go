@@ -17,10 +17,14 @@ func init() {
 type StateEvent string
 
 const (
-	StateEventDeath  = StateEvent("Death")
-	StateEventDamage = StateEvent("Damage")
-	StateEventHeal   = StateEvent("Heal")
-	StateEventMoney  = StateEvent("Money")
+	StateEventDeath           = StateEvent("Death")
+	StateEventDamage          = StateEvent("Damage")
+	StateEventHeal            = StateEvent("Heal")
+	StateEventMoney           = StateEvent("Money")
+	StateEventArtifactAdded   = StateEvent("ArtifactAdded")
+	StateEventArtifactRemoved = StateEvent("ArtifactRemoved")
+	StateEventCardAdded       = StateEvent("CardAdded")
+	StateEventCardRemoved     = StateEvent("CardRemoved")
 )
 
 type StateEventDeathData struct {
@@ -43,6 +47,30 @@ type StateEventHealData struct {
 type StateEventMoneyData struct {
 	Target string
 	Money  int
+}
+
+type StateEventArtifactAddedData struct {
+	Owner  string
+	GUID   string
+	TypeID string
+}
+
+type StateEventArtifactRemovedData struct {
+	Owner  string
+	GUID   string
+	TypeID string
+}
+
+type StateEventCardAddedData struct {
+	Owner  string
+	GUID   string
+	TypeID string
+}
+
+type StateEventCardRemovedData struct {
+	Owner  string
+	GUID   string
+	TypeID string
 }
 
 // StateCheckpoint saves the state of a session at a certain point. This can be used

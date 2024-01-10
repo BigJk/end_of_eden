@@ -16,6 +16,7 @@ type Event struct {
 	ID          string
 	Name        string
 	Description string
+	Tags        []string
 	Choices     []EventChoice
 	OnEnter     luhelp.OwnedCallback
 	OnEnd       luhelp.OwnedCallback

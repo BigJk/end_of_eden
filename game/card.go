@@ -20,6 +20,7 @@ type Card struct {
 	PointCost   int
 	MaxLevel    int
 	DoesExhaust bool
+	DoesConsume bool
 	NeedTarget  bool
 	Price       int
 	Callbacks   map[string]luhelp.OwnedCallback

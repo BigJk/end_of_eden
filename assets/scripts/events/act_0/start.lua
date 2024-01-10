@@ -13,43 +13,38 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
 **Shortly after you realize that you are not alone...**]],
     choices = {
         {
-            description = "Try to escape the facility before it finds you...",
+            description = "Try to find a weapon. " ..
+                highlight('Find meele weapon') .. " " .. highlight_warn("Take 4 damage"),
             callback = function()
-                -- Try to escape
-                if math.random() < 0.5 then
-                    set_event(stage_1_init_events[math.random(#stage_1_init_events)])
-                    return GAME_STATE_EVENT
-                end
+                deal_damage(PLAYER_ID, PLAYER_ID, 4, true)
+                give_artifact(
+                    choose_weighted_by_price(find_artifacts_by_tags({ "HND", "M" })), PLAYER_ID
+                )
 
-                -- Let OnEnd handle the state change
                 return nil
             end
-        }, {
-        description = "Gather your strength and attack it!",
-        callback = function()
-            return nil
-        end
-    }
+        },
+        {
+            description = "Gather your strength and attack it!",
+            callback = function()
+                give_card("MELEE_HIT", PLAYER_ID)
+                give_card("MELEE_HIT", PLAYER_ID)
+                give_card("MELEE_HIT", PLAYER_ID)
+
+                return nil
+            end
+        }
     },
     on_enter = function()
         play_music("energetic_orthogonal_expansions")
-
-        -- Give the player it's start cards
-        give_card("MELEE_HIT", PLAYER_ID)
-        give_card("MELEE_HIT", PLAYER_ID)
-        give_card("MELEE_HIT", PLAYER_ID)
-        give_card("MELEE_HIT", PLAYER_ID)
-        give_card("MELEE_HIT", PLAYER_ID)
-
-        give_card("RUPTURE", PLAYER_ID)
-
-        give_card("BLOCK", PLAYER_ID)
-        give_card("BLOCK", PLAYER_ID)
-        give_card("BLOCK", PLAYER_ID)
-
-        give_artifact(random_artifact(150), PLAYER_ID)
     end,
     on_end = function()
+        actor_set_max_hp(PLAYER_ID, 10)
+        actor_set_hp(PLAYER_ID, 10)
+
+        give_card("BLOCK", PLAYER_ID)
+        give_card("BLOCK", PLAYER_ID)
+
         return GAME_STATE_RANDOM
     end
 })

@@ -20,6 +20,6 @@
 ---@field description string
 ---@field choices event_choice[]
 ---@field on_enter? fun(ctx:event_on_enter_ctx):nil
----@field on_end fun(ctx:event_choice_ctx):next_game_state|nil
+---@field on_end? fun(ctx:event_choice_ctx):next_game_state|nil
 ---@field test? fun():nil|string
 ---@field base_game? boolean

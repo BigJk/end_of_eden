@@ -4,6 +4,7 @@
 ---@field id? type_id
 ---@field name? string
 ---@field description? string
+---@field tags? string[]
 ---@field price? number
 ---@field order? number
 ---@field callbacks? callbacks

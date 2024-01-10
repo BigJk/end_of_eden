@@ -99,6 +99,7 @@ func New(parent tea.Model, zones *zone.Manager, session *game.Session) MenuModel
 			table.WithStyles(style.TableStyle),
 			table.WithColumns([]table.Column{
 				{Title: "Name", Width: 25},
+				{Title: "Tags", Width: 20},
 				{Title: "Level", Width: 5},
 			}),
 		),
@@ -106,6 +107,7 @@ func New(parent tea.Model, zones *zone.Manager, session *game.Session) MenuModel
 			table.WithStyles(style.TableStyle),
 			table.WithColumns([]table.Column{
 				{Title: "Name", Width: 25},
+				{Title: "Tags", Width: 20},
 				{Title: "Price", Width: 5},
 			}),
 		),
@@ -141,14 +143,14 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Update card table
 	m.cardTable.SetRows(lo.Map(cards, func(guid string, index int) table.Row {
 		card, instance := m.Session.GetCard(guid)
-		return table.Row{m.zones.Mark(ZoneCards+fmt.Sprint(index), card.Name), fmt.Sprint(instance.Level)}
+		return table.Row{m.zones.Mark(ZoneCards+fmt.Sprint(index), card.Name), strings.Join(card.Tags, ", "), fmt.Sprint(instance.Level)}
 	}))
 	m.cardTable.SetHeight(m.Size.Height - style.HeaderStyle.GetVerticalFrameSize() - 1 - 2)
 
 	// Update artifact table
 	m.artifactTable.SetRows(lo.Map(artifacts, func(guid string, index int) table.Row {
 		art, _ := m.Session.GetArtifact(guid)
-		return table.Row{m.zones.Mark(ZoneArtifacts+fmt.Sprint(index), art.Name), fmt.Sprintf("%d$", art.Price)}
+		return table.Row{m.zones.Mark(ZoneArtifacts+fmt.Sprint(index), art.Name), strings.Join(art.Tags, ", "), fmt.Sprintf("%d$", art.Price)}
 	}))
 	m.artifactTable.SetHeight(m.Size.Height - style.HeaderStyle.GetVerticalFrameSize() - 1 - 2)
 
@@ -162,15 +164,17 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m = m.updateLogViewport()
 
-		m.cardTable.SetWidth(m.contentWidth() - 40 - 2 - 2)
+		m.cardTable.SetWidth(m.contentWidth() - 55 - 4)
 		m.cardTable.SetColumns([]table.Column{
-			{Title: "Name", Width: m.contentWidth() - 40 - 2 - 2 - 10},
+			{Title: "Name", Width: m.contentWidth() - 55 - 4 - 10 - 20 - 4},
+			{Title: "Tags", Width: 20},
 			{Title: "Level", Width: 10},
 		})
 
-		m.artifactTable.SetWidth(m.contentWidth() - 40 - 2 - 2)
+		m.artifactTable.SetWidth(m.contentWidth() - 55 - 4)
 		m.artifactTable.SetColumns([]table.Column{
-			{Title: "Name", Width: m.contentWidth() - 40 - 2 - 2 - 10},
+			{Title: "Name", Width: m.contentWidth() - 55 - 4 - 10 - 20 - 4},
+			{Title: "Tags", Width: 20},
 			{Title: "Price", Width: 10},
 		})
 	case tea.KeyMsg:
@@ -279,7 +283,7 @@ func (m MenuModel) View() string {
 	case ChoiceArtifacts:
 		var selected string
 		if m.artifactTable.Cursor() < len(m.Session.GetArtifacts(game.PlayerActorID)) {
-			selected = components.ArtifactCard(m.Session, m.Session.GetArtifacts(game.PlayerActorID)[m.artifactTable.Cursor()], 20, 40)
+			selected = components.ArtifactCard(m.Session, m.Session.GetArtifacts(game.PlayerActorID)[m.artifactTable.Cursor()], 20, 40, 45)
 		}
 
 		contentBox = contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
@@ -292,7 +296,7 @@ func (m MenuModel) View() string {
 	case ChoiceCards:
 		var selected string
 		if m.artifactTable.Cursor() < len(m.Session.GetCards(game.PlayerActorID)) {
-			selected = components.HalfCard(m.Session, m.Session.GetCards(game.PlayerActorID)[m.cardTable.Cursor()], false, 20, 40, false)
+			selected = components.HalfCard(m.Session, m.Session.GetCards(game.PlayerActorID)[m.cardTable.Cursor()], false, 20, 40, false, 45)
 		}
 
 		contentBox = contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,

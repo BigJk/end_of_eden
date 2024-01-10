@@ -173,7 +173,7 @@ func (m Model) eventUpdateContent() Model {
 
 	var chunks []string
 	var mds []bool
-	lines := strings.Split(m.session.GetEvent().Description, "\n")
+	lines := strings.Split(strings.TrimSpace(m.session.GetEvent().Description), "\n")
 
 	for i := range lines {
 		if strings.HasPrefix(lines[i], "!!") {

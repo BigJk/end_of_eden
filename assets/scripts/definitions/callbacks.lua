@@ -11,6 +11,7 @@
 ---@field level? number
 ---@field tags? string[]
 ---@field damage? number
+---@field simulated? boolean
 ---@field heal? number
 ---@field stacks? number
 ---@field round? number

@@ -6,6 +6,7 @@ import (
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
+	"github.com/BigJk/end_of_eden/ui/menus/carousel"
 	"github.com/BigJk/end_of_eden/ui/menus/eventview"
 	"github.com/BigJk/end_of_eden/ui/menus/gameover"
 	"github.com/BigJk/end_of_eden/ui/menus/merchant"
@@ -39,11 +40,15 @@ type Model struct {
 	animations          []tea.Model
 	ctrlDown            bool
 
+	lastGameState game.GameState
+	lastEvent     string
+
 	event    tea.Model
 	merchant tea.Model
 
-	Session *game.Session
-	Start   game.StateCheckpointMarker
+	Session           *game.Session
+	Start             game.StateCheckpointMarker
+	BeforeStateSwitch game.StateCheckpointMarker
 }
 
 func New(parent tea.Model, zones *zone.Manager, session *game.Session) Model {
@@ -55,8 +60,9 @@ func New(parent tea.Model, zones *zone.Manager, session *game.Session) Model {
 		event:    eventview.New(zones, session),
 		merchant: merchant.New(zones, session),
 
-		Session: session,
-		Start:   session.MarkState(),
+		Session:           session,
+		Start:             session.MarkState(),
+		BeforeStateSwitch: session.MarkState(),
 	}
 }
 
@@ -246,6 +252,52 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	case game.GameStateGameOver:
 		return gameover.New(m.zones, m.Session, m.Start), nil
+	}
+
+	if m.Session.GetGameState() != m.lastGameState || m.Session.GetEventID() != m.lastEvent {
+		diff := m.BeforeStateSwitch.Diff(m.Session)
+
+		m.BeforeStateSwitch = m.Session.MarkState()
+		m.lastGameState = m.Session.GetGameState()
+		m.lastEvent = m.Session.GetEventID()
+
+		if len(diff) > 0 {
+			fmt.Println("DIFF", len(diff))
+
+			artifacts := lo.Map(lo.Filter(diff, func(item game.StateCheckpoint, index int) bool {
+				added, ok := item.Events[game.StateEventArtifactAdded].(game.StateEventArtifactAddedData)
+				return ok && !lo.SomeBy(diff, func(item game.StateCheckpoint) bool {
+					removed, ok := item.Events[game.StateEventArtifactRemoved].(game.StateEventArtifactRemovedData)
+					return ok && added.GUID == removed.GUID
+				})
+			}), func(item game.StateCheckpoint, index int) string {
+				return components.ArtifactCard(m.Session, item.Events[game.StateEventArtifactAdded].(game.StateEventArtifactAddedData).GUID, 20, 20, 45)
+			})
+
+			cards := lo.Map(lo.Filter(diff, func(item game.StateCheckpoint, index int) bool {
+				added, ok := item.Events[game.StateEventCardAdded].(game.StateEventCardAddedData)
+				return ok && !lo.SomeBy(diff, func(item game.StateCheckpoint) bool {
+					removed, ok := item.Events[game.StateEventCardRemoved].(game.StateEventCardRemovedData)
+					return ok && added.GUID == removed.GUID
+				})
+			}), func(item game.StateCheckpoint, index int) string {
+				return components.HalfCard(m.Session, item.Events[game.StateEventCardAdded].(game.StateEventCardAddedData).GUID, false, 20, 20, false, 45)
+			})
+
+			if len(artifacts) > 0 {
+				c := carousel.New(nil, m.zones, fmt.Sprintf("%d New Artifacts", len(artifacts)), artifacts)
+				c.Size = m.Size
+				cmds = append(cmds, root.Push(c))
+			}
+
+			if len(cards) > 0 {
+				c := carousel.New(nil, m.zones, fmt.Sprintf("%d New Cards", len(cards)), cards)
+				c.Size = m.Size
+				cmds = append(cmds, root.Push(c))
+			}
+		}
+
+		cmds = append(cmds, tea.ClearScreen)
 	}
 
 	return m, tea.Batch(cmds...)
