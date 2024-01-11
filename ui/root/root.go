@@ -67,7 +67,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case TooltipClearMsg:
 		m.tooltips = map[string]Tooltip{}
 	case PushModelMsg:
-		m = m.PushModel(msg)
+		for _, model := range msg {
+			m = m.PushModel(model)
+		}
+		cmds = append(cmds, GettingVisible())
 	}
 
 	curIndex := len(m.stack) - 1
@@ -93,7 +96,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				Width:  m.size.Width,
 				Height: m.size.Height,
 			}
-		})
+		}, GettingVisible())
 		m.stack = m.stack[:len(m.stack)-1]
 	}
 
@@ -133,7 +136,7 @@ func CheckLuaErrors(zones *zone.Manager, s *game.Session) tea.Cmd {
 
 	return tea.Sequence(lo.Map(errors, func(item game.LuaError, index int) tea.Cmd {
 		return func() tea.Msg {
-			return PushModelMsg(lua_error.New(zones, item))
+			return PushModelMsg([]tea.Model{lua_error.New(zones, item)})
 		}
 	})...)
 }

@@ -1,6 +1,7 @@
 package carousel
 
 import (
+	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
@@ -25,6 +26,8 @@ type Model struct {
 	title     string
 	items     []string
 	selected  int
+
+	onceFn func()
 }
 
 func New(parent tea.Model, zones *zone.Manager, title string, items []string) Model {
@@ -52,10 +55,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else if msg.Type == tea.KeyLeft {
 			if m.selected > 0 {
 				m.selected--
+				audio.Play("btn_menu")
 			}
 		} else if msg.Type == tea.KeyRight {
 			if m.selected < len(m.items)-1 {
 				m.selected++
+				audio.Play("btn_menu")
 			}
 		}
 	case tea.MouseMsg:
@@ -64,14 +69,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.zones.Get(ZoneLeftButton).InBounds(msg) {
 				if m.selected > 0 {
 					m.selected--
+					audio.Play("btn_menu")
 				}
 			}
 			if m.zones.Get(ZoneLeftButton).InBounds(msg) {
 				if m.selected < len(m.items)-1 {
 					m.selected++
+					audio.Play("btn_menu")
 				}
 			}
 			if m.zones.Get(ZoneDoneButton).InBounds(msg) {
+				audio.Play("btn_menu")
 				return m.parent, nil
 			}
 		}

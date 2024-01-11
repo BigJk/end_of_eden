@@ -4,12 +4,28 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type PushModelMsg tea.Model
+type PushModelMsg []tea.Model
 
 // Push pushes a new model on the root stack.
 func Push(model tea.Model) tea.Cmd {
 	return func() tea.Msg {
-		return PushModelMsg(model)
+		return PushModelMsg([]tea.Model{model})
+	}
+}
+
+// PushAll pushes multiple models on the root stack.
+func PushAll(models ...tea.Model) tea.Cmd {
+	return func() tea.Msg {
+		return PushModelMsg(models)
+	}
+}
+
+type ModelGettingVisibleMsg struct{}
+
+// GettingVisible is a message that is sent to a model when it is getting visible.
+func GettingVisible() tea.Cmd {
+	return func() tea.Msg {
+		return ModelGettingVisibleMsg(struct{}{})
 	}
 }
 

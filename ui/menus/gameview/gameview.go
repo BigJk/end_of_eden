@@ -284,16 +284,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return components.HalfCard(m.Session, item.Events[game.StateEventCardAdded].(game.StateEventCardAddedData).GUID, false, 20, 20, false, 45)
 			})
 
-			if len(artifacts) > 0 {
-				c := carousel.New(nil, m.zones, fmt.Sprintf("%d New Artifacts", len(artifacts)), artifacts)
-				c.Size = m.Size
-				cmds = append(cmds, root.Push(c))
-			}
+			var pushModels []tea.Model
 
 			if len(cards) > 0 {
 				c := carousel.New(nil, m.zones, fmt.Sprintf("%d New Cards", len(cards)), cards)
 				c.Size = m.Size
-				cmds = append(cmds, root.Push(c))
+				pushModels = append(pushModels, root.NewOnVisibleModel(c, func(model tea.Model) {
+					audio.Play("new_cards")
+				}))
+			}
+
+			if len(artifacts) > 0 {
+				c := carousel.New(nil, m.zones, fmt.Sprintf("%d New Artifacts", len(artifacts)), artifacts)
+				c.Size = m.Size
+				pushModels = append(pushModels, root.NewOnVisibleModel(c, func(model tea.Model) {
+					audio.Play("new_artifacts")
+				}))
+			}
+
+			if len(pushModels) > 0 {
+				cmds = append(cmds, root.PushAll(pushModels...))
 			}
 		}
 
