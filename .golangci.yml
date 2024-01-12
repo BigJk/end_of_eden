@@ -7,6 +7,8 @@ linters:
     - misspell
     - gocognit
     - funlen
+  disable:
+    - typecheck
 linters-settings:
   staticcheck:
     checks: ["all", "-SA1019"]
