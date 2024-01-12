@@ -283,7 +283,7 @@ func (m MenuModel) View() string {
 	case ChoiceArtifacts:
 		var selected string
 		if m.artifactTable.Cursor() < len(m.Session.GetArtifacts(game.PlayerActorID)) {
-			selected = components.ArtifactCard(m.Session, m.Session.GetArtifacts(game.PlayerActorID)[m.artifactTable.Cursor()], 20, 40, 45)
+			selected = components.ArtifactCard(m.Session, m.Session.GetArtifacts(game.PlayerActorID)[m.artifactTable.Cursor()], 20, 45)
 		}
 
 		contentBox = contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
@@ -296,7 +296,7 @@ func (m MenuModel) View() string {
 	case ChoiceCards:
 		var selected string
 		if m.artifactTable.Cursor() < len(m.Session.GetCards(game.PlayerActorID)) {
-			selected = components.HalfCard(m.Session, m.Session.GetCards(game.PlayerActorID)[m.cardTable.Cursor()], false, 20, 40, false, 45)
+			selected = components.HalfCard(m.Session, m.Session.GetCards(game.PlayerActorID)[m.cardTable.Cursor()], false, 20, 40, false, 45, false)
 		}
 
 		contentBox = contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,

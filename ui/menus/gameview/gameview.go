@@ -262,8 +262,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.lastEvent = m.Session.GetEventID()
 
 		if len(diff) > 0 {
-			fmt.Println("DIFF", len(diff))
-
 			artifacts := lo.Map(lo.Filter(diff, func(item game.StateCheckpoint, index int) bool {
 				added, ok := item.Events[game.StateEventArtifactAdded].(game.StateEventArtifactAddedData)
 				return ok && !lo.SomeBy(diff, func(item game.StateCheckpoint) bool {
@@ -271,7 +269,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return ok && added.GUID == removed.GUID
 				})
 			}), func(item game.StateCheckpoint, index int) string {
-				return components.ArtifactCard(m.Session, item.Events[game.StateEventArtifactAdded].(game.StateEventArtifactAddedData).GUID, 20, 20, 45)
+				return components.ArtifactCard(m.Session, item.Events[game.StateEventArtifactAdded].(game.StateEventArtifactAddedData).GUID, 20, 45)
 			})
 
 			cards := lo.Map(lo.Filter(diff, func(item game.StateCheckpoint, index int) bool {
@@ -281,7 +279,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return ok && added.GUID == removed.GUID
 				})
 			}), func(item game.StateCheckpoint, index int) string {
-				return components.HalfCard(m.Session, item.Events[game.StateEventCardAdded].(game.StateEventCardAddedData).GUID, false, 20, 20, false, 45)
+				return components.HalfCard(m.Session, item.Events[game.StateEventCardAdded].(game.StateEventCardAddedData).GUID, false, 20, 20, false, 45, false)
 			})
 
 			var pushModels []tea.Model
@@ -591,7 +589,7 @@ func (m Model) fightEnemyView() string {
 func (m Model) fightCardView() string {
 	fight := m.Session.GetFight()
 	var cardBoxes = lo.Map(fight.Hand, func(guid string, index int) string {
-		return components.HalfCard(m.Session, guid, index == m.selectedCard, m.fightCardViewHeight()/2, m.fightCardViewHeight()-1, len(fight.Hand)*35 >= m.Size.Width)
+		return components.HalfCard(m.Session, guid, index == m.selectedCard, m.fightCardViewHeight()/2, m.fightCardViewHeight()-1, len(fight.Hand)*35 >= m.Size.Width, 0, true)
 	})
 
 	cardBoxes = lo.Map(cardBoxes, func(item string, i int) string {

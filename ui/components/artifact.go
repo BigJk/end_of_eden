@@ -13,11 +13,11 @@ var (
 	artifactStyle = lipgloss.NewStyle().Padding(1, 2).Margin(0, 2)
 )
 
-func ArtifactCard(session *game.Session, guid string, baseHeight int, maxHeight int, optionalWidth ...int) string {
+func ArtifactCard(session *game.Session, guid string, baseHeight int, width int) string {
 	art, _ := session.GetArtifact(guid)
-	width := 30
-	if len(optionalWidth) > 0 {
-		width = optionalWidth[0]
+
+	if width <= 0 {
+		width = 30
 	}
 
 	artifactStyle := artifactStyle.Copy().

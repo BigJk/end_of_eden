@@ -20,22 +20,20 @@ const (
 type Model struct {
 	ui.MenuBase
 
-	zones     *zone.Manager
-	parent    tea.Model
-	lastMouse tea.MouseMsg
-	title     string
-	items     []string
-	selected  int
+	parent   tea.Model
+	title    string
+	items    []string
+	selected int
 
 	onceFn func()
 }
 
 func New(parent tea.Model, zones *zone.Manager, title string, items []string) Model {
 	return Model{
-		zones:  zones,
-		parent: parent,
-		title:  title,
-		items:  items,
+		MenuBase: ui.NewMenuBase().WithZones(zones),
+		parent:   parent,
+		title:    title,
+		items:    items,
 	}
 }
 
@@ -48,9 +46,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Size = msg
 	case tea.KeyMsg:
-		if msg.Type == tea.KeyEscape {
-			return m.parent, nil
-		} else if msg.Type == tea.KeyEnter {
+		if msg.Type == tea.KeyEnter {
+			audio.Play("btn_menu")
 			return m.parent, nil
 		} else if msg.Type == tea.KeyLeft {
 			if m.selected > 0 {
@@ -65,20 +62,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.MouseMsg:
 		m.LastMouse = msg
-		if msg.Type == tea.MouseLeft {
-			if m.zones.Get(ZoneLeftButton).InBounds(msg) {
+		if msg.Button != tea.MouseButtonNone {
+			if m.ZoneInBounds(ZoneLeftButton) {
 				if m.selected > 0 {
 					m.selected--
 					audio.Play("btn_menu")
 				}
 			}
-			if m.zones.Get(ZoneLeftButton).InBounds(msg) {
+			if m.ZoneInBounds(ZoneRightButton) {
 				if m.selected < len(m.items)-1 {
 					m.selected++
 					audio.Play("btn_menu")
 				}
 			}
-			if m.zones.Get(ZoneDoneButton).InBounds(msg) {
+			if m.ZoneInBounds(ZoneDoneButton) {
 				audio.Play("btn_menu")
 				return m.parent, nil
 			}
@@ -88,15 +85,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m Model) leftButton() string {
+	background := m.ZoneBackground(ZoneLeftButton, style.BaseRed, style.BaseRedDarker)
+	if m.selected == 0 {
+		background = style.BaseGrayDarker
+	}
+
+	return m.ZoneMark(ZoneLeftButton, style.HeaderStyle.Copy().Background(background).Margin(0, 2).Render("<--"))
+}
+
+func (m Model) rightButton() string {
+	background := m.ZoneBackground(ZoneRightButton, style.BaseRed, style.BaseRedDarker)
+	if m.selected == len(m.items)-1 {
+		background = style.BaseGrayDarker
+	}
+
+	return m.ZoneMark(ZoneRightButton, style.HeaderStyle.Copy().Background(background).Margin(0, 2).Render("-->"))
+}
+
 func (m Model) View() string {
 	title := style.BoldStyle.Copy().MarginBottom(4).Render(m.title)
 
-	leftButton := m.zones.Mark(ZoneLeftButton, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneLeftButton).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2).Render("<--"))
-	rightButton := m.zones.Mark(ZoneRightButton, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneRightButton).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2).Render("-->"))
 	middle := lipgloss.JoinHorizontal(lipgloss.Center,
-		leftButton,
+		m.leftButton(),
 		m.items[m.selected],
-		rightButton,
+		m.rightButton(),
 	)
 
 	dots := lipgloss.NewStyle().Margin(2, 0).Render(strings.Join(lo.Map(m.items, func(item string, index int) string {
@@ -106,7 +119,7 @@ func (m Model) View() string {
 		return "○"
 	}), " "))
 
-	doneButton := m.zones.Mark(ZoneDoneButton, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneDoneButton).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).MarginTop(2).Render("Continue"))
+	doneButton := style.HeaderStyle.Copy().Background(m.ZoneBackground(ZoneDoneButton, style.BaseRed, style.BaseRedDarker)).Render(m.ZoneMark(ZoneDoneButton, "Continue"))
 
 	return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Center, title, middle, dots, doneButton))
 }

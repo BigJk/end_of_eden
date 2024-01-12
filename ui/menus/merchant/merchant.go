@@ -217,7 +217,7 @@ func (m Model) View() string {
 			selectedItemLook = components.ArtifactCard(m.session, item.ID, 20, 20)
 			canBuy = m.session.GetPlayer().Gold >= item.Price
 		case *game.Card:
-			selectedItemLook = components.HalfCard(m.session, item.ID, false, 20, 20, false)
+			selectedItemLook = components.HalfCard(m.session, item.ID, false, 20, 20, false, 0, false)
 			canBuy = m.session.GetPlayer().Gold >= item.Price
 		}
 
@@ -241,7 +241,7 @@ func (m Model) View() string {
 		selectedItem := m.playerCardGetSelected()
 		var selectedItemLook string
 		if len(selectedItem) > 0 {
-			selectedItemLook = components.HalfCard(m.session, selectedItem, false, 20, 20, false)
+			selectedItemLook = components.HalfCard(m.session, selectedItem, false, 20, 20, false, 0, false)
 		}
 
 		rightLook = lipgloss.JoinVertical(lipgloss.Top,

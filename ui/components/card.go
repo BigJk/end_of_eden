@@ -17,10 +17,10 @@ var (
 	cantCastStyle = lipgloss.NewStyle().Foreground(style.BaseRed)
 )
 
-func HalfCard(session *game.Session, guid string, active bool, baseHeight int, maxHeight int, minimal bool, optionalWidth ...int) string {
+func HalfCard(session *game.Session, guid string, active bool, baseHeight int, maxHeight int, minimal bool, width int, checkCasting bool) string {
 	fight := session.GetFight()
 	card, _ := session.GetCard(guid)
-	canCast := fight.CurrentPoints >= card.PointCost
+	canCast := !checkCasting || fight.CurrentPoints >= card.PointCost
 	cardState := session.GetCardState(guid)
 
 	pointText := strings.Repeat("•", card.PointCost)
@@ -29,9 +29,8 @@ func HalfCard(session *game.Session, guid string, active bool, baseHeight int, m
 	cardCol, _ := colorful.Hex(card.Color)
 	bgCol, _ := colorful.MakeColor(style.BaseGrayDarker)
 
-	width := 30
-	if len(optionalWidth) > 0 {
-		width = optionalWidth[0]
+	if width <= 0 {
+		width = 30
 	}
 
 	cardStyle := cardStyle.Copy().
