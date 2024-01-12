@@ -53,6 +53,27 @@ function assert_cast_damage(id, dmg)
     end
 end
 
+function assert_cast_heal(id, heal)
+    local cards = get_cards(PLAYER_ID)
+
+    if not cards[1] then
+        return "Card not in hand"
+    end
+
+    local card = get_card_instance(cards[1])
+    if card.type_id ~= id then
+        return "Card has wrong type: " .. card.type_id
+    end
+
+    deal_damage(PLAYER_ID, PLAYER_ID, 5, true)
+    local hp_before = get_actor(PLAYER_ID).hp
+    cast_card(cards[1], PLAYER_ID)
+
+    if get_actor(PLAYER_ID).hp ~= hp_before + heal then
+        return "Expected " .. tostring(hp_before + heal) .. " health, got " .. get_actor(PLAYER_ID).hp
+    end
+end
+
 ---assert_status_effect_count asserts that the player has a certain number of status effects, returning an error message if not
 ---@param count number
 ---@return string|nil

@@ -17,8 +17,8 @@ register_card("FLASH_BANG", {
 })
 
 register_status_effect("FLASH_BANG", {
-    name = l("cards.FLASH_BANG.name", "Blinded"),
-    description = l("cards.FLASH_BANG.description", "Causing " .. highlight("25%") .. " less damage."),
+    name = l("status_effects.FLASH_BANG.name", "Blinded"),
+    description = l("status_effects.FLASH_BANG.description", "Causing " .. highlight("25%") .. " less damage."),
     look = "FL",
     foreground = COLOR_PURPLE,
     state = function(ctx) return nil end,

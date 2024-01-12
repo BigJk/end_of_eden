@@ -13,7 +13,7 @@
 ---@field id? type_id
 ---@field name string
 ---@field description string
----@field state fun(ctx:status_effect_state_ctx):nil
+---@field state? fun(ctx:status_effect_state_ctx):nil
 ---@field look string
 ---@field foreground string
 ---@field order? number

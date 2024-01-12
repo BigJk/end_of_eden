@@ -17,6 +17,7 @@
 ---@field point_cost number
 ---@field max_level number
 ---@field does_exhaust? boolean
+---@field does_consume? boolean
 ---@field need_target boolean
 ---@field price number
 ---@field callbacks callbacks
