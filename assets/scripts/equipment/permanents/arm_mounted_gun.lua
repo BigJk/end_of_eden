@@ -2,7 +2,7 @@ register_artifact("ARM_MOUNTED_GUN", {
     name = "Arm Mounted Gun",
     description = "Weapon that is mounted on your arm. It is very powerful.",
     tags = { "ARM" },
-    price = 190,
+    price = 250,
     order = 0,
     callbacks = {
         on_pick_up = function(ctx)

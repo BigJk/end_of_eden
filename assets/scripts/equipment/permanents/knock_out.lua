@@ -18,7 +18,7 @@ register_card("KNOCK_OUT", {
 register_status_effect("KNOCK_OUT", {
     name = l("status_effects.KNOCK_OUT.name", "Knock Out"),
     description = l("status_effects.KNOCK_OUT.description", "Can't act"),
-    look = "K",
+    look = "KO",
     foreground = COLOR_PURPLE,
     state = function(ctx)
         return string.format(l("status_effects.KNOCK_OUT.state", "Can't act for %s turns"), highlight(ctx.stacks))

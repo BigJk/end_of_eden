@@ -29,6 +29,26 @@ function assert_card_present(id)
     return nil
 end
 
+
+function assert_cast_card(id, target)
+    local cards = get_cards(PLAYER_ID)
+
+    if not cards[1] then
+        return "Card not in hand"
+    end
+
+    local card = get_card_instance(cards[1])
+    if card.type_id ~= id then
+        return "Card has wrong type: " .. card.type_id
+    end
+
+    if not target then
+        cast_card(cards[1])
+    else
+        cast_card(cards[1], target)
+    end
+end
+
 ---assert_cast_damage asserts that the player's first card deals a certain amount of damage, returning an error message if not
 ---@param id type_id
 ---@param dmg number

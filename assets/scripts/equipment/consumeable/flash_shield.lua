@@ -1,32 +1,30 @@
-register_card("BLOCK", {
-    name = "Block",
-    description = "Shield yourself and gain 5 " .. highlight("block") .. ".",
-    state = function(ctx)
-        return "Shield yourself and gain " .. highlight(1 + ctx.level) .. " block."
-    end,
+register_card("FLASH_SHIELD", {
+    name = l("cards.FLASH_SHIELD.name", "Flash Shield"),
+    description = string.format(
+        l("cards.FLASH_SHIELD.description","%s\n\nDeploy a temporary shield. %s the next attack."),
+        highlight("One-Time"), highlight("Negates")
+    ),
     tags = { "DEF" },
-    max_level = 1,
+    max_level = 0,
     color = COLOR_BLUE,
     need_target = false,
-    point_cost = 1,
-    price = 40,
+    does_consume = true,
+    point_cost = 0,
+    price = 150,
     callbacks = {
         on_cast = function(ctx)
-            give_status_effect("BLOCK", ctx.caster, 1 + ctx.level)
+            give_status_effect("FLASH_SHIELD", ctx.caster, 1 + ctx.level)
             return nil
         end
     }
 })
 
-register_status_effect("BLOCK", {
-    name = "Block",
-    description = "Decreases incoming damage for each stack",
-    look = "Blk",
+register_status_effect("FLASH_SHIELD", {
+    name = l("status_effects.FLASH_SHIELD.name", "Flash Shield"),
+    description = l("status_effects.FLASH_SHIELD.description", "Negates the next attack."),
+    look = "FS",
     foreground = COLOR_BLUE,
-    state = function(ctx)
-        return "Takes " .. highlight(ctx.stacks) .. " less damage"
-    end,
-    can_stack = true,
+    can_stack = false,
     decay = DECAY_ALL,
     rounds = 1,
     order = 100,
@@ -37,8 +35,8 @@ register_status_effect("BLOCK", {
             end
             
             if ctx.target == ctx.owner then
-                add_status_effect_stacks(ctx.guid, -ctx.damage)
-                return ctx.damage - ctx.stacks
+                add_status_effect_stacks(ctx.guid, -1)
+                return 0
             end
             return ctx.damage
         end,
@@ -46,10 +44,10 @@ register_status_effect("BLOCK", {
     test = function()
         return assert_chain({
             function() return assert_status_effect_count(1) end,
-            function() return assert_status_effect("BLOCK", 1) end,
+            function() return assert_status_effect("FLASH_SHIELD", 1) end,
             function ()
                 local dummy = add_actor_by_enemy("DUMMY")
-                local damage = deal_damage(dummy, PLAYER_ID, 1)
+                local damage = deal_damage(dummy, PLAYER_ID, 100)
                 if damage ~= 0 then
                     return "Expected 0 damage, got " .. damage
                 end

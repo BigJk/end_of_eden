@@ -7,7 +7,7 @@ register_card("STIM_PACK", {
     need_target = false,
     does_consume = true,
     point_cost = 0,
-    price = -1,
+    price = 150,
     callbacks = {
         on_cast = function(ctx)
             heal(ctx.caster, ctx.caster, 5)

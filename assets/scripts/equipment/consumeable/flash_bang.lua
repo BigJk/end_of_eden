@@ -6,8 +6,8 @@ register_card("FLASH_BANG", {
     color = COLOR_PURPLE,
     need_target = true,
     does_consume = true,
-    point_cost = 1,
-    price = -1,
+    point_cost = 0,
+    price = 150,
     callbacks = {
         on_cast = function(ctx)
             give_status_effect("FLASH_BANG", ctx.target)
