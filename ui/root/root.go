@@ -14,10 +14,11 @@ import (
 // the zone manager. The top model of the internal stack is the current model
 // and will  be rendered.
 type Model struct {
-	zones    *zone.Manager
-	stack    []tea.Model
-	size     tea.WindowSizeMsg
-	tooltips map[string]Tooltip
+	zones           *zone.Manager
+	stack           []tea.Model
+	size            tea.WindowSizeMsg
+	tooltips        map[string]Tooltip
+	transitionModel func(parent tea.Model) tea.Model
 }
 
 // New creates a new root model.
@@ -31,7 +32,11 @@ func New(zones *zone.Manager, root tea.Model) Model {
 
 // PushModel pushes a new model on the stack.
 func (m Model) PushModel(model tea.Model) Model {
-	m.stack = append(m.stack, model)
+	if m.transitionModel != nil {
+		m.stack = append(m.stack, m.transitionModel(model))
+	} else {
+		m.stack = append(m.stack, model)
+	}
 	m.tooltips = map[string]Tooltip{}
 	return m
 }
@@ -71,6 +76,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m = m.PushModel(model)
 		}
 		cmds = append(cmds, GettingVisible())
+	case PushTransitionFuncMsg:
+		m.transitionModel = msg
 	}
 
 	curIndex := len(m.stack) - 1
@@ -82,22 +89,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
-	if menu, ok := m.stack[curIndex].(ui.Menu); ok && !menu.HasSize() {
-		return m, tea.Batch(cmd, func() tea.Msg {
-			return m.size
-		})
-	}
-
 	if m.stack[curIndex] == nil {
 		// If we remove the top model, we need to send a window size message to the new top model
 		// to avoid the layout to be broken.
+		cmds = append(cmds,
+			func() tea.Msg {
+				return tea.WindowSizeMsg{
+					Width:  m.size.Width,
+					Height: m.size.Height,
+				}
+			},
+			GettingVisible(),
+		)
+		m.stack = m.stack[:len(m.stack)-1]
+	} else if menu, ok := m.stack[curIndex].(ui.Menu); ok && !menu.HasSize() {
 		cmds = append(cmds, func() tea.Msg {
 			return tea.WindowSizeMsg{
 				Width:  m.size.Width,
 				Height: m.size.Height,
 			}
-		}, GettingVisible())
-		m.stack = m.stack[:len(m.stack)-1]
+		})
 	}
 
 	return m, tea.Batch(cmds...)

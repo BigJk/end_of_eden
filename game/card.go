@@ -3,6 +3,8 @@ package game
 import (
 	"encoding/gob"
 	"github.com/BigJk/end_of_eden/internal/lua/luhelp"
+	"github.com/samber/lo"
+	"strings"
 )
 
 func init() {
@@ -26,6 +28,12 @@ type Card struct {
 	Callbacks   map[string]luhelp.OwnedCallback
 	Test        luhelp.OwnedCallback
 	BaseGame    bool
+}
+
+func (c Card) PublicTags() []string {
+	return lo.Filter(c.Tags, func(s string, i int) bool {
+		return !strings.HasPrefix(s, "_")
+	})
 }
 
 // CardInstance represents an instance of a card owned by some actor.

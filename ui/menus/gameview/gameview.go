@@ -55,10 +55,12 @@ func New(parent tea.Model, zones *zone.Manager, session *game.Session) Model {
 	session.Log(game.LogTypeSuccess, "Game started! Good luck...")
 
 	return Model{
-		zones:    zones,
-		parent:   parent,
-		event:    eventview.New(zones, session),
-		merchant: merchant.New(zones, session),
+		zones:         zones,
+		parent:        parent,
+		event:         eventview.New(zones, session),
+		merchant:      merchant.New(zones, session),
+		lastGameState: session.GetGameState(),
+		lastEvent:     session.GetEventID(),
 
 		Session:           session,
 		Start:             session.MarkState(),
@@ -242,7 +244,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	switch m.Session.GetGameState() {
+	currentState := m.Session.GetGameState()
+	currentEvent := m.Session.GetEventID()
+
+	switch currentState {
 	case game.GameStateFight:
 	case game.GameStateMerchant:
 		m.merchant, cmd = m.merchant.Update(msg)
@@ -254,12 +259,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return gameover.New(m.zones, m.Session, m.Start), nil
 	}
 
-	if m.Session.GetGameState() != m.lastGameState || m.Session.GetEventID() != m.lastEvent {
+	//
+	// Show "New Artifacts" / "New Cards" if there are any.
+	//
+
+	if currentState != m.lastGameState || currentEvent != m.lastEvent {
 		diff := m.BeforeStateSwitch.Diff(m.Session)
 
 		m.BeforeStateSwitch = m.Session.MarkState()
-		m.lastGameState = m.Session.GetGameState()
-		m.lastEvent = m.Session.GetEventID()
+		m.lastGameState = currentState
+		m.lastEvent = currentEvent
 
 		if len(diff) > 0 {
 			artifacts := lo.Map(lo.Filter(diff, func(item game.StateCheckpoint, index int) bool {

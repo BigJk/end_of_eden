@@ -28,7 +28,7 @@ func ArtifactCard(session *game.Session, guid string, baseHeight int, width int)
 		Background(lipgloss.Color("#343a40")).
 		Foreground(style.BaseWhite)
 
-	tagsText := strings.Join(art.Tags, ", ")
+	tagsText := strings.Join(art.PublicTags(), ", ")
 
 	return artifactStyle.
 		Height(baseHeight).

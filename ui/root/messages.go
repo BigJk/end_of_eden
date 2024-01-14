@@ -29,37 +29,18 @@ func GettingVisible() tea.Cmd {
 	}
 }
 
-// Tooltip represents a tooltip aka overlay message  that should be displayed.
-type Tooltip struct {
-	ID      string
-	Content string
-	X       int
-	Y       int
-}
+type PushTransitionFuncMsg func(parent tea.Model) tea.Model
 
-type TooltipMsg Tooltip
-
-// TooltipCreate creates a new tooltip.
-func TooltipCreate(tip Tooltip) tea.Cmd {
+// PushTransitionFunc pushes a new transition model on the root ui that will be shown between models on the stack.
+func PushTransitionFunc(fn func(parent tea.Model) tea.Model) tea.Cmd {
 	return func() tea.Msg {
-		return TooltipMsg(tip)
+		return PushTransitionFuncMsg(fn)
 	}
 }
 
-type TooltipDeleteMsg string
-
-// TooltipDelete deletes a tooltip.
-func TooltipDelete(id string) tea.Cmd {
+// RemovePushTransitionFunc removes the transition model from the root ui.
+func RemovePushTransitionFunc() tea.Cmd {
 	return func() tea.Msg {
-		return TooltipDeleteMsg(id)
-	}
-}
-
-type TooltipClearMsg struct{}
-
-// TooltipClear clears all tooltips.
-func TooltipClear() tea.Cmd {
-	return func() tea.Msg {
-		return TooltipClearMsg(struct{}{})
+		return PushTransitionFuncMsg(nil)
 	}
 }

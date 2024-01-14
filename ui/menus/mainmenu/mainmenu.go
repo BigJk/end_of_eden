@@ -112,7 +112,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				log.Println("Error loading save:", err)
 			} else {
 				m.choices = m.choices.Clear()
-				return gameview.New(m, m.zones, session), cmd
+				return m, tea.Sequence(
+					cmd,
+					root.Push(gameview.New(m, m.zones, session)),
+				)
 			}
 		}
 
@@ -131,11 +134,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})...)
 
 		m.choices = m.choices.Clear()
-		return m, root.Push(gameview.New(m, m.zones, game.NewSession(
-			game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
-			game.WithMods(m.settings.GetStrings("mods")),
-			lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
-		)))
+		return m, tea.Sequence(
+			cmd,
+			root.Push(gameview.New(m, m.zones, game.NewSession(
+				game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
+				game.WithMods(m.settings.GetStrings("mods")),
+				lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
+			))),
+		)
 	case ChoiceAbout:
 		audio.Play("btn_menu")
 

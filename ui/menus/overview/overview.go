@@ -6,6 +6,7 @@ import (
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
+	"github.com/BigJk/end_of_eden/ui/root"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -143,14 +144,14 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Update card table
 	m.cardTable.SetRows(lo.Map(cards, func(guid string, index int) table.Row {
 		card, instance := m.Session.GetCard(guid)
-		return table.Row{m.zones.Mark(ZoneCards+fmt.Sprint(index), card.Name), strings.Join(card.Tags, ", "), fmt.Sprint(instance.Level)}
+		return table.Row{m.zones.Mark(ZoneCards+fmt.Sprint(index), card.Name), strings.Join(card.PublicTags(), ", "), fmt.Sprint(instance.Level)}
 	}))
 	m.cardTable.SetHeight(m.Size.Height - style.HeaderStyle.GetVerticalFrameSize() - 1 - 2)
 
 	// Update artifact table
 	m.artifactTable.SetRows(lo.Map(artifacts, func(guid string, index int) table.Row {
 		art, _ := m.Session.GetArtifact(guid)
-		return table.Row{m.zones.Mark(ZoneArtifacts+fmt.Sprint(index), art.Name), strings.Join(art.Tags, ", "), fmt.Sprintf("%d$", art.Price)}
+		return table.Row{m.zones.Mark(ZoneArtifacts+fmt.Sprint(index), art.Name), strings.Join(art.PublicTags(), ", "), fmt.Sprintf("%d$", art.Price)}
 	}))
 	m.artifactTable.SetHeight(m.Size.Height - style.HeaderStyle.GetVerticalFrameSize() - 1 - 2)
 
@@ -190,7 +191,7 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter:
 			if m.list.SelectedItem().(choiceItem).key == ChoiceQuit {
 				m.Session.Close()
-				return nil, nil
+				return nil, root.RemovePushTransitionFunc()
 			}
 		case tea.KeyDown:
 			fallthrough
