@@ -18,7 +18,6 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
 	"strings"
-	"time"
 )
 
 const (
@@ -261,16 +260,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Show "New Artifacts" / "New Cards" if there are any.
 	//
 
-	// TODO: the state change is detected too late. It only registered if there is another input on the screen,
-	// TODO: which triggers this update function here. To avoid that I added a tick here, but this is not a good solution.
-	// TODO: revisit this in the future.
-
 	var stateCmds []tea.Cmd
 	m, stateCmds = m.checkStateChange()
 	cmds = append(cmds, stateCmds...)
-	cmds = append(cmds, tea.Tick(time.Second/5, func(t time.Time) tea.Msg {
-		return ""
-	}))
 
 	return m, tea.Batch(cmds...)
 }
