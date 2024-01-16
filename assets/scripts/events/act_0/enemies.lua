@@ -1,6 +1,7 @@
 register_event("RUST_MITE", {
     name = "Tasty metals...",
-    description = [[
+    description = [[!!rust_mite.jpg
+
 You are walking through the facility hoping to find a way out. After a few turns you hear a strange noise. You look around and come across a strange being.
 It seems to be eating the metal from the walls. It looks at you and after a few seconds it rushes towards you.
 
@@ -23,7 +24,8 @@ It seems to be eating the metal from the walls. It looks at you and after a few 
 
 register_event("CLEAN_BOT", {
     name = "Corpse. Clean. Engage.",
-    description = [[
+    description = [[!!clean_bot.jpg
+
 While exploring the facility you hear a strange noise. Suddenly a strange robot appears from one of the corridors.
 It seems to be cleaning up the area, but it's not working properly anymore and you can see small sparks coming out of it.
 It looks at you and says "Corpse. Clean. Engage.".
@@ -47,7 +49,8 @@ It looks at you and says "Corpse. Clean. Engage.".
 
 register_event("CYBER_SPIDER", {
     name = "What is this thing at the ceiling?",
-    description = [[
+    description = [[!!cyber_spider.jpg
+
 You come around a corner and see a strange creature hanging from the ceiling. It looks like a spider, but it's made out of metal.
 It seems to be waiting for its prey to come closer and there is no way around it.
     ]],
