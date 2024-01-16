@@ -16,7 +16,7 @@ register_artifact("COMBAT_GLASSES", {
         end
     },
     test = function()
-        give_card(HAND_WEAPONS[2].id, PLAYER_ID)
-        return assert_cast_damage(HAND_WEAPONS[2].id, HAND_WEAPONS[2].base_damage + 1)
+        give_card(HAND_WEAPONS[3].id, PLAYER_ID)
+        return assert_cast_damage(HAND_WEAPONS[3].id, HAND_WEAPONS[3].base_damage + 1)
     end
 });
