@@ -6,12 +6,15 @@ It seems to be eating the metal from the walls. It looks at you and after a few 
 
 **It seems to be hostile!**
     ]],
-    tags = {"ACT_0"},
+    tags = {"_ACT_0_FIGHT"},
     choices = {
         {
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("RUST_MITE")
+                if math.random() < 0.25 then
+                    add_actor_by_enemy("RUST_MITE")
+                end
                 return GAME_STATE_FIGHT
             end
         }
@@ -27,12 +30,36 @@ It looks at you and says "Corpse. Clean. Engage.".
 
 **You're not sure what it means, but it doesn't seem to be friendly!**
     ]],
-    tags = {"ACT_0"},
+    tags = {"_ACT_0_FIGHT"},
     choices = {
         {
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("CLEAN_BOT")
+                if math.random() < 0.25 then
+                    add_actor_by_enemy("CLEAN_BOT")
+                end
+                return GAME_STATE_FIGHT
+            end
+        }
+    }
+})
+
+register_event("CYBER_SPIDER", {
+    name = "What is this thing at the ceiling?",
+    description = [[
+You come around a corner and see a strange creature hanging from the ceiling. It looks like a spider, but it's made out of metal.
+It seems to be waiting for its prey to come closer and there is no way around it.
+    ]],
+    tags = {"_ACT_0_FIGHT"},
+    choices = {
+        {
+            description = "Fight!",
+            callback = function()
+                add_actor_by_enemy("CYBER_SPIDER")
+                if math.random() < 0.25 then
+                    add_actor_by_enemy("CYBER_SPIDER")
+                end
                 return GAME_STATE_FIGHT
             end
         }

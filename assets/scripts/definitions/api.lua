@@ -66,11 +66,6 @@ function text_bold(value) end
 ---@return string
 function text_italic(value) end
 
---- Makes the text colored red.
----@param value any
----@return string
-function text_red(value) end
-
 --- Makes the text underlined.
 ---@param value any
 ---@return string
@@ -341,6 +336,15 @@ function upgrade_random_card(actor_guid) end
 ---@param flat? boolean
 ---@return number
 function deal_damage(source, target, damage, flat) end
+
+--- Deal damage from one source to a target from a card. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
+---@param source guid
+---@param card guid
+---@param target guid
+---@param damage number
+---@param flat? boolean
+---@return number
+function deal_damage_card(source, card, target, damage, flat) end
 
 --- Deal damage to multiple enemies from one source. If flat is true the damage can't be modified by status effects or artifacts. Returns a array of damages for each actor hit.
 ---@param source guid

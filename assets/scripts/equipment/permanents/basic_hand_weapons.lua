@@ -9,6 +9,7 @@ HAND_WEAPONS = {
         base_damage = 2,
         base_cards = 3,
         tags = { "ATK", "M", "T", "HND" },
+        event_tags = { "_ACT_0" },
         additional_cards = { "KNOCK_OUT" },
         price = 80
     },
@@ -19,6 +20,7 @@ HAND_WEAPONS = {
         base_damage = 3,
         base_cards = 3,
         tags = { "ATK", "M", "T", "HND" },
+        event_tags = { "_ACT_0" },
         additional_cards = { "VIBRO_OVERCLOCK" },
         price = 180
     },
@@ -29,6 +31,7 @@ HAND_WEAPONS = {
         base_damage = 4,
         base_cards = 3,
         tags = { "ATK", "R", "T", "HND" },
+        event_tags = { "_ACT_1" },
         additional_cards = { "LZR_OVERCHARGE" },
         price = 280
     },
@@ -39,6 +42,7 @@ HAND_WEAPONS = {
         base_damage = 5,
         base_cards = 3,
         tags = { "ATK", "R", "T", "HND" },
+        event_tags = { "_ACT_1" },
         additional_cards = { "HAR_BURST", "TARGET_PAINTER" },
         price = 380
     }
@@ -61,7 +65,7 @@ for _, weapon in pairs(HAND_WEAPONS) do
         price = 0,
         callbacks = {
             on_cast = function(ctx)
-                deal_damage(ctx.caster, ctx.target, weapon.base_damage + ctx.level * 3)
+                deal_damage_card(ctx.caster, ctx.guid, ctx.target, weapon.base_damage + ctx.level * 3)
                 return nil
             end
         },
@@ -117,7 +121,7 @@ for _, weapon in pairs(HAND_WEAPONS) do
         }
     })
 
-    add_found_artifact_event(weapon.id, weapon.image, string.format("%s\n\n%s", weapon.description, hand_warning), registered.card[weapon.id].description)
+    add_found_artifact_event(weapon.id, weapon.image, string.format("%s\n\n%s", weapon.description, hand_warning), registered.card[weapon.id].description, weapon.event_tags)
 end
 
 ---hand_weapon_event returns a random hand weapon event weighted by price.

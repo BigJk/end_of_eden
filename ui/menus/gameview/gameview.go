@@ -18,6 +18,7 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
 	"strings"
+	"time"
 )
 
 const (
@@ -244,10 +245,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	currentState := m.Session.GetGameState()
-	currentEvent := m.Session.GetEventID()
-
-	switch currentState {
+	switch m.Session.GetGameState() {
 	case game.GameStateFight:
 	case game.GameStateMerchant:
 		m.merchant, cmd = m.merchant.Update(msg)
@@ -262,6 +260,78 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	//
 	// Show "New Artifacts" / "New Cards" if there are any.
 	//
+
+	// TODO: the state change is detected too late. It only registered if there is another input on the screen,
+	// TODO: which triggers this update function here. To avoid that I added a tick here, but this is not a good solution.
+	// TODO: revisit this in the future.
+
+	var stateCmds []tea.Cmd
+	m, stateCmds = m.checkStateChange()
+	cmds = append(cmds, stateCmds...)
+	cmds = append(cmds, tea.Tick(time.Second/5, func(t time.Time) tea.Msg {
+		return ""
+	}))
+
+	return m, tea.Batch(cmds...)
+}
+
+func (m Model) View() string {
+	if !m.HasSize() {
+		return "..."
+	}
+
+	// Always finish death animations.
+	if len(m.animations) > 0 {
+		return lipgloss.JoinVertical(
+			lipgloss.Top,
+			m.fightStatusTop(),
+			m.animations[0].View(),
+			m.fightStatusBottom(),
+		)
+	}
+
+	switch m.Session.GetGameState() {
+	case game.GameStateFight:
+		if m.inEnemyView {
+			return lipgloss.JoinVertical(
+				lipgloss.Top,
+				m.fightStatusTop(),
+				m.fightEnemyInspectView(),
+				m.fightStatusBottom(),
+			)
+		}
+
+		if m.inPlayerView {
+			return lipgloss.JoinVertical(
+				lipgloss.Top,
+				m.fightStatusTop(),
+				m.playerInspectView(),
+				m.fightStatusBottom(),
+			)
+		}
+
+		return lipgloss.JoinVertical(
+			lipgloss.Top,
+			m.fightStatusTop(),
+			lipgloss.NewStyle().Width(m.Size.Width).Height(m.fightEnemyViewHeight()).Render(m.fightEnemyView()),
+			m.fightDivider(),
+			lipgloss.NewStyle().Width(m.Size.Width).Height(m.fightCardViewHeight()).Render(m.fightCardView()),
+			m.fightStatusBottom(),
+		)
+	case game.GameStateMerchant:
+		return lipgloss.JoinVertical(lipgloss.Top, m.fightStatusTop(), m.merchant.View())
+	case game.GameStateEvent:
+		return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Center, m.event.View(), lipgloss.WithWhitespaceChars(" "))
+	}
+
+	return fmt.Sprintf("Unknown State: %s", m.Session.GetGameState())
+}
+
+func (m Model) checkStateChange() (Model, []tea.Cmd) {
+	var cmds []tea.Cmd
+
+	currentState := m.Session.GetGameState()
+	currentEvent := m.Session.GetEventID()
 
 	if currentState != m.lastGameState || currentEvent != m.lastEvent {
 		diff := m.BeforeStateSwitch.Diff(m.Session)
@@ -317,59 +387,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, tea.ClearScreen)
 	}
 
-	return m, tea.Batch(cmds...)
-}
-
-func (m Model) View() string {
-	if !m.HasSize() {
-		return "..."
-	}
-
-	// Always finish death animations.
-	if len(m.animations) > 0 {
-		return lipgloss.JoinVertical(
-			lipgloss.Top,
-			m.fightStatusTop(),
-			m.animations[0].View(),
-			m.fightStatusBottom(),
-		)
-	}
-
-	switch m.Session.GetGameState() {
-	case game.GameStateFight:
-		if m.inEnemyView {
-			return lipgloss.JoinVertical(
-				lipgloss.Top,
-				m.fightStatusTop(),
-				m.fightEnemyInspectView(),
-				m.fightStatusBottom(),
-			)
-		}
-
-		if m.inPlayerView {
-			return lipgloss.JoinVertical(
-				lipgloss.Top,
-				m.fightStatusTop(),
-				m.playerInspectView(),
-				m.fightStatusBottom(),
-			)
-		}
-
-		return lipgloss.JoinVertical(
-			lipgloss.Top,
-			m.fightStatusTop(),
-			lipgloss.NewStyle().Width(m.Size.Width).Height(m.fightEnemyViewHeight()).Render(m.fightEnemyView()),
-			m.fightDivider(),
-			lipgloss.NewStyle().Width(m.Size.Width).Height(m.fightCardViewHeight()).Render(m.fightCardView()),
-			m.fightStatusBottom(),
-		)
-	case game.GameStateMerchant:
-		return lipgloss.JoinVertical(lipgloss.Top, m.fightStatusTop(), m.merchant.View())
-	case game.GameStateEvent:
-		return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Center, m.event.View(), lipgloss.WithWhitespaceChars(" "))
-	}
-
-	return fmt.Sprintf("Unknown State: %s", m.Session.GetGameState())
+	return m, cmds
 }
 
 //

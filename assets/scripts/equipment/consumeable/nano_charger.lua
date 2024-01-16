@@ -4,7 +4,7 @@ register_card("NANO_CHARGER", {
         l("cards.NANO_CHARGER.description","%s\n\nSupercharge your next attack. Deals %s damage."),
         highlight("One-Time"), highlight("Double")
     ),
-    tags = { "BUFF" },
+    tags = { "BUFF", "_ACT_0" },
     max_level = 0,
     color = COLOR_RED,
     need_target = false,

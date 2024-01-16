@@ -838,6 +838,14 @@ func (s *Session) GetRandomCard(maxGold int) string {
 // AddMerchantArtifact adds another artifact to the wares of the merchant.
 func (s *Session) AddMerchantArtifact() {
 	if val := s.GetRandomArtifact(s.GetMerchantGoldMax()); len(val) > 0 {
+		// Don't add duplicates
+		if lo.SomeBy(s.GetPlayer().Artifacts.ToSlice(), func(guid string) bool {
+			a, _ := s.GetArtifact(guid)
+			return a.ID == val
+		}) {
+			return
+		}
+
 		s.merchant.Artifacts = append(s.merchant.Artifacts, val)
 	}
 }
@@ -1593,7 +1601,7 @@ func (s *Session) UpgradeRandomCard(owner string) bool {
 //
 
 // DealDamage deals damage to a target. If flat is true it will not trigger any callbacks which modify the damage.
-func (s *Session) DealDamage(source string, target string, damage int, flat bool) int {
+func (s *Session) DealDamage(source string, card string, target string, damage int, flat bool) int {
 	if _, ok := s.actors[source]; !ok {
 		return 0
 	}
@@ -1615,7 +1623,7 @@ func (s *Session) DealDamage(source string, target string, damage int, flat bool
 			reducer,
 			float64(damage),
 			"damage",
-			CreateContext("source", source, "target", target, "damage", damage)),
+			CreateContext("source", source, "card", card, "target", target, "damage", damage)),
 		)
 	}
 
@@ -1713,9 +1721,9 @@ func (s *Session) SimulateDealDamage(source string, target string, damage int, f
 
 // DealDamageMulti will deal damage to multiple targets and return the amount of damage dealt to each target.
 // If flat is true it will not trigger any OnDamageCalc callbacks which modify the damage.
-func (s *Session) DealDamageMulti(source string, targets []string, damage int, flat bool) []int {
+func (s *Session) DealDamageMulti(source string, card string, targets []string, damage int, flat bool) []int {
 	return lo.Map(targets, func(guid string, index int) int {
-		return s.DealDamage(source, guid, damage, flat)
+		return s.DealDamage(source, card, guid, damage, flat)
 	})
 }
 

@@ -5,6 +5,7 @@
 ---@field type_id? type_id
 ---@field guid? guid
 ---@field source? guid
+---@field card? guid
 ---@field target? guid
 ---@field owner? guid
 ---@field caster? guid

@@ -24,6 +24,10 @@ func HalfCard(session *game.Session, guid string, active bool, baseHeight int, m
 	cardState := session.GetCardState(guid)
 
 	pointText := strings.Repeat("•", card.PointCost)
+	if card.PointCost == 0 {
+		pointText = "FREE"
+	}
+
 	tagsText := strings.Join(card.PublicTags(), ", ")
 
 	cardCol, _ := colorful.Hex(card.Color)

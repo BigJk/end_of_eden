@@ -8,6 +8,7 @@ The merchant is a tall, lanky figure draped in a long, tattered coat made of pla
 Despite their strange appearance, the merchant is a shrewd negotiator and a skilled trader. They carry with them a collection of bizarre and exotic items, including plant-based weapons, animal pelts, and strange, glowing artifacts that seem to pulse with an otherworldly energy.
 
 The merchant is always looking for a good deal, and they're not above haggling with potential customers...]],
+    tags = {"_ACT_0", "_ACT_1", "_ACT_2", "_ACT_3"},
     choices = {
         {
             description = "Trade",

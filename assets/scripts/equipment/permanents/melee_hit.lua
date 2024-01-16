@@ -12,7 +12,7 @@ register_card("MELEE_HIT", {
     price = -1,
     callbacks = {
         on_cast = function(ctx)
-            deal_damage(ctx.caster, ctx.target, 1 + ctx.level)
+            deal_damage_card(ctx.caster, ctx.guid, ctx.target, 1 + ctx.level)
             return nil
         end
     },

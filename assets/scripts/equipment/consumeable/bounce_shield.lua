@@ -4,7 +4,7 @@ register_card("BOUNCE_SHIELD", {
         l("cards.BOUNCE_SHIELD.description","%s\n\nDeploy a temporary shield. %s bounces the damage back, but still takes damage."),
         highlight("One-Time"), highlight("Negates")
     ),
-    tags = { "DEF" },
+    tags = { "DEF", "_ACT_0" },
     max_level = 0,
     color = COLOR_BLUE,
     need_target = false,

@@ -165,18 +165,6 @@ text_italic(value : any) -> string
 
 </details>
 
-<details> <summary><b><code>text_red</code></b> </summary> <br/>
-
-Makes the text colored red.
-
-**Signature:**
-
-```
-text_red(value : any) -> string
-```
-
-</details>
-
 <details> <summary><b><code>text_underline</code></b> </summary> <br/>
 
 Makes the text underlined.
@@ -845,6 +833,18 @@ Deal damage from one source to a target. If flat is true the damage can't be mod
 
 ```
 deal_damage(source : guid, target : guid, damage : number, (optional) flat : boolean) -> number
+```
+
+</details>
+
+<details> <summary><b><code>deal_damage_card</code></b> </summary> <br/>
+
+Deal damage from one source to a target from a card. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
+
+**Signature:**
+
+```
+deal_damage_card(source : guid, card : guid, target : guid, damage : number, (optional) flat : boolean) -> number
 ```
 
 </details>

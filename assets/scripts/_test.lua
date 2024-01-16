@@ -58,7 +58,7 @@ function assert_cast_damage(id, dmg)
     local cards = get_cards(PLAYER_ID)
 
     if not cards[1] then
-        return "Card not in hand"
+        return "Card " .. id .. " not in hand"
     end
 
     local card = get_card_instance(cards[1])

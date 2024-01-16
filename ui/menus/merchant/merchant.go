@@ -214,7 +214,7 @@ func (m Model) View() string {
 		var selectedItemLook string
 		switch item := selectedItem.(type) {
 		case *game.Artifact:
-			selectedItemLook = components.ArtifactCard(m.session, item.ID, 20, 20)
+			selectedItemLook = components.ArtifactCard(m.session, item.ID, 20, 30)
 			canBuy = m.session.GetPlayer().Gold >= item.Price
 		case *game.Card:
 			selectedItemLook = components.HalfCard(m.session, item.ID, false, 20, 20, false, 0, false)

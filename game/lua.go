@@ -127,12 +127,6 @@ fun = require "fun"
 		return 1
 	}))
 
-	d.Function("text_red", "Makes the text colored red.", "string", "value : any")
-	l.SetGlobal("text_red", l.NewFunction(func(state *lua.LState) int {
-		state.Push(lua.LString("\x1b[38;5;9m" + luhelp2.ToString(state.Get(1), mapper)))
-		return 1
-	}))
-
 	d.Function("text_bg", "Makes the text background colored. Takes hex values like #ff0000.", "string", "color : string", "value : any")
 	l.SetGlobal("text_bg", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(removeAnsiReset(lipgloss.NewStyle().Background(lipgloss.Color(luhelp2.ToString(state.Get(1), mapper))).Render(luhelp2.ToString(state.Get(2), mapper)))))
@@ -184,7 +178,8 @@ fun = require "fun"
 
 		session.log.Printf("[LUA :: %d %s] %s \n", dbg.CurrentLine, dbg.Source, strings.Join(lo.Map(make([]any, state.GetTop()), func(_ any, index int) string {
 			val := state.Get(1 + index)
-			return luhelp2.ToString(val, mapper)
+			str := luhelp2.ToString(val, mapper)
+			return str
 		}), " "))
 
 		return 0
@@ -510,9 +505,19 @@ fun = require "fun"
 	d.Function("deal_damage", "Deal damage from one source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.", "number", "source : guid", "target : guid", "damage : number", "(optional) flat : boolean")
 	l.SetGlobal("deal_damage", l.NewFunction(func(state *lua.LState) int {
 		if state.GetTop() == 3 {
-			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), false)))
+			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), "", state.ToString(2), int(state.ToNumber(3)), false)))
 		} else {
-			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), int(state.ToNumber(3)), bool(state.ToBool(4)))))
+			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), "", state.ToString(2), int(state.ToNumber(3)), bool(state.ToBool(4)))))
+		}
+		return 1
+	}))
+
+	d.Function("deal_damage_card", "Deal damage from one source to a target from a card. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.", "number", "source : guid", "card : guid", "target : guid", "damage : number", "(optional) flat : boolean")
+	l.SetGlobal("deal_damage_card", l.NewFunction(func(state *lua.LState) int {
+		if state.GetTop() == 4 {
+			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), state.ToString(3), int(state.ToNumber(4)), false)))
+		} else {
+			state.Push(lua.LNumber(session.DealDamage(state.ToString(1), state.ToString(2), state.ToString(3), int(state.ToNumber(4)), bool(state.ToBool(5)))))
 		}
 		return 1
 	}))
@@ -547,9 +552,9 @@ fun = require "fun"
 		}
 
 		if state.GetTop() == 3 {
-			state.Push(luhelp2.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), false)))
+			state.Push(luhelp2.ToLua(state, session.DealDamageMulti(state.ToString(1), "", guids, int(state.ToNumber(3)), false)))
 		} else {
-			state.Push(luhelp2.ToLua(state, session.DealDamageMulti(state.ToString(1), guids, int(state.ToNumber(3)), bool(state.ToBool(4)))))
+			state.Push(luhelp2.ToLua(state, session.DealDamageMulti(state.ToString(1), "", guids, int(state.ToNumber(3)), bool(state.ToBool(4)))))
 		}
 		return 1
 	}))

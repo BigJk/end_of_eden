@@ -29,7 +29,7 @@ register_card("ARM_MOUNTED_GUN", {
     price = -1,
     callbacks = {
         on_cast = function(ctx)
-            deal_damage(ctx.caster, ctx.target, 7 + ctx.level * 3)
+            deal_damage_card(ctx.caster, ctx.guid, ctx.target, 7 + ctx.level * 3)
             return nil
         end
     },

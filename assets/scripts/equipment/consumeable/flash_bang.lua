@@ -1,7 +1,7 @@
 register_card("FLASH_BANG", {
     name = l("cards.FLASH_BANG.name", "Flash Bang"),
     description = l("cards.FLASH_BANG.description", highlight("One-Time") .. "\n\nInflicts " .. highlight("Blinded") .. " on the target, causing them to deal less damage."),
-    tags = { "CC" },
+    tags = { "CC", "_ACT_0" },
     max_level = 0,
     color = COLOR_PURPLE,
     need_target = true,

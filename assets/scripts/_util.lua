@@ -1,3 +1,8 @@
+local function _escape_color(number)
+    local escapeString = string.char(27) .. '[%sm'
+    return escapeString:format(number)
+end
+
 ---highlight some value
 ---@param val any
 function highlight(val)
@@ -7,7 +12,13 @@ end
 ---highlight_warn some value with warning colors
 ---@param val any
 function highlight_warn(val)
-    return text_underline(text_bold(text_red("[" .. tostring(val) .. "]")))
+    return  text_underline(text_bold(_escape_color("38;5;161") .. "[" .. tostring(val) .. "]" .. string.char(27) .. "[0m"))
+end
+
+---highlight_success some value with success colors
+---@param val any
+function highlight_success(val)
+    return  text_underline(text_bold(_escape_color("38;5;119") .. "[" .. tostring(val) .. "]" .. string.char(27) .. "[0m"))
 end
 
 ---choose_weighted chooses an item from a list of choices, with a weight for each item.
@@ -35,6 +46,9 @@ end
 
 ---table.contains check if a table contains an element.
 function table.contains(table, element)
+    if table == nil then
+        return false
+    end
     for _, value in pairs(table) do
         if value == element then
             return true

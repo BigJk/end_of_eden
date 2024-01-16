@@ -1,7 +1,7 @@
 register_card("STIM_PACK", {
     name = l("cards.STIM_PACK.name", "Stim Pack"),
     description = l("cards.STIM_PACK.description", highlight("One-Time") .. "\n\nRestores " .. highlight(5) .. " HP."),
-    tags = { "HEAL" },
+    tags = { "HEAL", "_ACT_0" },
     max_level = 0,
     color = COLOR_BLUE,
     need_target = false,
