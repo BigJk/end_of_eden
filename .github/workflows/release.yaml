@@ -15,7 +15,7 @@ jobs:
           md5sum: FALSE
           compress_assets: "zip"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev && ./internal/misc/build_index.sh ./assets"
+          pre_command: "apt-get update && apt-get install --no-install-recommends -y pkg-config libasound2-dev libx11-dev && ./internal/misc/build_index.sh ./assets && cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./game_wasm/wasm_exec.js"
           project_path: "./cmd/game_wasm"
           binary_name: "eoe.wasm"
           extra_files: "./assets/ ./cmd/game_wasm/index.html ./cmd/game_wasm/wasm_exec.js"
