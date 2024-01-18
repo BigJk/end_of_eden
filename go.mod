@@ -31,7 +31,7 @@ require (
 	github.com/lrstanley/bubblezone v0.0.0-20230303230241-08f906ff62a9
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/maruel/panicparse/v2 v2.3.1
-	github.com/mattn/go-runewidth v0.0.14
+	github.com/mattn/go-runewidth v0.0.15
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6
 	github.com/muesli/reflow v0.3.0
@@ -52,8 +52,10 @@ require (
 	cdr.dev/slog v1.4.2-0.20221206192828-e4803b10ae17 // indirect
 	cloud.google.com/go/logging v1.7.0 // indirect
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
+	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.5.0 // indirect
+	github.com/alexeyco/simpletable v1.0.0 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/anthonynsimon/bild v0.13.0 // indirect
