@@ -186,13 +186,13 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 
 Here are some interesting bits and pieces about the game that I like to share as it was great fun to build them.
 
-<details><summary>The game got its own terminal emulator</summary>
+<details><summary>The game got its own terminal emulator</summary><br>
 
 While the game can run in the terminal perfectly fine, I wanted to provide non-terminal users with a way to play the game without having to deal with the terminal themselves. So, I thought, "How hard can it be to write a simple terminal emulator in Go?" To my surprise, it wasn't that difficult. I had a lot of fun while writing [CRT](https://github.com/BigJk/crt). A nice side effect is the possibility of including CRT shaders that give the game an even more retro feeling.
 
 </details>
 
-<details><summary>The game has a fuzzy tester</summary>
+<details><summary>The game has a fuzzy tester</summary><br>
 
 I had a bunch of problems when I integrated the Lua scripting at the beginning. From simple nil dereference to Lua exploding on me, debugging the Lua code isn't as straightforward as debugging Go itself. I ran into a bunch of edge cases in my game's code where a certain chain of events would cause a panic. To counter that, I implemented a small fuzzy tester that throws operations at the game in random order, hoping to trigger a panic. If a panic happens, the fuzzy tester shows which chain of operations, together with which values, resulted in the panic.
 
@@ -209,11 +209,11 @@ func castCardOp(rnd *rand.Rand, s *game.Session) string {
 
 This is also integrated into the CI of this game. Each time a commit is pushed that changes Lua or Go, the fuzzy tester will be run for 30 seconds on 2 cores. If it fails, the CI pipeline fails.
 
-Check the code out in /cmd/internal/fuzzy_tester.
+Check the code out in `/cmd/internal/fuzzy_tester`.
 
 </details>
 
-<details><summary>The games content can be unit tested</summary>
+<details><summary>The games content can be unit tested</summary><br>
 
 Testing game content by hand or ensuring that it works as expected can be annoying. The most straightforward way is to go into the game, use whatever debugging terminal it has, and give yourself whatever items you need to test it. Fortunately, "End of Eden" is a rather simple game, turn-based, and has no complex 3D shenanigans. So, why not test cards, artifacts, etc., with unit tests? Testing game content in isolation might not help with finding certain edge cases that only happen in combination with each other, but it does a good job of validating the basic behavior and makes it easy to iterate quickly without having to start the game a bunch of times to see if everything works.
 
@@ -272,7 +272,44 @@ Integrating this into the normal Go testing was easy, so you can use go test to 
 
 This is also integrated into the CI of this game. Each time a commit is pushed that changes Lua or Go, the tester will be run. If it fails, the CI pipeline fails.
 
-Check the code out in /cmd/internal/tester.
+Check the code out in `/cmd/internal/tester`.
+
+</details>
+
+
+<details><summary>The games generates its own lua documentation + autocomplete</summary><br>
+
+I'm not a huge fan of Lua and its syntax, but I like how easily it can be embedded into nearly any language. Because it is used in so many pieces, especially games, there is a lot of information and libraries available. So, in my opinion, these facts outweighed my personal cons about the syntax. The only thing that I was missing was nice auto-complete for the game's API. That's when I learned about the lua-language-server and its great support for [definitions](https://github.com/LuaLS/lua-language-server/wiki/Annotations). So, I wrote the basic definitions of things that don't change in the game, and the rest is generated dynamically by the game.
+
+Currently, there is a utility to generate markdown-based documentation and the annotations for the language server. You can find the Lua docs [here](docs/LUA_API_DOCS.md) and definitions [here](assets/scripts/definitions). The docs are defined in code where I define Lua functions and constants. That way, I write the docs at the same moment that I define the Lua objects.
+
+```go
+d.Global("PLAYER_ID", "Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_guid, 10)``.") // <- docs
+l.SetGlobal("PLAYER_ID", lua.LString(PlayerActorID)) // <- lua
+
+d.Function("guid", "returns a new random guid.", "guid") // <- docs
+l.SetGlobal("guid", l.NewFunction(func(state *lua.LState) int {
+    state.Push(lua.LString(NewGuid("LUA")))
+    return 1
+})) // <- lua
+```
+
+This results in lua definitions like:
+
+```lua
+--- Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_guid, 10)``.
+PLAYER_ID = ""
+
+--- returns a new random guid.
+---@return guid
+function guid() end
+```
+
+And if you open the `/assets/scripts` folder with Visual Studio Code and the [Lua extension](https://marketplace.visualstudio.com/items?itemName=sumneko.lua), you will get nice autocomplete with typing (for the most part), which makes the scripting experience so much nicer!
+
+![lua autocomplete](.github/lua_autocomplete.png)
+
+Check the code out in `/cmd/internal/docs`.
 
 </details>
 
