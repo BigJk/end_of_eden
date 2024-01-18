@@ -107,6 +107,9 @@ Content that is dynamically generated at runtime is not included in this documen
 
 	artifacts := lo.Values(res.Artifacts)
 	sort.SliceStable(artifacts, func(i, j int) bool {
+		return artifacts[i].ID < artifacts[j].ID
+	})
+	sort.SliceStable(artifacts, func(i, j int) bool {
 		return artifacts[i].Price < artifacts[j].Price
 	})
 
@@ -151,6 +154,9 @@ Content that is dynamically generated at runtime is not included in this documen
 	cardType := make(map[string]int)
 
 	cards := lo.Values(res.Cards)
+	sort.SliceStable(cards, func(i, j int) bool {
+		return cards[i].ID < cards[j].ID
+	})
 	sort.SliceStable(cards, func(i, j int) bool {
 		return cards[i].Price < cards[j].Price
 	})
@@ -220,6 +226,9 @@ Content that is dynamically generated at runtime is not included in this documen
 
 	statusEffects := lo.Values(res.StatusEffects)
 	sort.SliceStable(statusEffects, func(i, j int) bool {
+		return statusEffects[i].ID < statusEffects[j].ID
+	})
+	sort.SliceStable(statusEffects, func(i, j int) bool {
 		return statusEffects[i].Order < statusEffects[j].Order
 	})
 
@@ -263,6 +272,9 @@ Content that is dynamically generated at runtime is not included in this documen
 
 	enemies := lo.Values(res.Enemies)
 	sort.SliceStable(enemies, func(i, j int) bool {
+		return enemies[i].ID < enemies[j].ID
+	})
+	sort.SliceStable(enemies, func(i, j int) bool {
 		return enemies[i].Name < enemies[j].Name
 	})
 
@@ -302,6 +314,9 @@ Content that is dynamically generated at runtime is not included in this documen
 
 	events := lo.Values(res.Events)
 	sort.SliceStable(events, func(i, j int) bool {
+		return events[i].ID < events[j].ID
+	})
+	sort.SliceStable(events, func(i, j int) bool {
 		return events[i].Name < events[j].Name
 	})
 
@@ -311,9 +326,9 @@ Content that is dynamically generated at runtime is not included in this documen
 			{Text: v.Name},
 			{Text: stripSpecial(stripansi.Strip(v.Description))},
 			{Text: strings.Join(v.Tags, ", ")},
-			{Text: makeCodes(lo.Map(v.Choices, func(c game.EventChoice, i int) string {
-				return stripansi.Strip(c.Description)
-			}))},
+			{Text: "<ul>" + strings.Join(lo.Map(v.Choices, func(c game.EventChoice, i int) string {
+				return "<li>" + makeCode(stripansi.Strip(c.Description)) + "</li>"
+			}), " ") + "</ul>"},
 			{Text: lo.Ternary(v.Test != nil, ":heavy_check_mark:", ":no_entry_sign:")},
 		}
 
