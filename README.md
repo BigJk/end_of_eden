@@ -182,6 +182,100 @@ Lua is used to define artifacts, cards, enemies and everything else that is dyna
 
 - See [Lua Documentation](docs/LUA_DOCS.md)
 
+# Interesting bits and pieces
+
+Here are some interesting bits and pieces about the game that I like to share as it was great fun to build them.
+
+<details><summary>The game got its own terminal emulator</summary>
+
+While the game can run in the terminal perfectly fine, I wanted to provide non-terminal users with a way to play the game without having to deal with the terminal themselves. So, I thought, "How hard can it be to write a simple terminal emulator in Go?" To my surprise, it wasn't that difficult. I had a lot of fun while writing [CRT](https://github.com/BigJk/crt). A nice side effect is the possibility of including CRT shaders that give the game an even more retro feeling.
+
+</details>
+
+<details><summary>The game has a fuzzy tester</summary>
+
+I had a bunch of problems when I integrated the Lua scripting at the beginning. From simple nil dereference to Lua exploding on me, debugging the Lua code isn't as straightforward as debugging Go itself. I ran into a bunch of edge cases in my game's code where a certain chain of events would cause a panic. To counter that, I implemented a small fuzzy tester that throws operations at the game in random order, hoping to trigger a panic. If a panic happens, the fuzzy tester shows which chain of operations, together with which values, resulted in the panic.
+
+Here is an example operation that will try to cast a card with a random target. It also picks values like empty strings or IDs of other objects. A fuzzy tester wouldn't be a fuzzy tester if it only threw nice input at the system ;)
+
+```go
+func castCardOp(rnd *rand.Rand, s *game.Session) string {
+    guid := Shuffle(rnd, lo.Flatten([][]string{{""}, s.GetInstances(), s.GetActors()}))[0]
+    target := Shuffle(rnd, lo.Flatten([][]string{{""}, s.GetInstances(), s.GetActors()}))[0]
+    s.CastCard(guid, target)
+    return fmt.Sprintf("Cast card with guid '%s' on '%s'", guid, target)
+}
+```
+
+This is also integrated into the CI of this game. Each time a commit is pushed that changes Lua or Go, the fuzzy tester will be run for 30 seconds on 2 cores. If it fails, the CI pipeline fails.
+
+Check the code out in /cmd/internal/fuzzy_tester.
+
+</details>
+
+<details><summary>The games content can be unit tested</summary>
+
+Testing game content by hand or ensuring that it works as expected can be annoying. The most straightforward way is to go into the game, use whatever debugging terminal it has, and give yourself whatever items you need to test it. Fortunately, "End of Eden" is a rather simple game, turn-based, and has no complex 3D shenanigans. So, why not test cards, artifacts, etc., with unit tests? Testing game content in isolation might not help with finding certain edge cases that only happen in combination with each other, but it does a good job of validating the basic behavior and makes it easy to iterate quickly without having to start the game a bunch of times to see if everything works.
+
+So, I wrote a small testing utility that executes the test function on all the registered game content. Here you can see the test function for the BLOCK status effect. For each test, a clean game state will be created, and the given game content is given to the player. In this test, we assert that the player has one status effect of the BLOCK type. Then we let an enemy damage the player and check if the damage is negated as expected.
+
+```lua
+register_status_effect("BLOCK", {
+    name = "Block",
+    description = "Decreases incoming damage for each stack",
+    -- ...
+    test = function()
+        return assert_chain({
+            function() return assert_status_effect_count(1) end,
+            function() return assert_status_effect("BLOCK", 1) end,
+            function ()
+                local dummy = add_actor_by_enemy("DUMMY")
+                local damage = deal_damage(dummy, PLAYER_ID, 1)
+                if damage ~= 0 then
+                    return "Expected 0 damage, got " .. damage
+                end
+
+                damage = deal_damage(dummy, PLAYER_ID, 2)
+                if damage ~= 2 then
+                    return "Expected 2 damage, got " .. damage
+                end
+            end
+        })
+    end
+})
+```
+
+Integrating this into the normal Go testing was easy, so you can use go test to test the content or use the standalone testing binary. Here is an example output when using go test:
+
+```
+=== RUN   TestGame
+=== RUN   TestGame/Artifact:COMBAT_GLOVES
+=== RUN   TestGame/Artifact:COMBAT_GLASSES
+=== RUN   TestGame/Card:ENERGY_DRINK
+=== RUN   TestGame/Card:ARM_MOUNTED_GUN
+=== RUN   TestGame/Card:CROWBAR
+=== RUN   TestGame/Card:VIBRO_KNIFE
+=== RUN   TestGame/Card:ENERGY_DRINK_3
+=== RUN   TestGame/Card:NANO_CHARGER
+=== RUN   TestGame/Card:STIM_PACK
+=== RUN   TestGame/Card:MELEE_HIT
+=== RUN   TestGame/Card:ENERGY_DRINK_2
+=== RUN   TestGame/Card:LZR_PISTOL
+=== RUN   TestGame/Card:HAR_II
+=== RUN   TestGame/StatusEffect:NANO_CHARGER
+=== RUN   TestGame/StatusEffect:ULTRA_FLASH_SHIELD
+=== RUN   TestGame/StatusEffect:BLOCK
+=== RUN   TestGame/StatusEffect:BOUNCE_SHIELD
+=== RUN   TestGame/StatusEffect:FLASH_BANG
+=== RUN   TestGame/StatusEffect:FLASH_SHIELD
+```
+
+This is also integrated into the CI of this game. Each time a commit is pushed that changes Lua or Go, the tester will be run. If it fails, the CI pipeline fails.
+
+Check the code out in /cmd/internal/tester.
+
+</details>
+
 ## Building
 
 ### Automatic
