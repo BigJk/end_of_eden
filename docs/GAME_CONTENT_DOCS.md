@@ -61,10 +61,10 @@ Content that is dynamically generated at runtime is not included in this documen
 ```mermaid
 pie
 title Action Points
-"1 AP" : 6
 "3 AP" : 2
 "0 AP" : 9
 "2 AP" : 1
+"1 AP" : 6
 ```
 
 
@@ -97,12 +97,12 @@ title Card Types
 
 ## Enemies
 
-|        ID        |     Name     |             Description              | Initial HP | Max HP |                               Look                               |  Color  |        Used Callbacks        |  Test Present   |
-|------------------|--------------|--------------------------------------|------------|--------|------------------------------------------------------------------|---------|------------------------------|-----------------|
-| ``CYBER_SPIDER`` | CYBER Spider | It waits for its prey to come closer | 8          | 8      | <code style='white-space: pre;'>/\\o^o/\\ </code>                | #ff4d6d | ``OnTurn``                   | :no_entry_sign: |
-| ``CLEAN_BOT``    | Cleaning Bot | It never stopped cleaning...         | 13         | 13     | <code style='white-space: pre;'> \\_/</br>(* *)</br> )#( </code> | #32a891 | ``OnPlayerTurn``, ``OnTurn`` | :no_entry_sign: |
-| ``DUMMY``        | Dummy        | End me...                            | 100        | 100    | <code style='white-space: pre;'>DUM </code>                      | #deeb6a | ``OnTurn``                   | :no_entry_sign: |
-| ``RUST_MITE``    | Rust Mite    | A small robot that eats metal.       | 12         | 12     | <code style='white-space: pre;'>/v\\ </code>                     | #e6e65a | ``OnTurn``                   | :no_entry_sign: |
+|        ID        |     Name     |             Description              | Initial HP | Max HP |  Color  |        Used Callbacks        |  Test Present   |
+|------------------|--------------|--------------------------------------|------------|--------|---------|------------------------------|-----------------|
+| ``CYBER_SPIDER`` | CYBER Spider | It waits for its prey to come closer | 8          | 8      | #ff4d6d | ``OnTurn``                   | :no_entry_sign: |
+| ``CLEAN_BOT``    | Cleaning Bot | It never stopped cleaning...         | 13         | 13     | #32a891 | ``OnPlayerTurn``, ``OnTurn`` | :no_entry_sign: |
+| ``DUMMY``        | Dummy        | End me...                            | 100        | 100    | #deeb6a | ``OnTurn``                   | :no_entry_sign: |
+| ``RUST_MITE``    | Rust Mite    | A small robot that eats metal.       | 12         | 12     | #e6e65a | ``OnTurn``                   | :no_entry_sign: |
 
 
 ## Events
