@@ -86,7 +86,7 @@ docker run --name end_of_eden -p 8275:8273 -it ghcr.io/bigjk/end_of_eden:master 
 
 </details>
 
-## Settings
+## :bookmark_tabs: Settings
 
 Both versions have separate settings files. The settings files are located in the same directory as the game executable. The settings files are automatically created on the first game start. You can modify the settings in the settings file or in game via the settings menu.
 
@@ -165,7 +165,7 @@ width = 1100
 
 </details>
 
-## Console
+## :tv: Console
 
 A modern console is required to support all the features like full mouse control in the ``_term`` version. Just start the  ``end_of_eden(.exe)`` executable in your terminal.
 
@@ -176,13 +176,13 @@ A modern console is required to support all the features like full mouse control
 | **cmd**                                               | windows | :warning:          | no mouse motion support, mouse clicks and everything else works |
 | **[iterm2](https://iterm2.com/)**                     | osx     | :white_check_mark: |                                                                 |
 
-## Lua & Modding
+## :books: Lua & Modding
 
 Lua is used to define artifacts, cards, enemies and everything else that is dynamic in the game. This makes End of Eden easily extendable. If you want to create mods or learn more about lua:
 
 - See [Lua Documentation](docs/LUA_DOCS.md)
 
-# Interesting bits and pieces
+# :round_pushpin: Interesting bits and pieces
 
 Here are some interesting bits and pieces about the game that I like to share as it was great fun to build them.
 
