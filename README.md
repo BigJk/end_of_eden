@@ -277,7 +277,7 @@ Check the code out in `/cmd/internal/tester`.
 </details>
 
 
-<details><summary>The games generates its own lua documentation + autocomplete</summary><br>
+<details><summary>The game generates its own lua documentation + autocomplete</summary><br>
 
 I'm not a huge fan of Lua and its syntax, but I like how easily it can be embedded into nearly any language. Because it is used in so many pieces, especially games, there is a lot of information and libraries available. So, in my opinion, these facts outweighed my personal cons about the syntax. The only thing that I was missing was nice auto-complete for the game's API. That's when I learned about the lua-language-server and its great support for [definitions](https://github.com/LuaLS/lua-language-server/wiki/Annotations). So, I wrote the basic definitions of things that don't change in the game, and the rest is generated dynamically by the game.
 
