@@ -189,14 +189,14 @@ Content that is dynamically generated at runtime is not included in this documen
 
 	fmt.Println("\n\n### Action Points\n")
 
-	fmt.Println(fmt.Sprintf("´´´mermaid\npie title Action Points\n%s\n´´´\n\n", strings.Join(lo.Map(lo.Entries(actionPoints), func(e lo.Entry[int, int], i int) string {
-		return fmt.Sprintf("%d AP: %d", e.Key, e.Value)
+	fmt.Println(fmt.Sprintf("```mermaid\npie\ntitle Action Points\n%s\n```\n", strings.Join(lo.Map(lo.Entries(actionPoints), func(e lo.Entry[int, int], i int) string {
+		return fmt.Sprintf("\"%d AP\" : %d", e.Key, e.Value)
 	}), "\n")))
 
 	fmt.Println("\n\n### Card Types\n")
 
-	fmt.Println(fmt.Sprintf("´´´mermaid\npie title Card Types\n%s\n´´´\n\n", strings.Join(lo.Map(lo.Entries(cardType), func(e lo.Entry[string, int], i int) string {
-		return fmt.Sprintf("%s: %d", e.Key, e.Value)
+	fmt.Println(fmt.Sprintf("```mermaid\npie\ntitle Card Types\n%s\n```\n", strings.Join(lo.Map(lo.Entries(cardType), func(e lo.Entry[string, int], i int) string {
+		return fmt.Sprintf("\"%s\" : %d", e.Key, e.Value)
 	}), "\n")))
 
 	// Status Effects

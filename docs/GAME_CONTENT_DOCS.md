@@ -21,9 +21,9 @@ Content that is dynamically generated at runtime is not included in this documen
 |         ID          |      Name       |                                             Description                                             | Price |      Tags      |    Test Present    |
 |---------------------|-----------------|-----------------------------------------------------------------------------------------------------|-------|----------------|--------------------|
 | ``CROWBAR``         | Crowbar         | A crowbar. It's a bit rusty, but it should still be useful! Can be used in your hand.               | 80    | ATK, M, T, HND | :no_entry_sign:    |
-| ``COMBAT_GLASSES``  | Combat Glasses  | Whenever you play a **Ranged (R)** card, deal **1 additional damage**                               | 100   | _ACT_0         | :heavy_check_mark: |
 | ``PORTABLE_BUFFER`` | PRTBL Buffer    | Start each turn with 1 **Block**                                                                    | 100   | _ACT_0         | :no_entry_sign:    |
 | ``SPEED_ENHANCER``  | Speed Enhancer  | Start with a additional card at the beginning of combat.                                            | 100   | _ACT_0         | :no_entry_sign:    |
+| ``COMBAT_GLASSES``  | Combat Glasses  | Whenever you play a **Ranged (R)** card, deal **1 additional damage**                               | 100   | _ACT_0         | :heavy_check_mark: |
 | ``COMBAT_GLOVES``   | Combat Gloves   | Whenever you play a **Meele (M)** card, deal **1 additional damage**                                | 100   | _ACT_0         | :heavy_check_mark: |
 | ``VIBRO_KNIFE``     | VIBRO Knife     | A VIBRO knife. Uses ultrasonic vibrations to cut through almost anything. Can be used in your hand. | 180   | ATK, M, T, HND | :no_entry_sign:    |
 | ``INTERVA_JUICER``  | Interval Juicer | **Heal 2** at the beginning of combat                                                               | 200   | _ACT_0         | :no_entry_sign:    |
@@ -38,46 +38,46 @@ Content that is dynamically generated at runtime is not included in this documen
 |------------------------|--------------------|--------------------------------------------------------------------------------------------------------|---------------|--------------------|--------------------|-----------|-------|----------------|---------|----------------|--------------------|
 | ``ARM_MOUNTED_GUN``    | Arm Mounted Gun    | Exhaust. Use your arm mounted gun to deal 15 (+3 for each upgrade) damage.                             | 3             | :heavy_check_mark: | :no_entry_sign:    | 1         | -1    | ATK, R, T, ARM | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
 | ``KNOCK_OUT``          | Knock Out          | Inflicts **Knock Out** on the target, causing them to miss their next turn.                            | 2             | :no_entry_sign:    | :no_entry_sign:    | 0         | -1    | CC             | #725e9c | ``OnCast``     | :no_entry_sign:    |
-| ``MELEE_HIT``          | Melee Hit          | Use your bare hands to deal 1 (+1 for each upgrade) damage.                                            | 1             | :no_entry_sign:    | :no_entry_sign:    | 1         | -1    | ATK, M, HND    | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
 | ``KILL``               | Kill               | Debug Card                                                                                             | 0             | :no_entry_sign:    | :no_entry_sign:    | 0         | -1    |                | #2f3e46 | ``OnCast``     | :no_entry_sign:    |
+| ``MELEE_HIT``          | Melee Hit          | Use your bare hands to deal 1 (+1 for each upgrade) damage.                                            | 1             | :no_entry_sign:    | :no_entry_sign:    | 1         | -1    | ATK, M, HND    | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
 | ``CROWBAR``            | Crowbar            | Use to deal 2 (+3 for each upgrade) damage.                                                            | 1             | :no_entry_sign:    | :no_entry_sign:    | 3         | 0     | ATK, M, T, HND | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
-| ``VIBRO_KNIFE``        | VIBRO Knife        | Use to deal 3 (+3 for each upgrade) damage.                                                            | 1             | :no_entry_sign:    | :no_entry_sign:    | 3         | 0     | ATK, M, T, HND | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
 | ``LZR_PISTOL``         | LZR Pistol         | Use to deal 4 (+3 for each upgrade) damage.                                                            | 1             | :no_entry_sign:    | :no_entry_sign:    | 3         | 0     | ATK, R, T, HND | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
+| ``VIBRO_KNIFE``        | VIBRO Knife        | Use to deal 3 (+3 for each upgrade) damage.                                                            | 1             | :no_entry_sign:    | :no_entry_sign:    | 3         | 0     | ATK, M, T, HND | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
 | ``HAR_II``             | HAR-II             | Use to deal 5 (+3 for each upgrade) damage.                                                            | 1             | :no_entry_sign:    | :no_entry_sign:    | 3         | 0     | ATK, R, T, HND | #2f3e46 | ``OnCast``     | :heavy_check_mark: |
 | ``BLOCK``              | Block              | Shield yourself and gain 5 **block**.                                                                  | 1             | :no_entry_sign:    | :no_entry_sign:    | 1         | 50    | DEF            | #219ebc | ``OnCast``     | :no_entry_sign:    |
-| ``ENERGY_DRINK``       | ENRGY Drink X91    | **One-Time** - Gain 1 action point.                                                                    | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | UTIL, _ACT_0   | #fb5607 | ``OnCast``     | :heavy_check_mark: |
-| ``FLASH_SHIELD``       | Flash Shield       | **One-Time** - Deploy a temporary shield. **Negates** the next attack.                                 | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | DEF, _ACT_0    | #219ebc | ``OnCast``     | :no_entry_sign:    |
+| ``FLASH_BANG``         | Flash Bang         | **One-Time** - Inflicts **Blinded** on the target, causing them to deal less damage.                   | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | CC, _ACT_0     | #725e9c | ``OnCast``     | :no_entry_sign:    |
 | ``NANO_CHARGER``       | Nano Charger       | **One-Time** - Supercharge your next attack. Deals **Double** damage.                                  | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | BUFF, _ACT_0   | #c1121f | ``OnCast``     | :heavy_check_mark: |
+| ``FLASH_SHIELD``       | Flash Shield       | **One-Time** - Deploy a temporary shield. **Negates** the next attack.                                 | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | DEF, _ACT_0    | #219ebc | ``OnCast``     | :no_entry_sign:    |
+| ``ENERGY_DRINK``       | ENRGY Drink X91    | **One-Time** - Gain 1 action point.                                                                    | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | UTIL, _ACT_0   | #fb5607 | ``OnCast``     | :heavy_check_mark: |
 | ``STIM_PACK``          | Stim Pack          | **One-Time** - Restores **5** HP.                                                                      | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | HEAL, _ACT_0   | #219ebc | ``OnCast``     | :heavy_check_mark: |
 | ``BOUNCE_SHIELD``      | Bounce Shield      | **One-Time** - Deploy a temporary shield. **Negates** bounces the damage back, but still takes damage. | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | DEF, _ACT_0    | #219ebc | ``OnCast``     | :no_entry_sign:    |
-| ``FLASH_BANG``         | Flash Bang         | **One-Time** - Inflicts **Blinded** on the target, causing them to deal less damage.                   | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 150   | CC, _ACT_0     | #725e9c | ``OnCast``     | :no_entry_sign:    |
-| ``ENERGY_DRINK_2``     | ENRGY Drink X92    | **One-Time** - Gain 2 action points.                                                                   | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 250   | UTIL, _ACT_0   | #fb5607 | ``OnCast``     | :heavy_check_mark: |
 | ``ULTRA_FLASH_SHIELD`` | Ultra Flash Shield | **One-Time** - Deploy a temporary shield. **Negates** all attack this turn.                            | 3             | :no_entry_sign:    | :heavy_check_mark: | 0         | 250   | DEF, _ACT_0    | #219ebc | ``OnCast``     | :no_entry_sign:    |
+| ``ENERGY_DRINK_2``     | ENRGY Drink X92    | **One-Time** - Gain 2 action points.                                                                   | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 250   | UTIL, _ACT_0   | #fb5607 | ``OnCast``     | :heavy_check_mark: |
 | ``ENERGY_DRINK_3``     | ENRGY Drink X93    | **One-Time** - Gain 3 action points.                                                                   | 0             | :no_entry_sign:    | :heavy_check_mark: | 0         | 350   | UTIL, _ACT_0   | #fb5607 | ``OnCast``     | :heavy_check_mark: |
 
 
 ### Action Points
 
-´´´mermaid
-pie title Action Points
-0 AP: 9
-3 AP: 2
-2 AP: 1
-1 AP: 6
-´´´
-
+```mermaid
+pie
+title Action Points
+"3 AP" : 2
+"2 AP" : 1
+"0 AP" : 9
+"1 AP" : 6
+```
 
 
 
 ### Card Types
 
-´´´mermaid
-pie title Card Types
-Exhaust: 1
-Normal: 8
-Consume: 9
-´´´
-
+```mermaid
+pie
+title Card Types
+"Exhaust" : 1
+"Normal" : 8
+"Consume" : 9
+```
 
 
 
@@ -85,14 +85,14 @@ Consume: 9
 
 |           ID           |        Name        |                    Description                    | Look | Foreground |     Can Stack      |   Decay   | Rounds |  Used Callbacks  |    Test Present    |
 |------------------------|--------------------|---------------------------------------------------|------|------------|--------------------|-----------|--------|------------------|--------------------|
+| ``FLASH_BANG``         | Blinded            | Causing **25%** less damage.                      | FL   | #725e9c    | :heavy_check_mark: | DecayOne  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
 | ``KNOCK_OUT``          | Knock Out          | Can't act                                         | KO   | #725e9c    | :heavy_check_mark: | DecayOne  | 1      | ``OnTurn``       | :no_entry_sign:    |
 | ``CHARGED``            | Charged            | Attacks will deal more damage per stack.          | CHRG | #207BE7    | :heavy_check_mark: | DecayNone | 0      | ``OnDamageCalc`` | :no_entry_sign:    |
-| ``FLASH_BANG``         | Blinded            | Causing **25%** less damage.                      | FL   | #725e9c    | :heavy_check_mark: | DecayOne  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
-| ``BLOCK``              | Block              | Decreases incoming damage for each stack          | B    | #219ebc    | :heavy_check_mark: | DecayAll  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
 | ``BOUNCE_SHIELD``      | Bounce Shield      | Bounces back the next damage. Still takes damage. | BS   | #219ebc    | :no_entry_sign:    | DecayAll  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
 | ``FLASH_SHIELD``       | Flash Shield       | Negates the next attack.                          | FS   | #219ebc    | :no_entry_sign:    | DecayAll  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
 | ``NANO_CHARGER``       | Nano Charge        | Next attack deals **Double** damage.              | NC   | #c1121f    | :no_entry_sign:    | DecayAll  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
 | ``ULTRA_FLASH_SHIELD`` | Ultra Flash Shield | Negates all attacks.                              | UFS  | #219ebc    | :no_entry_sign:    | DecayAll  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
+| ``BLOCK``              | Block              | Decreases incoming damage for each stack          | B    | #219ebc    | :heavy_check_mark: | DecayAll  | 1      | ``OnDamageCalc`` | :heavy_check_mark: |
 
 
 ## Enemies
@@ -100,7 +100,7 @@ Consume: 9
 |        ID        |     Name     |             Description              | Initial HP | Max HP |                               Look                               |  Color  |        Used Callbacks        |  Test Present   |
 |------------------|--------------|--------------------------------------|------------|--------|------------------------------------------------------------------|---------|------------------------------|-----------------|
 | ``CYBER_SPIDER`` | CYBER Spider | It waits for its prey to come closer | 8          | 8      | <code style='white-space: pre;'>/\\o^o/\\ </code>                | #ff4d6d | ``OnTurn``                   | :no_entry_sign: |
-| ``CLEAN_BOT``    | Cleaning Bot | It never stopped cleaning...         | 13         | 13     | <code style='white-space: pre;'> \\_/</br>(* *)</br> )#( </code> | #32a891 | ``OnTurn``, ``OnPlayerTurn`` | :no_entry_sign: |
+| ``CLEAN_BOT``    | Cleaning Bot | It never stopped cleaning...         | 13         | 13     | <code style='white-space: pre;'> \\_/</br>(* *)</br> )#( </code> | #32a891 | ``OnPlayerTurn``, ``OnTurn`` | :no_entry_sign: |
 | ``DUMMY``        | Dummy        | End me...                            | 100        | 100    | <code style='white-space: pre;'>DUM </code>                      | #deeb6a | ``OnTurn``                   | :no_entry_sign: |
 | ``RUST_MITE``    | Rust Mite    | A small robot that eats metal.       | 12         | 12     | <code style='white-space: pre;'>/v\\ </code>                     | #e6e65a | ``OnTurn``                   | :no_entry_sign: |
 
