@@ -181,6 +181,7 @@ A modern console is required to support all the features like full mouse control
 Lua is used to define artifacts, cards, enemies and everything else that is dynamic in the game. This makes End of Eden easily extendable. If you want to create mods or learn more about lua:
 
 - See [Lua Documentation](docs/LUA_DOCS.md)
+- See [Game Content Documentation](docs/GAME_CONTENT_DOCS.md)
 
 # :round_pushpin: Interesting bits and pieces
 
