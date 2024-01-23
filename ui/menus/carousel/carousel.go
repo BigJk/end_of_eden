@@ -62,7 +62,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.MouseMsg:
 		m.LastMouse = msg
-		if msg.Button != tea.MouseButtonNone {
+		if msg.Action == tea.MouseActionRelease && msg.Button != tea.MouseButtonNone {
 			if m.ZoneInBounds(ZoneLeftButton) {
 				if m.selected > 0 {
 					m.selected--

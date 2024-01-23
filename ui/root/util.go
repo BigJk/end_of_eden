@@ -16,6 +16,10 @@ func (m OnVisibleModel) Init() tea.Cmd {
 }
 
 func (m OnVisibleModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.parent == nil {
+		return nil, nil
+	}
+
 	switch msg.(type) {
 	case ModelGettingVisibleMsg:
 		m.fn(m.parent)
@@ -29,5 +33,8 @@ func (m OnVisibleModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m OnVisibleModel) View() string {
+	if m.parent == nil {
+		return ""
+	}
 	return m.parent.View()
 }
