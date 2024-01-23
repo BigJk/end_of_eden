@@ -199,7 +199,7 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			audio.Play("interface_move", -1.5)
 		}
 	case tea.MouseMsg:
-		if msg.Type == tea.MouseLeft {
+		if msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft {
 			for i := range m.choices {
 				if m.zones.Get(ZoneChoices + string(m.choices[i].(choiceItem).key)).InBounds(msg) {
 					m.list.Select(i)

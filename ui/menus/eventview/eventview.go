@@ -84,11 +84,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		m.LastMouse = msg
 
-		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
+		if (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) || msg.Type == tea.MouseMotion {
 			if m.session.GetEvent() != nil {
 				for i := 0; i < len(m.session.GetEvent().Choices); i++ {
 					if choiceZone := m.zones.Get(fmt.Sprintf("%s%d", ZoneChoice, i)); choiceZone.InBounds(msg) {
-						if msg.Type == tea.MouseLeft && m.selectedChoice == i {
+						if (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) && m.selectedChoice == i {
 							audio.Play("btn_menu")
 							m = m.tryFinishEvent()
 							break

@@ -159,7 +159,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LastMouse = msg
 
 		if len(m.animations) == 0 {
-			if msg.Type == tea.MouseLeft {
+			if msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft {
 				cmds = append(cmds, root.TooltipClear())
 
 				switch m.Session.GetGameState() {
@@ -172,13 +172,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 
-			if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
+			if (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) || msg.Type == tea.MouseMotion {
 				switch m.Session.GetGameState() {
 				case game.GameStateFight:
 					if m.inOpponentSelection {
 						for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
 							if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(msg) {
-								if msg.Type == tea.MouseLeft && m.selectedOpponent == i {
+								if msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft {
+									m.selectedOpponent = i
 									m = m.tryCast()
 								}
 							}
@@ -188,7 +189,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						for i := 0; i < len(m.Session.GetFight().Hand); i++ {
 							if m.zones.Get(fmt.Sprintf("%s%d", ZoneCard, i)).InBounds(msg) {
 								onCard = true
-								if msg.Type == tea.MouseLeft && m.selectedCard == i {
+								if (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) && m.selectedCard == i {
 									m = m.tryCast()
 								} else {
 									m.selectedCard = i

@@ -106,7 +106,7 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			audio.Play("interface_move", -1.5)
 		}
 	case tea.MouseMsg:
-		if msg.Type == tea.MouseLeft || msg.Type == tea.MouseMotion {
+		if (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) || msg.Type == tea.MouseMotion {
 			for i := range m.choices {
 				if m.zones.Get("choice_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) || m.zones.Get("choice_desc_"+string(m.choices[i].(choiceItem).key)).InBounds(msg) {
 					if m.list.Index() != i {
@@ -114,7 +114,7 @@ func (m ChoicesModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 
 					m.list.Select(i)
-					if msg.Type == tea.MouseLeft {
+					if msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft {
 						m.selected = m.choices[i].(choiceItem).key
 					}
 					break

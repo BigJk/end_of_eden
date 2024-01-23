@@ -71,7 +71,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch m.state {
 		case StateMain:
-			if msg.Type == tea.MouseLeft {
+			if msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft {
 				if m.zones.Get(ZoneBuyItem).InBounds(msg) {
 					audio.Play("btn_menu")
 					m = m.merchantBuy()
@@ -91,7 +91,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case StateUpgrade:
 			fallthrough
 		case StateRemove:
-			if msg.Type == tea.MouseLeft {
+			if msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft {
 				if m.zones.Get(ZoneBuyItem).InBounds(msg) {
 					audio.Play("btn_menu")
 					if m.state == StateUpgrade {

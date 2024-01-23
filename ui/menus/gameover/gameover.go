@@ -85,7 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		m.lastMouse = msg
 
-		if msg.Type == tea.MouseLeft && m.zones.Get(ZoneToMenu).InBounds(msg) {
+		if (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) && m.zones.Get(ZoneToMenu).InBounds(msg) {
 			m.session.Close()
 			return nil, nil
 		}

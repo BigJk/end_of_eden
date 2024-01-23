@@ -135,7 +135,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return nil, nil
 		}
 	case tea.MouseMsg:
-		if msg.Type == tea.MouseLeft {
+		if msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft {
 			if m.zones.Get(ZoneCopy).InBounds(msg) {
 				if os.Getenv("NO_CLIPBOARD") == "1" {
 					return m, nil
