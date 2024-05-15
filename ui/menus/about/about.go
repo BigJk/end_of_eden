@@ -40,7 +40,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.parent, nil
 		}
 	case tea.MouseMsg:
-		if (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) && m.zones.Get("back").InBounds(msg) {
+		if (msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft) && m.zones.Get("back").InBounds(msg) {
 			audio.Play("btn_menu")
 
 			return m.parent, nil

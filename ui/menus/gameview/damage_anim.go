@@ -75,7 +75,7 @@ func (m DamageAnimationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return nil, nil
 		}
 	case tea.MouseMsg:
-		if m.elapsed > 0.2 && (msg.Action == tea.MouseActionRelease && msg.Type == tea.MouseLeft) {
+		if m.elapsed > 0.2 && (msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft) {
 			return nil, nil
 		}
 	case DamageAnimationFrame:
