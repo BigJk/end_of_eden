@@ -951,11 +951,19 @@ func (s *Session) ActiveTeller() *StoryTeller {
 		return nil
 	}
 
-	slices.SortFunc(teller, func(a, b *StoryTeller) bool {
+	slices.SortFunc(teller, func(a, b *StoryTeller) int {
 		aOrder, _ := a.Active(CreateContext("type_id", a.ID))
 		bOrder, _ := b.Active(CreateContext("type_id", b.ID))
 
-		return aOrder.(float64) > bOrder.(float64)
+		if aOrder.(float64) > bOrder.(float64) {
+			return 1
+		}
+
+		if aOrder.(float64) < bOrder.(float64) {
+			return -1
+		}
+
+		return 0
 	})
 
 	return teller[0]
