@@ -202,11 +202,6 @@ You find a old automatic workstation. You are able to get it working again. You 
         {
             description = "Upgrade a card " .. highlight_success("Upgrade a card") .. " " .. highlight_warn("Take 5 damage"),
             callback = function()
-                if math.random() < 0.5 then
-                    deal_damage(PLAYER_ID, PLAYER_ID, 5, true)
-                    return nil
-                end
-
                 local cards = fun.iter(get_cards(PLAYER_ID))
                     :filter(function(guid)
                         local type = get_card(guid)
@@ -222,6 +217,7 @@ You find a old automatic workstation. You are able to get it working again. You 
 
                 local choosen = cards[math.random(#cards)]
                 upgrade_card(choosen)
+                deal_damage(PLAYER_ID, PLAYER_ID, 5, true)
 
                 return nil
             end
