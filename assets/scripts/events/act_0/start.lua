@@ -14,7 +14,7 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
     choices = {
         {
             description = "Try to find a weapon. " ..
-                highlight('Find meele weapon') .. " " .. highlight_warn("Take 4 damage"),
+                highlight('Find melee weapon') .. " " .. highlight_warn("Take 4 damage"),
             callback = function()
                 deal_damage(PLAYER_ID, PLAYER_ID, 4, true)
                 give_artifact(
