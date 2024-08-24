@@ -111,6 +111,10 @@ function play_music(sound) end
 -- Game State
 -- #####################################
 
+--- get the number of action points per round.
+---@return number
+function get_action_points_per_round() end
+
 --- Gets the ids of all the encountered events in the order of occurrence.
 ---@return string[]
 function get_event_history() end
@@ -141,6 +145,10 @@ function had_events(event_ids) end
 ---@param eventIds string[]
 ---@return boolean
 function had_events_any(eventIds) end
+
+--- set the number of action points per round.
+---@param points number
+function set_action_points_per_round(points) end
 
 --- Set event by id.
 ---@param event_id type_id

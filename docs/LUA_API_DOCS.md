@@ -288,6 +288,18 @@ Functions that modify the general game state.
 None
 
 ### Functions
+<details> <summary><b><code>get_action_points_per_round</code></b> </summary> <br/>
+
+get the number of action points per round.
+
+**Signature:**
+
+```
+get_action_points_per_round() -> number
+```
+
+</details>
+
 <details> <summary><b><code>get_event_history</code></b> </summary> <br/>
 
 Gets the ids of all the encountered events in the order of occurrence.
@@ -368,6 +380,18 @@ Checks if any of the events happened at least once.
 
 ```
 had_events_any(eventIds : string[]) -> boolean
+```
+
+</details>
+
+<details> <summary><b><code>set_action_points_per_round</code></b> </summary> <br/>
+
+set the number of action points per round.
+
+**Signature:**
+
+```
+set_action_points_per_round(points : number) -> None
 ```
 
 </details>

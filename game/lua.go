@@ -1,14 +1,15 @@
 package game
 
 import (
+	"path/filepath"
+	"strings"
+
 	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
 	luhelp2 "github.com/BigJk/end_of_eden/internal/lua/luhelp"
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/system/gen/faces"
 	"github.com/BigJk/end_of_eden/system/localization"
-	"path/filepath"
-	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/samber/lo"
@@ -280,6 +281,18 @@ fun = require "fun"
 			state.Push(luhelp2.ToLua(state, session.HadEventsAny(ids)))
 		}
 		return 1
+	}))
+
+	d.Function("get_action_points_per_round", "get the number of action points per round.", "number")
+	l.SetGlobal("get_action_points_per_round", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LNumber(session.GetPointsPerRound()))
+		return 1
+	}))
+
+	d.Function("set_action_points_per_round", "set the number of action points per round.", "", "points : number")
+	l.SetGlobal("set_action_points_per_round", l.NewFunction(func(state *lua.LState) int {
+		session.SetPointsPerRound(int(state.ToNumber(1)))
+		return 0
 	}))
 
 	// Actor Operations

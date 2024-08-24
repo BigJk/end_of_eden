@@ -16,7 +16,6 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
             description = "Try to find a weapon. " ..
                 highlight('Find melee weapon') .. " " .. highlight_warn("Take 4 damage"),
             callback = function()
-                deal_damage(PLAYER_ID, PLAYER_ID, 4, true)
                 give_artifact(
                     choose_weighted_by_price(find_artifacts_by_tags({ "HND", "M" })), PLAYER_ID
                 )
@@ -38,9 +37,16 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
     on_enter = function()
         play_music("energetic_orthogonal_expansions")
     end,
-    on_end = function()
-        actor_set_max_hp(PLAYER_ID, 10)
-        actor_set_hp(PLAYER_ID, 10)
+    on_end = function(ctx)
+        local player_hp = 12
+
+        actor_set_max_hp(PLAYER_ID, player_hp)
+
+        if ctx.choice == 1 then
+            actor_set_hp(PLAYER_ID, player_hp - 4)
+        else
+            actor_set_hp(PLAYER_ID, player_hp)
+        end
 
         give_card("BLOCK", PLAYER_ID)
         give_card("BLOCK", PLAYER_ID)

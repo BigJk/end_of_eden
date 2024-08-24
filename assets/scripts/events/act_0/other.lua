@@ -1,3 +1,33 @@
+register_event("MERCHANT", {
+    name = "A strange figure",
+    description =
+    [[!!merchant.jpg
+
+The merchant is a tall, lanky figure draped in a long, tattered coat made of plant fibers and animal hides. Their face is hidden behind a mask made of twisted roots and vines, giving them an unsettling, almost alien appearance.
+
+Despite their strange appearance, the merchant is a shrewd negotiator and a skilled trader. They carry with them a collection of bizarre and exotic items, including plant-based weapons, animal pelts, and strange, glowing artifacts that seem to pulse with an otherworldly energy.
+
+The merchant is always looking for a good deal, and they're not above haggling with potential customers...]],
+    tags = { "_ACT_0" },
+    choices = {
+        {
+            description = "Trade",
+            callback = function()
+                return GAME_STATE_MERCHANT
+            end
+        }, {
+        description = "Pass",
+        callback = function()
+            return GAME_STATE_RANDOM
+        end
+    }
+    },
+    on_end = function(ctx)
+        return nil
+    end
+})
+
+
 register_event("RANDOM_ARTIFACT_ACT_0", {
     name = "Random Artifact",
     description = [[!!artifact_chest.jpg
@@ -6,7 +36,8 @@ You found a chest with a strange symbol on it. The chest is protected by a stran
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Random Artifact " .. highlight_success("Gain 1 Artifact") .. " " .. highlight_warn("Take 5 damage"),
+            description = "Random Artifact " ..
+            highlight_success("Gain 1 Artifact") .. " " .. highlight_warn("Take 5 damage"),
             callback = function()
                 local possible = find_artifacts_by_tags({ "_ACT_0" })
                 local choosen = choose_weighted_by_price(possible)
@@ -34,7 +65,8 @@ You found a chest with a strange symbol on it. The chest is protected by a stran
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Random Artifact " .. highlight_success("Gain 1 Consumeable") .. " " .. highlight_warn("Take 2 damage"),
+            description = "Random Artifact " ..
+            highlight_success("Gain 1 Consumeable") .. " " .. highlight_warn("Take 2 damage"),
             callback = function()
                 local possible = fun.iter(find_cards_by_tags({ "_ACT_0" }))
                     :filter(function(card)
@@ -161,7 +193,8 @@ You find a room with a strange device in the middle. It seems to be some kind of
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "50% " .. highlight_success("Gain Artifact & Consumeable") .. " 50% " .. highlight_warn("Take 5 damage"),
+            description = "50% " ..
+            highlight_success("Gain Artifact & Consumeable") .. " 50% " .. highlight_warn("Take 5 damage"),
             callback = function()
                 local possible_artifacts = find_artifacts_by_tags({ "_ACT_0" })
                 local possible_consumeables = fun.iter(find_cards_by_tags({ "_ACT_0" }))
@@ -200,7 +233,8 @@ You find a old automatic workstation. You are able to get it working again. You 
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Upgrade a card " .. highlight_success("Upgrade a card") .. " " .. highlight_warn("Take 5 damage"),
+            description = "Upgrade a card " ..
+            highlight_success("Upgrade a card") .. " " .. highlight_warn("Take 5 damage"),
             callback = function()
                 local cards = fun.iter(get_cards(PLAYER_ID))
                     :filter(function(guid)

@@ -7,7 +7,7 @@ register_enemy("CLEAN_BOT", {
     color = "#32a891",
     initial_hp = 13,
     max_hp = 13,
-    gold = 15,
+    gold = 30,
     intend = function(ctx)
         local self = get_actor(ctx.guid)
         if self.hp <= 4 then

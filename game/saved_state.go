@@ -15,6 +15,7 @@ type SavedState struct {
 	StagesCleared    int
 	CurrentEvent     string
 	CurrentFight     FightState
+	PointsPerRound   int
 	Merchant         MerchantState
 	EventHistory     []string
 	StateCheckpoints []StateCheckpoint

@@ -5,7 +5,7 @@ register_enemy("RUST_MITE", {
     color = "#e6e65a",
     initial_hp = 12,
     max_hp = 12,
-    gold = 10,
+    gold = 35,
     intend = function(ctx)
         if ctx.round % 4 == 0 then
             return "Load battery"

@@ -11,6 +11,7 @@ type Enemy struct {
 	Description string
 	InitialHP   int
 	MaxHP       int
+	Gold        int
 	Look        string
 	Color       string
 	Intend      luhelp.OwnedCallback

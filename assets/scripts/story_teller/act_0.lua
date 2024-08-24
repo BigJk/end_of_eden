@@ -1,16 +1,19 @@
 register_story_teller("_ACT_0", {
     active = function()
-        if #get_event_history() <= 6  then
-            return 1
-        end
-        return 0
+        -- if #get_event_history() <= 6 then
+        --     return 1
+        -- end
+        --
+        -- Keep active for now
+        return 1
     end,
     decide = function()
         local history = get_event_history()
-        local possible = { }
+        local possible = {}
 
         -- every 3 events, play a non-combat event
-        if #get_event_history() % 2 == 0 then
+        local events = #history - 1;
+        if events ~= 0 and events % 2 == 0 then
             possible = find_events_by_tags({ "_ACT_0" })
         else
             possible = find_events_by_tags({ "_ACT_0_FIGHT" })
@@ -20,12 +23,12 @@ register_story_teller("_ACT_0", {
 
         -- filter out events by id that have already been played
         possible = fun.iter(possible):filter(function(event)
-            return not table.contains(history, event.id)
+            return event == "MERCHANT" or not table.contains(history, event.id)
         end):totable()
 
         -- fallback for now
         if #possible == 0 then
-            possible = find_events_by_tags({ "_ACT_0" })
+            possible = find_events_by_tags({ "_ACT_0_FIGHT" })
         end
         set_event(possible[math.random(#possible)].id)
 

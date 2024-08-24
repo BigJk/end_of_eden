@@ -6,6 +6,15 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"math/rand"
+	"path/filepath"
+	"runtime"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/internal/lua/ludoc"
 	"github.com/BigJk/end_of_eden/system/gen"
@@ -15,20 +24,12 @@ import (
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/exp/slices"
-	"io"
-	"log"
-	"math/rand"
 	"oss.terrastruct.com/d2/d2graph"
 	"oss.terrastruct.com/d2/d2layouts/d2dagrelayout"
 	"oss.terrastruct.com/d2/d2lib"
 	"oss.terrastruct.com/d2/d2renderers/d2svg"
 	"oss.terrastruct.com/d2/d2themes/d2themescatalog"
 	"oss.terrastruct.com/d2/lib/textmeasure"
-	"path/filepath"
-	"runtime"
-	"sort"
-	"strings"
-	"time"
 )
 
 func init() {
@@ -54,8 +55,8 @@ const (
 	// DefaultRemoveCost is the default cost for removing a card.
 	DefaultRemoveCost = 50
 
-	// PointsPerRound is the amount of points the player gets per round.
-	PointsPerRound = 3
+	// DefaultPointsPerRound is the default amount of points the player gets per round.
+	DefaultPointsPerRound = 3
 
 	// DrawSize is the amount of cards the player draws per round.
 	DrawSize = 3
@@ -103,17 +104,18 @@ type Session struct {
 	luaDocs   *ludoc.Docs
 	resources *ResourcesManager
 
-	state         GameState
-	actors        map[string]Actor
-	instances     map[string]any
-	stagesCleared int
-	currentEvent  string
-	currentFight  FightState
-	merchant      MerchantState
-	eventHistory  []string
-	randomHistory []string
-	ctxData       map[string]any
-	hooks         map[Hook][]func()
+	state          GameState
+	actors         map[string]Actor
+	instances      map[string]any
+	stagesCleared  int
+	currentEvent   string
+	currentFight   FightState
+	pointsPerRound int
+	merchant       MerchantState
+	eventHistory   []string
+	randomHistory  []string
+	ctxData        map[string]any
+	hooks          map[Hook][]func()
 
 	loadedMods       []string
 	stateCheckpoints []StateCheckpoint
@@ -132,8 +134,9 @@ func NewSession(options ...func(s *Session)) *Session {
 		actors: map[string]Actor{
 			PlayerActorID: NewActor(PlayerActorID),
 		},
-		instances: map[string]any{},
-		ctxData:   map[string]any{},
+		pointsPerRound: DefaultPointsPerRound,
+		instances:      map[string]any{},
+		ctxData:        map[string]any{},
 		hooks: map[Hook][]func(){
 			HookNextFightEnd: {},
 		},
@@ -244,6 +247,7 @@ func (s *Session) ToSavedState() SavedState {
 		StagesCleared:    s.stagesCleared,
 		CurrentEvent:     s.currentEvent,
 		CurrentFight:     s.currentFight,
+		PointsPerRound:   s.pointsPerRound,
 		Merchant:         s.merchant,
 		EventHistory:     s.eventHistory,
 		StateCheckpoints: s.stateCheckpoints,
@@ -264,6 +268,7 @@ func (s *Session) LoadSavedState(save SavedState) {
 	s.stagesCleared = save.StagesCleared
 	s.currentEvent = save.CurrentEvent
 	s.currentFight = save.CurrentFight
+	s.pointsPerRound = save.PointsPerRound
 	s.merchant = save.Merchant
 	s.eventHistory = save.EventHistory
 	s.stateCheckpoints = lo.Map(save.StateCheckpoints, func(item StateCheckpoint, index int) StateCheckpoint {
@@ -422,6 +427,11 @@ func (s *Session) GetFormerState(index int) *Session {
 
 // GetGameState returns the current game state.
 func (s *Session) GetGameState() GameState {
+	player := s.GetActor(PlayerActorID)
+	if player.HP == 0 {
+		return GameStateGameOver
+	}
+
 	return s.state
 }
 
@@ -465,7 +475,7 @@ func (s *Session) GetEvent() *Event {
 
 // CleanUpFight resets the fight state.
 func (s *Session) CleanUpFight() {
-	s.currentFight.CurrentPoints = PointsPerRound
+	s.currentFight.CurrentPoints = s.pointsPerRound
 	s.currentFight.Deck = lo.Shuffle(s.GetPlayer().Cards.ToSlice())
 	s.currentFight.Hand = []string{}
 	s.currentFight.Exhausted = []string{}
@@ -506,6 +516,16 @@ func (s *Session) GetFight() FightState {
 // GetStagesCleared returns the amount of stages cleared so far. Each fight represent a stage.
 func (s *Session) GetStagesCleared() int {
 	return s.stagesCleared
+}
+
+// GetPointsPerRound returns the amount of action points the player gets each round.
+func (s *Session) GetPointsPerRound() int {
+	return s.pointsPerRound
+}
+
+// SetPointsPerRound sets the amount of action points the player gets each round.
+func (s *Session) SetPointsPerRound(points int) {
+	s.pointsPerRound = points
 }
 
 // FinishPlayerTurn signals that the player is done with its turn. All enemies act now, status effects are
@@ -573,7 +593,7 @@ func (s *Session) FinishPlayerTurn() {
 	}
 
 	// Advance to new Round
-	s.currentFight.CurrentPoints = PointsPerRound
+	s.currentFight.CurrentPoints = s.pointsPerRound
 	s.currentFight.Round += 1
 	s.currentFight.Used = append(s.currentFight.Used, s.currentFight.Hand...)
 	s.currentFight.Hand = []string{}
@@ -637,8 +657,6 @@ func (s *Session) FinishFight() bool {
 		// If an event is already set we switch to it
 		if len(s.currentEvent) > 0 {
 			s.SetGameState(GameStateEvent)
-		} else if s.stagesCleared%10 == 0 {
-			s.SetEvent("MERCHANT")
 		} else {
 			s.SetGameState(GameStateRandom)
 		}
@@ -777,7 +795,7 @@ func (s *Session) GetMerchant() MerchantState {
 
 // GetMerchantGoldMax returns what the max cost of a artifact or card is that the merchant might offer.
 func (s *Session) GetMerchantGoldMax() int {
-	return 150 + s.stagesCleared*30
+	return 180 + s.stagesCleared*30
 }
 
 func (s *Session) PushRandomHistory(id string) {
@@ -790,7 +808,7 @@ func (s *Session) PushRandomHistory(id string) {
 // GetRandomArtifact returns the type id of a random artifact with a price lower than the given value.
 func (s *Session) GetRandomArtifact(maxGold int) string {
 	possible := lo.Filter(lo.Values(s.resources.Artifacts), func(item *Artifact, index int) bool {
-		return item.Price >= 0 && item.Price < maxGold
+		return item.Price > 0 && item.Price < maxGold
 	})
 
 	possibleNoDupes := lo.Filter(possible, func(item *Artifact, index int) bool {
@@ -814,7 +832,7 @@ func (s *Session) GetRandomArtifact(maxGold int) string {
 // GetRandomCard returns the type id of a random card with a price lower than the given value.
 func (s *Session) GetRandomCard(maxGold int) string {
 	possible := lo.Filter(lo.Values(s.resources.Cards), func(item *Card, index int) bool {
-		return item.Price >= 0 && item.Price < maxGold
+		return item.Price > 0 && item.Price < maxGold
 	})
 
 	possibleNoDupes := lo.Filter(possible, func(item *Card, index int) bool {
@@ -1868,6 +1886,7 @@ func (s *Session) AddActorFromEnemy(id string) string {
 		actor.Description = base.Description
 		actor.HP = base.InitialHP
 		actor.MaxHP = base.MaxHP
+		actor.Gold = base.Gold
 
 		// Its important we add the actor before any callbacks so that it's instance is available
 		// to add cards etc. to!
