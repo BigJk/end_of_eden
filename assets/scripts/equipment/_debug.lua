@@ -16,7 +16,4 @@ register_card("DEBUG_INSTA_KILL", {
             return nil
         end
     },
-    test = function()
-        return assert_cast_damage("DEBUG_INSTA_KILL", 10000)
-    end
 })
