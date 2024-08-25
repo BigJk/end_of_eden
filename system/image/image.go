@@ -5,11 +5,6 @@ package image
 import (
 	"bytes"
 	"errors"
-	"github.com/BigJk/end_of_eden/internal/fs"
-	"github.com/BigJk/imeji"
-	"github.com/BigJk/imeji/charmaps"
-	"github.com/charmbracelet/log"
-	"github.com/muesli/termenv"
 	"image"
 	"image/draw"
 	"image/gif"
@@ -19,6 +14,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/BigJk/end_of_eden/internal/fs"
+	"github.com/BigJk/imeji"
+	"github.com/BigJk/imeji/charmaps"
+	"github.com/charmbracelet/log"
+	"github.com/muesli/termenv"
 )
 
 // TODO: Better decoupling in relation to session
@@ -52,21 +53,21 @@ func buildOption(options ...Option) (Options, []imeji.Option) {
 	if runtime.GOOS == "js" {
 		imejiOptions = append(imejiOptions, imeji.WithTrueColor())
 		data.tag += "truecolor"
-	}
-
-	switch termenv.DefaultOutput().Profile {
-	case termenv.TrueColor:
-		imejiOptions = append(imejiOptions, imeji.WithTrueColor())
-		data.tag += "truecolor"
-	case termenv.ANSI:
-		imejiOptions = append(imejiOptions, imeji.WithANSI())
-		data.tag += "ansi"
-	case termenv.ANSI256:
-		imejiOptions = append(imejiOptions, imeji.WithANSI256())
-		data.tag += "ansi256"
-	default:
-		// TODO: should this be the default fallback?
-		imejiOptions = append(imejiOptions, imeji.WithTrueColor())
+	} else {
+		switch termenv.DefaultOutput().Profile {
+		case termenv.TrueColor:
+			imejiOptions = append(imejiOptions, imeji.WithTrueColor())
+			data.tag += "truecolor"
+		case termenv.ANSI:
+			imejiOptions = append(imejiOptions, imeji.WithANSI())
+			data.tag += "ansi"
+		case termenv.ANSI256:
+			imejiOptions = append(imejiOptions, imeji.WithANSI256())
+			data.tag += "ansi256"
+		default:
+			// TODO: should this be the default fallback?
+			imejiOptions = append(imejiOptions, imeji.WithTrueColor())
+		}
 	}
 
 	// Build image options

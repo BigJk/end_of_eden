@@ -1,6 +1,8 @@
 package mainmenu
 
 import (
+	"runtime"
+
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/list"
@@ -47,6 +49,13 @@ func NewChoicesModel(zones *zone.Manager, hideSettings bool) ChoicesModel {
 		choiceItem{zones, "Settings", "Other settings won't let you survive...", ChoiceSettings},
 		choiceItem{zones, "Mods", "Make the game even more fun!", ChoiceMods},
 		choiceItem{zones, "Exit", "Got enough already?", ChoiceExit},
+	}
+
+	// Hide exit on web
+	if runtime.GOOS == "js" {
+		choices = lo.Filter(choices, func(value list.Item, i int) bool {
+			return value.(choiceItem).title != "Exit" || value.(choiceItem).title == "Mods"
+		})
 	}
 
 	if hideSettings {
