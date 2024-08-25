@@ -1,207 +1,216 @@
 <html>
-<head>
-	<meta charset="utf-8">
-	<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
-	<link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet">
-	<script src="./wasm_exec.js"></script>
-	<style>
-      @font-face {
-          font-family: 'IosevkaTermNerdFontMono';
-          src: url('assets/fonts/IosevkaTermNerdFontMono-Bold.ttf') format('truetype');
-          font-weight: bold;
-          font-style: normal;
-      }
+    <head>
+        <meta charset="utf-8" />
+        <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet" />
+        <script src="./wasm_exec.js"></script>
+        <style>
+            @font-face {
+                font-family: "IosevkaTermNerdFontMono";
+                src: url("assets/fonts/IosevkaTermNerdFontMono-Bold.ttf") format("truetype");
+                font-weight: bold;
+                font-style: normal;
+            }
 
-      @font-face {
-          font-family: 'IosevkaTermNerdFontMono';
-          src: url('assets/fonts/IosevkaTermNerdFontMono-Regular.ttf') format('truetype');
-          font-weight: normal;
-          font-style: normal;
-      }
+            @font-face {
+                font-family: "IosevkaTermNerdFontMono";
+                src: url("assets/fonts/IosevkaTermNerdFontMono-Regular.ttf") format("truetype");
+                font-weight: normal;
+                font-style: normal;
+            }
 
-      @font-face {
-          font-family: 'IosevkaTermNerdFontMono';
-          src: url('assets/fonts/IosevkaTermNerdFontMono-Italic.ttf') format('truetype');
-          font-weight: normal;
-          font-style: italic;
-      }
+            @font-face {
+                font-family: "IosevkaTermNerdFontMono";
+                src: url("assets/fonts/IosevkaTermNerdFontMono-Italic.ttf") format("truetype");
+                font-weight: normal;
+                font-style: italic;
+            }
 
-      html, body {
-          height: 100%;
-          margin: 0;
-          padding: 0;
-          font-family: 'IosevkaTermNerdFontMono', monospace;
-          background-color: #1a1a1a !important;
-      }
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-family: "IosevkaTermNerdFontMono", monospace;
+                background-color: #1a1a1a !important;
+            }
 
-      .terminal-container {
-          /* this is important */
-          overflow: hidden;
-      }
+            .terminal-container {
+                /* this is important */
+                overflow: hidden;
+            }
 
-      .xterm .xterm-viewport {
-          /* see : https://github.com/xtermjs/xterm.js/issues/3564#issuecomment-1004417440 */
-          width: initial !important;
-      }
-	</style>
-</head>
-<body>
-<div id='loading' style='color: white; margin: 20px;'>
-	<b style='color: red;'>Please click into this window once to allow audio!</b>
-	<br><br>
-	Game: Loading... This can take some time...
-</div>
-<div class="terminal-container" style="height: 100%; width: 100%;">
-	<div id="terminal" style="height: 100%"></div>
-</div>
-<script>
-	// Define variables to keep track of the audio elements
-	let sound = new Audio();
-	let music = new Audio();
-	let currentMusicUrl = "";
-	let userInteracted = false;
+            .xterm .xterm-viewport {
+                /* see : https://github.com/xtermjs/xterm.js/issues/3564#issuecomment-1004417440 */
+                width: initial !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="loading" style="color: white; margin: 20px">
+            <b style="color: red">Please click into this window once to allow audio!</b>
+            <br /><br />
+            Game: Loading... This can take some time...
+        </div>
+        <div class="terminal-container" style="height: 100%; width: 100%">
+            <div id="terminal" style="height: 100%"></div>
+        </div>
+        <script>
+            // Define variables to keep track of the audio elements
+            let sound = new Audio();
+            let music = new Audio();
+            let currentMusicUrl = "";
+            let userInteracted = false;
 
-	// Function to play a sound based on URL
-	globalThis.playSound = (url) => {
-		sound.src = url;
-		sound.volume = 0.1;
-		sound.play();
-	}
+            // Function to play a sound based on URL
+            globalThis.playSound = (url) => {
+                sound.src = url;
+                sound.volume = 0.1;
+                sound.play();
+            };
 
-	// Function to loop a music song based on URL
-	globalThis.loopMusic = (url) => {
-		if (!userInteracted) {
-			// If user hasn't interacted, set up a listener for user interaction
-			document.addEventListener('click', function() {
-				userInteracted = true;
-				loopMusic(url); // Start playing the music after user interaction
-			}, { once: true }); // Remove the listener after the first interaction
-			return;
-		}
+            // Function to loop a music song based on URL
+            globalThis.loopMusic = (url) => {
+                if (!userInteracted) {
+                    // If user hasn't interacted, set up a listener for user interaction
+                    document.addEventListener(
+                        "click",
+                        function () {
+                            userInteracted = true;
+                            loopMusic(url); // Start playing the music after user interaction
+                        },
+                        { once: true },
+                    ); // Remove the listener after the first interaction
+                    return;
+                }
 
-		if (currentMusicUrl === url) {
-			return;
-		} else {
-			// If a new song is requested, stop the current song and set the new one
-			music.src = url;
-			music.volume = 0.1;
-			currentMusicUrl = url;
-		}
+                if (currentMusicUrl === url) {
+                    return;
+                } else {
+                    // If a new song is requested, stop the current song and set the new one
+                    music.src = url;
+                    music.volume = 0.1;
+                    currentMusicUrl = url;
+                }
 
-		music.loop = true; // Loop the music
-		music.play(); // Play the music
-	}
+                music.loop = true; // Loop the music
+                music.play(); // Play the music
+            };
 
-	globalThis.fsRead = (path) => {
-		console.log("fsRead", path)
-		return window.localStorage.getItem(path)
-	}
+            globalThis.fsRead = (path) => {
+                console.log("fsRead", path);
+                return window.localStorage.getItem(path);
+            };
 
-	globalThis.fsWrite = (path, data) => {
-		console.log("fsWrite", path)
-		window.localStorage.setItem(path, data)
-	}
+            globalThis.fsWrite = (path, data) => {
+                console.log("fsWrite", path);
+                window.localStorage.setItem(path, data);
+            };
 
-	globalThis.settings = {
-		get(key, emptyValue) {
-			console.log("get", key, emptyValue)
-			try {
-				return JSON.parse(window.localStorage.getItem(key))
-			} catch (e) {
-				return emptyValue !== undefined ? emptyValue : null
-			}
-		},
-		getString(key) {
-			return window.settings.get(key, "")
-		},
-		getInt(key) {
-			return window.settings.get(key, 0)
-		},
-		getBool(key) {
-			return window.settings.get(key, false)
-		},
-		getFloat(key) {
-			return window.settings.get(key, 0.0)
-		},
-		getStrings(key) {
-			return window.settings.get(key, [])
-		},
-		set(key, value) {
-			window.localStorage.setItem(key, JSON.stringify(value))
-		},
-		setDefault(key, value) {
-			if (window.localStorage.getItem(key) !== null) {
-				return
-			}
-			window.localStorage.setItem(key, value)
-		}
-	}
-</script>
-<script>
-	globalThis.settings.setDefault("font_size", 14);
+            globalThis.settings = {
+                get(key, emptyValue) {
+                    console.log("get", key, emptyValue);
+                    try {
+                        return JSON.parse(window.localStorage.getItem(key));
+                    } catch (e) {
+                        return emptyValue !== undefined ? emptyValue : null;
+                    }
+                },
+                getString(key) {
+                    return window.settings.get(key, "");
+                },
+                getInt(key) {
+                    return window.settings.get(key, 0);
+                },
+                getBool(key) {
+                    return window.settings.get(key, false);
+                },
+                getFloat(key) {
+                    return window.settings.get(key, 0.0);
+                },
+                getStrings(key) {
+                    return window.settings.get(key, []);
+                },
+                set(key, value) {
+                    window.localStorage.setItem(key, JSON.stringify(value));
+                },
+                setDefault(key, value) {
+                    if (window.localStorage.getItem(key) !== null) {
+                        return;
+                    }
+                    window.localStorage.setItem(key, value);
+                },
+            };
+        </script>
+        <script>
+            globalThis.settings.setDefault("font_size", 12);
 
-	function initTerminal() {
-		// Check if bubbletea is initialized
-		if (globalThis.bubbletea_resize === undefined || globalThis.bubbletea_read === undefined || globalThis.bubbletea_write === undefined) {
-			setTimeout(() => {
-				console.log("waiting for bubbletea");
-				initTerminal();
-			}, 500);
-			return;
-		}
+            function initTerminal() {
+                // Check if bubbletea is initialized
+                if (
+                    globalThis.bubbletea_resize === undefined ||
+                    globalThis.bubbletea_read === undefined ||
+                    globalThis.bubbletea_write === undefined
+                ) {
+                    setTimeout(() => {
+                        console.log("waiting for bubbletea");
+                        initTerminal();
+                    }, 500);
+                    return;
+                }
 
-		// Remove loading text
-		document.getElementById('loading').remove();
+                // Remove loading text
+                document.getElementById("loading").remove();
 
-		const term = new Terminal({
-			fontSize: globalThis.settings.getInt("font_size") ?? 14,
-			fontFamily: 'IosevkaTermNerdFontMono',
-			theme: {
-				background: '#1a1a1a'
-			}
-		});
-		const fitAddon = new FitAddon.FitAddon();
-		term.loadAddon(fitAddon);
-		term.open(document.getElementById('terminal'));
-		term.focus();
+                const term = new Terminal({
+                    fontSize: globalThis.settings.getInt("font_size") ?? 12,
+                    fontFamily: "IosevkaTermNerdFontMono",
+                    theme: {
+                        background: "#1a1a1a",
+                    },
+                });
+                const fitAddon = new FitAddon.FitAddon();
+                term.loadAddon(fitAddon);
+                term.open(document.getElementById("terminal"));
+                term.focus();
 
-		// Register terminal resize
-		fitAddon.fit();
-		window.addEventListener('resize', () => (fitAddon.fit()));
+                // Register terminal resize
+                fitAddon.fit();
+                window.addEventListener("resize", () => fitAddon.fit());
 
-		// Initial resize
-		bubbletea_resize(term.cols, term.rows)
+                // Initial resize
+                bubbletea_resize(term.cols, term.rows);
 
-		// Read from bubbletea and write to xterm
-		setInterval(() => {
-			const read = bubbletea_read();
-			if (read && read.length > 0) {
-				term.write(read);
-			}
-		}, 1000 / 30);
+                // Read from bubbletea and write to xterm
+                setInterval(() => {
+                    const read = bubbletea_read();
+                    if (read && read.length > 0) {
+                        term.write(read);
+                    }
+                }, 1000 / 30);
 
-		// Resize on terminal resize
-		term.onResize((size) => (bubbletea_resize(term.cols, term.rows)));
+                // Resize on terminal resize
+                term.onResize((size) => bubbletea_resize(term.cols, term.rows));
 
-		// Write xterm output to bubbletea
-		term.onData((data) => (bubbletea_write(data)));
-	}
+                // Write xterm output to bubbletea
+                term.onData((data) => bubbletea_write(data));
+            }
 
-	function init() {
-		const go = new Go();
-		WebAssembly.instantiateStreaming(fetch("./eoe.wasm"), go.importObject).then((result) => {
-			// Run wasm
-			go.run(result.instance).then(() => {
-				console.log("wasm finished");
-			});
+            function init() {
+                const go = new Go();
+                WebAssembly.instantiateStreaming(fetch("./eoe.wasm"), go.importObject).then((result) => {
+                    // Run wasm
+                    go.run(result.instance).then(() => {
+                        console.log("wasm finished");
+                    });
 
-			// Init terminal. This should be done after bubbletea is initialized. For now, I use a timeout.
-			document.fonts.load((globalThis.settings.getInt("font_size") ?? 14) + 'px "IosevkaTermNerdFontMono"').then(() => (initTerminal()));
-		})
-	}
+                    // Init terminal. This should be done after bubbletea is initialized. For now, I use a timeout.
+                    document.fonts.load((globalThis.settings.getInt("font_size") ?? 14) + 'px "IosevkaTermNerdFontMono"').then(() => initTerminal());
+                });
+            }
 
-	init();
-</script>
-</body>
+            init();
+        </script>
+    </body>
 </html>
