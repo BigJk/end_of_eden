@@ -109,3 +109,22 @@ register_event("PLASMA_GOLEM", {
         }
     }
 })
+
+register_event("CYBER_SLIME", {
+    name = "A strange cybernetic slime appears...",
+    description =
+    [[As you explore the facility, you come across a strange cybernetic slime. It seems to be pulsating with energy and looks hostile.
+
+**Prepare for a fight!**
+    ]],
+    tags = { "_ACT_0_FIGHT" },
+    choices = {
+        {
+            description = "Fight!",
+            callback = function()
+                add_actor_by_enemy("CYBER_SLIME")
+                return GAME_STATE_FIGHT
+            end
+        }
+    }
+})
