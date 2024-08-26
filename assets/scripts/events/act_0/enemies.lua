@@ -16,6 +16,9 @@ It seems to be eating the metal from the walls. It looks at you and after a few 
                 if math.random() < 0.25 then
                     add_actor_by_enemy("RUST_MITE")
                 end
+                if math.random() < 0.15 then
+                    add_actor_by_enemy("REPAIR_DRONE")
+                end
                 return GAME_STATE_FIGHT
             end
         }
@@ -41,6 +44,9 @@ It looks at you and says "Corpse. Clean. Engage.".
                 if math.random() < 0.25 then
                     add_actor_by_enemy("CLEAN_BOT")
                 end
+                if math.random() < 0.15 then
+                    add_actor_by_enemy("REPAIR_DRONE")
+                end
                 return GAME_STATE_FIGHT
             end
         }
@@ -62,6 +68,9 @@ It seems to be waiting for its prey to come closer and there is no way around it
                 add_actor_by_enemy("CYBER_SPIDER")
                 if math.random() < 0.25 then
                     add_actor_by_enemy("CYBER_SPIDER")
+                end
+                if math.random() < 0.15 then
+                    add_actor_by_enemy("REPAIR_DRONE")
                 end
                 return GAME_STATE_FIGHT
             end
@@ -85,6 +94,9 @@ register_event("LASER_DRONE", {
                 if math.random() < 0.10 then
                     add_actor_by_enemy("LASER_DRONE")
                 end
+                if math.random() < 0.15 then
+                    add_actor_by_enemy("REPAIR_DRONE")
+                end
                 return GAME_STATE_FIGHT
             end
         }
@@ -104,6 +116,9 @@ register_event("PLASMA_GOLEM", {
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("PLASMA_GOLEM")
+                if math.random() < 0.05 then
+                    add_actor_by_enemy("REPAIR_DRONE")
+                end
                 return GAME_STATE_FIGHT
             end
         }
@@ -123,6 +138,9 @@ register_event("CYBER_SLIME", {
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("CYBER_SLIME")
+                if math.random() < 0.10 then
+                    add_actor_by_enemy("REPAIR_DRONE")
+                end
                 return GAME_STATE_FIGHT
             end
         }
