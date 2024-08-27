@@ -128,7 +128,7 @@ func Play(key string, volumeModifier ...float64) {
 		return
 	}
 
-	if settings.GetFloat("volume") == 0 {
+	if settings.GetFloat("volume") == 0 || !settings.GetBool("audio") {
 		return
 	}
 
@@ -154,7 +154,7 @@ func PlayMusic(key string) {
 		return
 	}
 
-	if settings.GetFloat("volume") == 0 {
+	if settings.GetFloat("volume") == 0 || !settings.GetBool("audio") {
 		return
 	}
 

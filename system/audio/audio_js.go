@@ -5,11 +5,12 @@
 package audio
 
 import (
-	"github.com/BigJk/end_of_eden/internal/fs"
-	"github.com/BigJk/end_of_eden/system/settings"
 	"path/filepath"
 	"strings"
 	"syscall/js"
+
+	"github.com/BigJk/end_of_eden/internal/fs"
+	"github.com/BigJk/end_of_eden/system/settings"
 )
 
 // InitAudio initializes the audio system. Loads all audio files from the assets/audio folder.
@@ -27,7 +28,7 @@ func Play(key string, volumeModifier ...float64) {
 
 // PlayMusic plays a music track. If the music track is not loaded, nothing will happen.
 func PlayMusic(key string) {
-	if settings.GetFloat("volume") == 0 {
+	if settings.GetFloat("volume") == 0 || !settings.GetBool("audio") {
 		return
 	}
 
