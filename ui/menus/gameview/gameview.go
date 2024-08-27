@@ -2,6 +2,8 @@ package gameview
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/system/audio"
 	"github.com/BigJk/end_of_eden/ui"
@@ -17,7 +19,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
-	"strings"
 )
 
 const (
@@ -315,6 +316,8 @@ func (m Model) View() string {
 		return lipgloss.JoinVertical(lipgloss.Top, m.fightStatusTop(), m.merchant.View())
 	case game.GameStateEvent:
 		return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Center, m.event.View(), lipgloss.WithWhitespaceChars(" "))
+	case game.GameStateGameOver:
+		return ""
 	}
 
 	return fmt.Sprintf("Unknown State: %s", m.Session.GetGameState())
@@ -515,7 +518,7 @@ func (m Model) fightStatusBottom() string {
 			lipgloss.Center,
 			m.zones.Mark(ZoneEndTurn, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneEndTurn).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 4, 0, 0).Render("End Turn")),
 			style.RedDarkerText.Render(`▀ █▌█▌▪
- ·██· 
+ ·██·
 ▪▐█·█▌`))),
 	))
 }
