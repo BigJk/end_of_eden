@@ -81,7 +81,9 @@ It seems to be waiting for its prey to come closer and there is no way around it
 register_event("LASER_DRONE", {
     name = "A menacing drone appears...",
     description =
-    [[As you explore the facility, you hear a high-pitched whirring sound. A drone equipped with a powerful laser cannon appears in front of you.
+    [[!!laser_drone.jpg
+
+As you explore the facility, you hear a high-pitched whirring sound. A drone equipped with a powerful laser cannon appears in front of you.
 
 **It looks ready to attack!**
     ]],
@@ -106,7 +108,9 @@ register_event("LASER_DRONE", {
 register_event("PLASMA_GOLEM", {
     name = "A glowing figure emerges...",
     description =
-    [[As you delve deeper into the facility, you notice a bright glow emanating from a nearby chamber. A massive golem made of pure plasma energy steps into view.
+    [[!!plasma_golem.jpg
+
+As you delve deeper into the facility, you notice a bright glow emanating from a nearby chamber. A massive golem made of pure plasma energy steps into view.
 
 **It looks ready to unleash its power!**
     ]],
@@ -128,7 +132,9 @@ register_event("PLASMA_GOLEM", {
 register_event("CYBER_SLIME", {
     name = "A strange cybernetic slime appears...",
     description =
-    [[As you explore the facility, you come across a strange cybernetic slime. It seems to be pulsating with energy and looks hostile.
+    [[!!cyber_slime.jpg
+
+As you explore the facility, you come across a strange cybernetic slime. It seems to be pulsating with energy and looks hostile.
 
 **Prepare for a fight!**
     ]],
