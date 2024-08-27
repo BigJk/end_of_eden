@@ -34,6 +34,10 @@ register_enemy("CYBER_SLIME", {
             return nil
         end,
         on_actor_die = function(ctx)
+            if get_actor(ctx.target).type_id ~= "CYBER_SLIME" then
+                return nil
+            end
+
             add_actor_by_enemy("CYBER_SLIME_MINION")
             add_actor_by_enemy("CYBER_SLIME_MINION")
             if math.random() < 0.25 then
