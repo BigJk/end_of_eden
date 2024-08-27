@@ -2,6 +2,7 @@ package game
 
 import (
 	"encoding/gob"
+
 	"github.com/samber/lo"
 )
 
@@ -10,6 +11,11 @@ func init() {
 	gob.Register(StateEventDamageData{})
 	gob.Register(StateEventHealData{})
 	gob.Register(StateEventMoneyData{})
+	gob.Register(StateEventArtifactAddedData{})
+	gob.Register(StateEventArtifactRemovedData{})
+	gob.Register(StateEventCardAddedData{})
+	gob.Register(StateEventCardRemovedData{})
+
 	gob.Register(StateCheckpoint{})
 	gob.Register(StateCheckpointMarker{})
 }

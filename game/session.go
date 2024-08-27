@@ -497,9 +497,11 @@ func (s *Session) SetupFight() {
 
 	// Save after each fight
 	{
+		s.Log(LogTypeSuccess, "Session saving...")
+
 		save, err := s.GobEncode()
 		if err != nil {
-			s.log.Println("Error saving file:", save)
+			s.log.Println("Error saving file:", err)
 		} else {
 			if err := fs.WriteFile("./session.save", save); err != nil {
 				s.log.Println("Error saving file:", save)
