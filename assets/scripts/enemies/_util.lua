@@ -6,7 +6,7 @@ function cast_random(guid, target)
     if #cards == 0 then
         print("can't cast_random with zero cards available!")
     else
-        cast_card(cards[math.random(#cards)], target)
+        cast_card(cards[random_int(0, #cards)], target)
     end
 end
 

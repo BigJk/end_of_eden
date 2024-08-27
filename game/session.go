@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
+	"math/rand/v2"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -102,6 +102,9 @@ type Session struct {
 	log       *log.Logger
 	luaState  *lua.LState
 	luaDocs   *ludoc.Docs
+	seed      uint64
+	randSrc   *rand.PCG
+	rand      *rand.Rand
 	resources *ResourcesManager
 
 	state          GameState
@@ -128,9 +131,14 @@ type Session struct {
 
 // NewSession creates a new game session.
 func NewSession(options ...func(s *Session)) *Session {
+	seed := uint64(time.Now().UnixMilli())
+	randSrc := rand.NewPCG(seed, 1337)
 	session := &Session{
-		log:   log.New(io.Discard, "", 0),
-		state: GameStateEvent,
+		log:     log.New(io.Discard, "", 0),
+		seed:    seed,
+		randSrc: randSrc,
+		rand:    rand.New(randSrc),
+		state:   GameStateEvent,
 		actors: map[string]Actor{
 			PlayerActorID: NewActor(PlayerActorID),
 		},
@@ -163,10 +171,13 @@ func NewSession(options ...func(s *Session)) *Session {
 
 	session.log.Println("Session started!")
 
+	session.log.Println("Seed:", session.seed)
+	session.Log(LogTypeSuccess, fmt.Sprintf("Seed: %d", seed))
+
 	session.UpdatePlayer(func(actor *Actor) bool {
-		actor.HP = 80
-		actor.MaxHP = 80
-		actor.Gold = 50 + rand.Intn(50)
+		actor.HP = 100
+		actor.MaxHP = 100
+		actor.Gold = 0
 		return true
 	})
 
@@ -198,6 +209,26 @@ func WithLogging(logger *log.Logger) func(s *Session) {
 func WithMods(mods []string) func(s *Session) {
 	return func(s *Session) {
 		s.loadedMods = mods
+	}
+}
+
+// WithSeed sets the seed for the random number generator.
+func WithSeed(seed uint64) func(s *Session) {
+	return func(s *Session) {
+		s.seed = seed
+		s.randSrc.Seed(seed, 1337)
+	}
+}
+
+// WithSeedString sets the seed for the random number generator based on a string.
+func WithSeedString(seed string) func(s *Session) {
+	return func(s *Session) {
+		generatedSeed := uint64(0)
+		for i, c := range seed {
+			generatedSeed += uint64(c) + uint64(i)
+		}
+		s.seed = generatedSeed
+		s.randSrc.Seed(generatedSeed, 1337)
 	}
 }
 
@@ -242,6 +273,8 @@ func (s *Session) LuaErrors() chan LuaError {
 func (s *Session) ToSavedState() SavedState {
 	return SavedState{
 		State:            s.state,
+		Seed:             s.seed,
+		Rand:             s.randSrc,
 		Actors:           s.actors,
 		Instances:        s.instances,
 		StagesCleared:    s.stagesCleared,
@@ -261,6 +294,8 @@ func (s *Session) ToSavedState() SavedState {
 // should be loaded or the state could be corrupted.
 func (s *Session) LoadSavedState(save SavedState) {
 	s.state = save.State
+	s.seed = save.Seed
+	s.randSrc = save.Rand
 	s.actors = lo.MapValues(save.Actors, func(item Actor, key string) Actor {
 		return item.Sanitize()
 	})

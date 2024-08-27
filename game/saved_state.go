@@ -1,6 +1,9 @@
 package game
 
-import "encoding/gob"
+import (
+	"encoding/gob"
+	"math/rand/v2"
+)
 
 func init() {
 	gob.Register(SavedState{})
@@ -10,6 +13,8 @@ func init() {
 // runtime or other pointer.
 type SavedState struct {
 	State            GameState
+	Seed             uint64
+	Rand             *rand.PCG
 	Actors           map[string]Actor
 	Instances        map[string]any
 	StagesCleared    int

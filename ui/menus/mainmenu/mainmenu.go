@@ -2,6 +2,11 @@ package mainmenu
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/internal/fs"
 	"github.com/BigJk/end_of_eden/system/audio"
@@ -20,10 +25,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
 	"github.com/samber/lo"
-	"log"
-	"os"
-	"strings"
-	"time"
 )
 
 type Model struct {
@@ -119,6 +120,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+	case ChoiceNewGameSOD:
+		fallthrough
 	case ChoiceNewGame:
 		audio.Play("btn_menu")
 
@@ -133,12 +136,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return fmt.Sprintf("./mods/%s/images/", item)
 		})...)
 
+		isSOD := m.choices.selected == ChoiceNewGameSOD
 		m.choices = m.choices.Clear()
 		return m, tea.Sequence(
 			cmd,
 			root.Push(gameview.New(m, m.zones, game.NewSession(
 				game.WithLogging(log.New(f, "SESSION ", log.Ldate|log.Ltime|log.Lshortfile)),
 				game.WithMods(m.settings.GetStrings("mods")),
+				lo.Ternary(isSOD, game.WithSeedString(time.Now().Format(time.DateOnly)), nil),
 				lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
 			))),
 		)

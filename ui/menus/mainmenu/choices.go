@@ -15,13 +15,14 @@ import (
 type Choice string
 
 const (
-	ChoiceWaiting  = Choice("WAITING")
-	ChoiceContinue = Choice("CONTINUE")
-	ChoiceNewGame  = Choice("NEW_GAME")
-	ChoiceAbout    = Choice("ABOUT")
-	ChoiceSettings = Choice("SETTINGS")
-	ChoiceMods     = Choice("MODS")
-	ChoiceExit     = Choice("EXIT")
+	ChoiceWaiting    = Choice("WAITING")
+	ChoiceContinue   = Choice("CONTINUE")
+	ChoiceNewGame    = Choice("NEW_GAME")
+	ChoiceNewGameSOD = Choice("NEW_GAME_SOD")
+	ChoiceAbout      = Choice("ABOUT")
+	ChoiceSettings   = Choice("SETTINGS")
+	ChoiceMods       = Choice("MODS")
+	ChoiceExit       = Choice("EXIT")
 )
 
 type choiceItem struct {
@@ -45,6 +46,7 @@ func NewChoicesModel(zones *zone.Manager, hideSettings bool) ChoicesModel {
 	choices := []list.Item{
 		choiceItem{zones, "Continue", "Ready to continue dying?", ChoiceContinue},
 		choiceItem{zones, "New Game", "Start a new try.", ChoiceNewGame},
+		choiceItem{zones, "New Game: Seed of the Day", "Start a new try with the daily seed.", ChoiceNewGameSOD},
 		choiceItem{zones, "About", "Want to know more?", ChoiceAbout},
 		choiceItem{zones, "Settings", "Other settings won't let you survive...", ChoiceSettings},
 		choiceItem{zones, "Mods", "Make the game even more fun!", ChoiceMods},

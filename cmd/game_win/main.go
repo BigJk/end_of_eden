@@ -78,6 +78,8 @@ func initSystems(hasAudio bool) {
 }
 
 func main() {
+	os.Setenv("EOE_IMG_TRUECOLOR", "1")
+
 	testArgs := testargs.New()
 	flag.Parse()
 

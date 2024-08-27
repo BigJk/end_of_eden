@@ -183,7 +183,7 @@ You find a room with a strange device in the middle. It seems to be some kind of
                     :filter(function(card)
                         return card.does_consume
                     end):totable()
-                if math.random() < 0.5 then
+                if random() < 0.5 then
                     local choosen = choose_weighted_by_price(possible_artifacts)
                     if choosen then
                         give_artifact(choosen, PLAYER_ID)
@@ -232,7 +232,7 @@ You find a old automatic workstation. You are able to get it working again. You 
                     return nil
                 end
 
-                local choosen = cards[math.random(#cards)]
+                local choosen = cards[random_int(0, #cards)]
                 upgrade_card(choosen)
                 deal_damage(PLAYER_ID, PLAYER_ID, 2, true)
 

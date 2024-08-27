@@ -1,8 +1,6 @@
 module github.com/BigJk/end_of_eden
 
-go 1.21
-
-toolchain go1.21.6
+go 1.23.0
 
 replace github.com/containerd/console => github.com/containerd/console v1.0.4-0.20230706203907-8f6c4e4faef5
 

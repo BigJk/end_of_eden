@@ -13,10 +13,10 @@ It seems to be eating the metal from the walls. It looks at you and after a few 
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("RUST_MITE")
-                if math.random() < 0.25 then
+                if random() < 0.25 then
                     add_actor_by_enemy("RUST_MITE")
                 end
-                if math.random() < 0.15 then
+                if random() < 0.15 then
                     add_actor_by_enemy("REPAIR_DRONE")
                 end
                 return GAME_STATE_FIGHT
@@ -41,10 +41,10 @@ It looks at you and says "Corpse. Clean. Engage.".
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("CLEAN_BOT")
-                if math.random() < 0.25 then
+                if random() < 0.25 then
                     add_actor_by_enemy("CLEAN_BOT")
                 end
-                if math.random() < 0.15 then
+                if random() < 0.15 then
                     add_actor_by_enemy("REPAIR_DRONE")
                 end
                 return GAME_STATE_FIGHT
@@ -66,10 +66,10 @@ It seems to be waiting for its prey to come closer and there is no way around it
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("CYBER_SPIDER")
-                if math.random() < 0.25 then
+                if random() < 0.25 then
                     add_actor_by_enemy("CYBER_SPIDER")
                 end
-                if math.random() < 0.15 then
+                if random() < 0.15 then
                     add_actor_by_enemy("REPAIR_DRONE")
                 end
                 return GAME_STATE_FIGHT
@@ -93,10 +93,10 @@ As you explore the facility, you hear a high-pitched whirring sound. A drone equ
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("LASER_DRONE")
-                if math.random() < 0.10 then
+                if random() < 0.10 then
                     add_actor_by_enemy("LASER_DRONE")
                 end
-                if math.random() < 0.15 then
+                if random() < 0.15 then
                     add_actor_by_enemy("REPAIR_DRONE")
                 end
                 return GAME_STATE_FIGHT
@@ -120,7 +120,7 @@ As you delve deeper into the facility, you notice a bright glow emanating from a
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("PLASMA_GOLEM")
-                if math.random() < 0.05 then
+                if random() < 0.05 then
                     add_actor_by_enemy("REPAIR_DRONE")
                 end
                 return GAME_STATE_FIGHT
@@ -144,7 +144,7 @@ As you explore the facility, you come across a strange cybernetic slime. It seem
             description = "Fight!",
             callback = function()
                 add_actor_by_enemy("CYBER_SLIME")
-                if math.random() < 0.10 then
+                if random() < 0.10 then
                     add_actor_by_enemy("REPAIR_DRONE")
                 end
                 return GAME_STATE_FIGHT

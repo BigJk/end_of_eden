@@ -41,6 +41,16 @@ function fetch(key) end
 ---@return guid
 function guid() end
 
+--- Returns a random number between 0 and 1
+---@return number
+function random() end
+
+--- Returns a random number between min and max
+---@param min number
+---@param max number
+---@return number
+function random_int(min, max) end
+
 --- Stores a persistent value for this run that will be restored after a save load. Can store any lua basic value or table.
 ---@param key string
 ---@param value any

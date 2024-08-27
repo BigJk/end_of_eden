@@ -40,7 +40,7 @@ register_enemy("CYBER_SLIME", {
 
             add_actor_by_enemy("CYBER_SLIME_MINION")
             add_actor_by_enemy("CYBER_SLIME_MINION")
-            if math.random() < 0.25 then
+            if random() < 0.25 then
                 add_actor_by_enemy("CYBER_SLIME_MINION")
             end
             return nil

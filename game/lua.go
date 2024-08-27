@@ -88,6 +88,20 @@ fun = require "fun"
 
 	d.Category("Utility", "General game constants.", 1)
 
+	d.Function("random", "Returns a random number between 0 and 1. Prefer this function over math.random(), as this is seeded for the session.", "number")
+	l.SetGlobal("random", l.NewFunction(func(state *lua.LState) int {
+		state.Push(lua.LNumber(session.rand.Float64()))
+		return 1
+	}))
+
+	d.Function("random_int", "Returns a random number between min and max. Prefer this function over math.random(), as this is seeded for the session.", "number", "min : number", "max : number")
+	l.SetGlobal("random_int", l.NewFunction(func(state *lua.LState) int {
+		min := state.ToInt(1)
+		max := state.ToInt(2)
+		state.Push(lua.LNumber(session.rand.IntN(max-min) + min))
+		return 1
+	}))
+
 	d.Function("guid", "returns a new random guid.", "guid")
 	l.SetGlobal("guid", l.NewFunction(func(state *lua.LState) int {
 		state.Push(lua.LString(NewGuid("LUA")))

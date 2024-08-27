@@ -30,13 +30,17 @@ register_story_teller("_ACT_0", {
         if #possible == 0 then
             possible = find_events_by_tags({ "_ACT_0_FIGHT" })
         end
-        set_event(possible[math.random(#possible)].id)
+
+        local choosen = possible[random_int(0, #possible)]
+        if choosen ~= nil then
+            set_event(choosen.id)
+        end
 
         -- if we cleared a stage, give the player a random artifact
         local last_stage_count = fetch("last_stage_count")
         local current_stage_count = get_stages_cleared()
         if last_stage_count ~= current_stage_count then
-            local gets_random_artifact = math.random() < 0.25
+            local gets_random_artifact = random() < 0.25
 
             if gets_random_artifact then
                 local player_artifacts = fun.iter(get_actor(PLAYER_ID).artifacts):map(function(id)

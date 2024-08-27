@@ -50,7 +50,7 @@ func buildOption(options ...Option) (Options, []imeji.Option) {
 		data.tag += os.Getenv("EOE_IMG_PATTERN")
 	}
 
-	if runtime.GOOS == "js" {
+	if runtime.GOOS == "js" || os.Getenv("EOE_IMG_TRUECOLOR") == "1" {
 		imejiOptions = append(imejiOptions, imeji.WithTrueColor())
 		data.tag += "truecolor"
 	} else {

@@ -12,13 +12,13 @@ end
 ---highlight_warn some value with warning colors
 ---@param val any
 function highlight_warn(val)
-    return  text_underline(text_bold(_escape_color("38;5;161") .. "[" .. tostring(val) .. "]" .. string.char(27) .. "[0m"))
+    return text_underline(text_bold(_escape_color("38;5;161") .. "[" .. tostring(val) .. "]" .. string.char(27) .. "[0m"))
 end
 
 ---highlight_success some value with success colors
 ---@param val any
 function highlight_success(val)
-    return  text_underline(text_bold(_escape_color("38;5;119") .. "[" .. tostring(val) .. "]" .. string.char(27) .. "[0m"))
+    return text_underline(text_bold(_escape_color("38;5;119") .. "[" .. tostring(val) .. "]" .. string.char(27) .. "[0m"))
 end
 
 ---choose_weighted chooses an item from a list of choices, with a weight for each item.
@@ -33,7 +33,7 @@ function choose_weighted(choices, weights)
         total_weight = total_weight + weight
     end
 
-    local random = math.random() * total_weight
+    local random = random() * total_weight
     for i, weight in ipairs(weights) do
         random = random - weight
         if random <= 0 then
@@ -83,27 +83,39 @@ end
 ---@param tags string[]
 ---@return artifact[]
 function find_artifacts_by_tags(tags)
-    return find_by_tags(registered.artifact, tags)
+    local found = find_by_tags(registered.artifact, tags)
+    table.sort(found, function(a, b) return a.id:upper() < b.id:upper() end)
+    return found
 end
 
 ---find_cards_by_tags find all cards with the given tags.
 ---@param tags string[]
 ---@return card[]
 function find_cards_by_tags(tags)
-    return find_by_tags(registered.card, tags)
+    local found = find_by_tags(registered.card, tags)
+    table.sort(found, function(a, b) return a.id:upper() < b.id:upper() end)
+    return found
 end
 
 ---find_events_by_tags find all events with the given tags.
 ---@param tags string[]
 ---@return event[]
 function find_events_by_tags(tags)
-    return find_by_tags(registered.event, tags)
+    local found = find_by_tags(registered.event, tags)
+    --table.sort(found, function(a, b) return a.id:upper() < b.id:upper() end)
+    return found
 end
 
 ---choose_weighted_by_price choose a random item from the given list, weighted by price.
 ---@param items artifact|card
 ---@return string
 function choose_weighted_by_price(items)
+    table.sort(items, function(a, b)
+        if a.id == nil then
+            return a.type_id < b.type_id
+        end
+        return a.id < b.id
+    end)
     return choose_weighted(
         fun.iter(items):map(function(item) return item.id or item.type_id end):totable(),
         fun.iter(items):map(function(item) return item.price end):totable()

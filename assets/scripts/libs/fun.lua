@@ -82,7 +82,7 @@ local string_gen = function(param, state)
     return state, r
 end
 
-local ipairs_gen = ipairs({}) -- get the generating function from ipairs
+local ipairs_gen = ipairs({})      -- get the generating function from ipairs
 
 local pairs_gen = pairs({ a = 0 }) -- get the generating function from pairs
 local map_gen = function(tab, key)
@@ -262,11 +262,11 @@ end
 exports.ones = ones
 
 local rands_gen = function(param_x, _state_x)
-    return 0, math.random(param_x[1], param_x[2])
+    return 0, random_int(param_x[1], param_x[2])
 end
 
 local rands_nil_gen = function(_param_x, _state_x)
-    return 0, math.random()
+    return 0, random()
 end
 
 local rands = function(n, m)
