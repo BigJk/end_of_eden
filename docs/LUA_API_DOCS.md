@@ -1,5 +1,4 @@
 # End Of Eden Lua Docs
-
 ## Index
 
 - [Game Constants](#game-constants)
@@ -24,7 +23,6 @@
 General game constants.
 
 ### Globals
-
 <details> <summary><b><code>DECAY_ALL</code></b> </summary> <br/>
 
 Status effect decays by all stacks per turn.
@@ -69,7 +67,7 @@ Represents the random game state in which the active story teller will decide wh
 
 <details> <summary><b><code>PLAYER_ID</code></b> </summary> <br/>
 
-Player actor id for use in functions where the guid is needed, for example: `deal_damage(PLAYER_ID, enemy_guid, 10)`.
+Player actor id for use in functions where the guid is needed, for example: ``deal_damage(PLAYER_ID, enemy_guid, 10)``.
 
 </details>
 
@@ -86,7 +84,6 @@ General game constants.
 None
 
 ### Functions
-
 <details> <summary><b><code>fetch</code></b> </summary> <br/>
 
 Fetches a value from the persistent store
@@ -113,7 +110,7 @@ guid() -> guid
 
 <details> <summary><b><code>random</code></b> </summary> <br/>
 
-Returns a random number between 0 and 1
+Returns a random number between 0 and 1. Prefer this function over math.random(), as this is seeded for the session.
 
 **Signature:**
 
@@ -125,7 +122,7 @@ random() -> number
 
 <details> <summary><b><code>random_int</code></b> </summary> <br/>
 
-Returns a random number between min and max
+Returns a random number between min and max. Prefer this function over math.random(), as this is seeded for the session.
 
 **Signature:**
 
@@ -156,7 +153,6 @@ Helper functions for text styling.
 None
 
 ### Functions
-
 <details> <summary><b><code>text_bg</code></b> </summary> <br/>
 
 Makes the text background colored. Takes hex values like #ff0000.
@@ -214,7 +210,6 @@ Various logging functions.
 None
 
 ### Functions
-
 <details> <summary><b><code>log_d</code></b> </summary> <br/>
 
 Log at **danger** level to player log.
@@ -284,10 +279,9 @@ Audio helper functions.
 None
 
 ### Functions
-
 <details> <summary><b><code>play_audio</code></b> </summary> <br/>
 
-Plays a sound effect. If you want to play `button.mp3` you call `play_audio("button")`.
+Plays a sound effect. If you want to play ``button.mp3`` you call ``play_audio("button")``.
 
 **Signature:**
 
@@ -299,7 +293,7 @@ play_audio(sound : string) -> None
 
 <details> <summary><b><code>play_music</code></b> </summary> <br/>
 
-Start a song for the background loop. If you want to play `song.mp3` you call `play_music("song")`.
+Start a song for the background loop. If you want to play ``song.mp3`` you call ``play_music("song")``.
 
 **Signature:**
 
@@ -318,7 +312,6 @@ Functions that modify the general game state.
 None
 
 ### Functions
-
 <details> <summary><b><code>get_action_points_per_round</code></b> </summary> <br/>
 
 get the number of action points per round.
@@ -472,7 +465,6 @@ Functions that modify or access the actors. Actors are either the player or enem
 None
 
 ### Functions
-
 <details> <summary><b><code>actor_add_hp</code></b> </summary> <br/>
 
 Increases the hp value of a actor by a number. Can be negative value to decrease it. This won't trigger any on_damage callbacks
@@ -523,7 +515,7 @@ actor_set_max_hp(guid : guid, amount : number) -> None
 
 <details> <summary><b><code>add_actor_by_enemy</code></b> </summary> <br/>
 
-Creates a new enemy fighting against the player. Example `add_actor_by_enemy("RUST_MITE")`.
+Creates a new enemy fighting against the player. Example ``add_actor_by_enemy("RUST_MITE")``.
 
 **Signature:**
 
@@ -547,7 +539,7 @@ get_actor(guid : guid) -> actor
 
 <details> <summary><b><code>get_opponent_by_index</code></b> </summary> <br/>
 
-Get opponent (actor) by index of a certain actor. `get_opponent_by_index(PLAYER_ID, 2)` would return the second alive opponent of the player.
+Get opponent (actor) by index of a certain actor. ``get_opponent_by_index(PLAYER_ID, 2)`` would return the second alive opponent of the player.
 
 **Signature:**
 
@@ -559,7 +551,7 @@ get_opponent_by_index(guid : guid, index : number) -> actor
 
 <details> <summary><b><code>get_opponent_count</code></b> </summary> <br/>
 
-Get the number of opponents (actors) of a certain actor. `get_opponent_count(PLAYER_ID)` would return 2 if the player had 2 alive enemies.
+Get the number of opponents (actors) of a certain actor. ``get_opponent_count(PLAYER_ID)`` would return 2 if the player had 2 alive enemies.
 
 **Signature:**
 
@@ -571,7 +563,7 @@ get_opponent_count(guid : guid) -> number
 
 <details> <summary><b><code>get_opponent_guids</code></b> </summary> <br/>
 
-Get the guids of opponents (actors) of a certain actor. If the player had 2 enemies, `get_opponent_guids(PLAYER_ID)` would return a table with 2 strings containing the guids of these actors.
+Get the guids of opponents (actors) of a certain actor. If the player had 2 enemies, ``get_opponent_guids(PLAYER_ID)`` would return a table with 2 strings containing the guids of these actors.
 
 **Signature:**
 
@@ -583,7 +575,7 @@ get_opponent_guids(guid : guid) -> guid[]
 
 <details> <summary><b><code>get_player</code></b> </summary> <br/>
 
-Get the player actor. Equivalent to `get_actor(PLAYER_ID)`
+Get the player actor. Equivalent to ``get_actor(PLAYER_ID)``
 
 **Signature:**
 
@@ -614,7 +606,6 @@ Functions that modify or access the artifacts.
 None
 
 ### Functions
-
 <details> <summary><b><code>get_artifact</code></b> </summary> <br/>
 
 Returns the artifact definition. Can take either a guid or a typeId. If it's a guid it will fetch the type behind the instance.
@@ -684,7 +675,6 @@ Functions that modify or access the status effects.
 None
 
 ### Functions
-
 <details> <summary><b><code>add_status_effect_stacks</code></b> </summary> <br/>
 
 Adds to the stack count of a status effect. Negative values are also allowed.
@@ -778,7 +768,6 @@ Functions that modify or access the cards.
 None
 
 ### Functions
-
 <details> <summary><b><code>cast_card</code></b> </summary> <br/>
 
 Tries to cast a card with a guid and optional target. If the cast isn't successful returns false.
@@ -884,7 +873,6 @@ Functions that deal damage or heal.
 None
 
 ### Functions
-
 <details> <summary><b><code>deal_damage</code></b> </summary> <br/>
 
 Deal damage from one source to a target. If flat is true the damage can't be modified by status effects or artifacts. Returns the damage that was dealt.
@@ -954,7 +942,6 @@ Functions that are related to the player.
 None
 
 ### Functions
-
 <details> <summary><b><code>finish_player_turn</code></b> </summary> <br/>
 
 Finishes the player turn.
@@ -1036,7 +1023,6 @@ Functions that are related to the merchant.
 None
 
 ### Functions
-
 <details> <summary><b><code>add_merchant_artifact</code></b> </summary> <br/>
 
 Adds another random artifact to the merchant
@@ -1075,7 +1061,7 @@ get_merchant() -> merchant_state
 
 <details> <summary><b><code>get_merchant_gold_max</code></b> </summary> <br/>
 
-Returns the maximum value of artifacts and cards that the merchant will sell. Good to scale `random_card` and `random_artifact`.
+Returns the maximum value of artifacts and cards that the merchant will sell. Good to scale ``random_card`` and ``random_artifact``.
 
 **Signature:**
 
@@ -1094,7 +1080,6 @@ Functions that help with random generation.
 None
 
 ### Functions
-
 <details> <summary><b><code>gen_face</code></b> </summary> <br/>
 
 Generates a random face.
@@ -1140,11 +1125,10 @@ Functions that help with localization.
 None
 
 ### Functions
-
 <details> <summary><b><code>l</code></b> </summary> <br/>
 
-Returns the localized string for the given key. Examples on locals definition can be found in `/assets/locals`. Example: `
-l('cards.MY_CARD.name', "English Default Name")`
+Returns the localized string for the given key. Examples on locals definition can be found in `/assets/locals`. Example: ``
+l('cards.MY_CARD.name', "English Default Name")``
 
 **Signature:**
 
@@ -1163,7 +1147,6 @@ These functions are used to define new content in the base game and in mods.
 None
 
 ### Functions
-
 <details> <summary><b><code>delete_base_game</code></b> </summary> <br/>
 
 Deletes all base game content. Useful if you don't want to include base game content in your mod.
@@ -1384,7 +1367,7 @@ register_event("SOME_EVENT",
 				description = "Go...",
 				callback = function()
 					-- If you return nil on_end will decide the next game state
-					return nil
+					return nil 
 				end
 			},
 			{
@@ -1394,7 +1377,7 @@ register_event("SOME_EVENT",
 		},
 		on_enter = function()
 			play_music("energetic_orthogonal_expansions")
-
+	
 			give_card("MELEE_HIT", PLAYER_ID)
 			give_card("MELEE_HIT", PLAYER_ID)
 			give_card("MELEE_HIT", PLAYER_ID)
@@ -1476,7 +1459,7 @@ register_story_teller("STORY_TELLER_XYZ", {
         end
 
         -- Fight against rust mites or clean bots
-        local d = random_int(0, 2)
+        local d = math.random(2)
         if d == 1 then
             add_actor_by_enemy("RUST_MITE")
         elseif d == 2 then
@@ -1495,3 +1478,4 @@ register_story_teller(id : type_id, definition : story_teller) -> None
 ```
 
 </details>
+

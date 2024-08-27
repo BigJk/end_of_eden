@@ -107,7 +107,7 @@ title Card Types
 |           ID           |         Name          |                            Description                            | Initial HP | Max HP |  Color  |        Used Callbacks        |  Test Present   |
 |------------------------|-----------------------|-------------------------------------------------------------------|------------|--------|---------|------------------------------|-----------------|
 | ``CYBER_SPIDER``       | CYBER Spider          | It waits for its prey to come closer                              | 8          | 8      | #ff4d6d | ``OnTurn``                   | :no_entry_sign: |
-| ``CLEAN_BOT``          | Cleaning Bot          | It never stopped cleaning...                                      | 13         | 13     | #32a891 | ``OnPlayerTurn``, ``OnTurn`` | :no_entry_sign: |
+| ``CLEAN_BOT``          | Cleaning Bot          | It never stopped cleaning...                                      | 13         | 13     | #32a891 | ``OnTurn``, ``OnPlayerTurn`` | :no_entry_sign: |
 | ``CYBER_SLIME``        | Cyber Slime           | A cybernetic slime that splits into smaller slimes when defeated. | 10         | 10     | #00ff00 | ``OnTurn``, ``OnActorDie``   | :no_entry_sign: |
 | ``CYBER_SLIME_MINION`` | Cyber Slime Offspring | A smaller version of the Cyber Slime.                             | 4          | 4      | #00ff00 | ``OnTurn``                   | :no_entry_sign: |
 | ``DUMMY``              | Dummy                 | End me...                                                         | 100        | 100    | #deeb6a | ``OnTurn``                   | :no_entry_sign: |

@@ -41,11 +41,11 @@ function fetch(key) end
 ---@return guid
 function guid() end
 
---- Returns a random number between 0 and 1
+--- Returns a random number between 0 and 1. Prefer this function over math.random(), as this is seeded for the session.
 ---@return number
 function random() end
 
---- Returns a random number between min and max
+--- Returns a random number between min and max. Prefer this function over math.random(), as this is seeded for the session.
 ---@param min number
 ---@param max number
 ---@return number
