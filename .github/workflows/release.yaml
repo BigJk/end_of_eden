@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1
         with:
-          goversion: "1.21.6"
+          goversion: "1.23.0"
           md5sum: FALSE
           compress_assets: "zip"
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -106,15 +106,15 @@ jobs:
       - name: Fetch Go
         uses: actions/setup-go@v4
         with:
-          go-version: '^1.21'
+          go-version: "^1.23"
       - name: Build
         run: |
-             go build -ldflags="-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'" -o end_of_eden -tags ebitenginesinglethread ./cmd/game
-             export BIN=end_of_eden_term-$(basename ${GITHUB_REF})-macos-amd64
-             mkdir $BIN
-             cp ./end_of_eden $BIN/end_of_eden
-             cp -r ./assets $BIN/assets/
-             zip -r $BIN.zip $BIN
+          go build -ldflags="-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'" -o end_of_eden -tags ebitenginesinglethread ./cmd/game
+          export BIN=end_of_eden_term-$(basename ${GITHUB_REF})-macos-amd64
+          mkdir $BIN
+          cp ./end_of_eden $BIN/end_of_eden
+          cp -r ./assets $BIN/assets/
+          zip -r $BIN.zip $BIN
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -133,7 +133,7 @@ jobs:
       - name: Fetch Go
         uses: actions/setup-go@v4
         with:
-          go-version: '^1.21'
+          go-version: "^1.23"
       - name: Build
         run: |
           go build -ldflags="-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'" -o end_of_eden -tags ebitenginesinglethread ./cmd/game_win
@@ -156,7 +156,7 @@ jobs:
       - name: Fetch Go
         uses: actions/setup-go@v4
         with:
-          go-version: '^1.21'
+          go-version: "^1.23"
       - name: Build
         run: |
           go build -ldflags="-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'" -o end_of_eden -tags ebitenginesinglethread ./cmd/game
@@ -183,7 +183,7 @@ jobs:
       - name: Fetch Go
         uses: actions/setup-go@v4
         with:
-          go-version: '^1.21'
+          go-version: "^1.23"
       - name: Build
         run: |
           go build -ldflags="-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'" -o end_of_eden -tags ebitenginesinglethread ./cmd/game_win
