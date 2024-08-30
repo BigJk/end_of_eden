@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -151,7 +150,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ChoiceTutorial:
 		audio.Play("btn_menu")
 
-		tutorialLua, err := filepath.Abs("./assets/tutorial/tutorial.lua")
+		tutorialLua, err := fs.ReadFile("./assets/tutorial/tutorial.lua")
 		if err != nil {
 			panic(err)
 		}
@@ -160,7 +159,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Sequence(
 			cmd,
 			root.Push(gameview.New(m, m.zones, game.NewSession(
-				game.WithMods([]string{tutorialLua}),
+				game.WithLuaString(string(tutorialLua)),
 			))),
 		)
 	case ChoiceAbout:

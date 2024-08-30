@@ -157,6 +157,8 @@ func NewSession(options ...func(s *Session)) *Session {
 	session.SetOnLuaError(nil)
 
 	session.luaState, session.luaDocs = SessionAdapter(session)
+	session.resources = NewResourcesManager(session.luaState, session.luaDocs, session.log)
+	session.resources.MarkBaseGame()
 
 	for i := range options {
 		if options[i] == nil {
@@ -165,8 +167,6 @@ func NewSession(options ...func(s *Session)) *Session {
 		options[i](session)
 	}
 
-	session.resources = NewResourcesManager(session.luaState, session.luaDocs, session.log)
-	session.resources.MarkBaseGame()
 	session.loadMods(session.loadedMods)
 
 	session.log.Println("Session started!")
@@ -209,6 +209,15 @@ func WithLogging(logger *log.Logger) func(s *Session) {
 func WithMods(mods []string) func(s *Session) {
 	return func(s *Session) {
 		s.loadedMods = mods
+	}
+}
+
+// WithLuaString sets the lua code that should be executed.
+func WithLuaString(lua string) func(s *Session) {
+	return func(s *Session) {
+		if err := s.luaState.DoString(lua); err != nil {
+			s.logLuaError("WithLuaString", "", err)
+		}
 	}
 }
 
