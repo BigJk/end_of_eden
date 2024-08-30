@@ -70,11 +70,13 @@ fun = require "fun"
 	d.Global("GAME_STATE_EVENT", "Represents the event game state.")
 	d.Global("GAME_STATE_MERCHANT", "Represents the merchant game state.")
 	d.Global("GAME_STATE_RANDOM", "Represents the random game state in which the active story teller will decide what happens next.")
+	d.Global("GAME_STATE_GAMEOVER", "Represents the game over game state.")
 
 	l.SetGlobal("GAME_STATE_FIGHT", lua.LString(GameStateFight))
 	l.SetGlobal("GAME_STATE_EVENT", lua.LString(GameStateEvent))
 	l.SetGlobal("GAME_STATE_MERCHANT", lua.LString(GameStateMerchant))
 	l.SetGlobal("GAME_STATE_RANDOM", lua.LString(GameStateRandom))
+	l.SetGlobal("GAME_STATE_GAMEOVER", lua.LString(GameStateGameOver))
 
 	d.Global("DECAY_ONE", "Status effect decays by 1 stack per turn.")
 	d.Global("DECAY_ALL", "Status effect decays by all stacks per turn.")

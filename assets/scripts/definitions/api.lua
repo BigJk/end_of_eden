@@ -19,6 +19,9 @@ GAME_STATE_EVENT = ""
 --- Represents the fight game state.
 GAME_STATE_FIGHT = ""
 
+--- Represents the game over game state.
+GAME_STATE_GAMEOVER = ""
+
 --- Represents the merchant game state.
 GAME_STATE_MERCHANT = ""
 

@@ -376,6 +376,18 @@ func (s *Session) logLuaError(callback string, typeId string, err error) {
 
 func (s *Session) loadMods(mods []string) {
 	for i := range mods {
+		// Load single lua files
+		if strings.HasSuffix(mods[i], ".lua") && filepath.IsAbs(mods[i]) {
+			luaBytes, err := fs.ReadFile(mods[i])
+			if err != nil {
+				panic(err)
+			}
+			if err := s.luaState.DoString(string(luaBytes)); err != nil {
+				s.logLuaError("ModLoader", "", err)
+			}
+			continue
+		}
+
 		mod, err := ModDescription(filepath.Join("./mods", mods[i]))
 		if err != nil {
 			log.Println("Error loading mod:", err)
@@ -820,8 +832,13 @@ func (s *Session) SetupMerchant() {
 	}
 }
 
-// LeaveMerchant finishes the merchant state and lets the storyteller decide what to do next.
+// LeaveMerchant finishes the merchant state and lets the storyteller decide what to do next. If an event is still set we switch to it.
 func (s *Session) LeaveMerchant() {
+	if s.currentEvent != "" {
+		s.SetGameState(GameStateEvent)
+		return
+	}
+
 	s.SetGameState(GameStateRandom)
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -145,6 +146,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				game.WithMods(m.settings.GetStrings("mods")),
 				lo.Ternary(isSOD, game.WithSeedString(time.Now().Format(time.DateOnly)), nil),
 				lo.Ternary(os.Getenv("EOE_DEBUG") == "1", game.WithDebugEnabled(8272), nil),
+			))),
+		)
+	case ChoiceTutorial:
+		audio.Play("btn_menu")
+
+		tutorialLua, err := filepath.Abs("./assets/tutorial/tutorial.lua")
+		if err != nil {
+			panic(err)
+		}
+
+		m.choices = m.choices.Clear()
+		return m, tea.Sequence(
+			cmd,
+			root.Push(gameview.New(m, m.zones, game.NewSession(
+				game.WithMods([]string{tutorialLua}),
 			))),
 		)
 	case ChoiceAbout:

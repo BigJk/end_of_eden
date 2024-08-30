@@ -140,7 +140,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Show tooltip
-			if msg.String() == "x" {
+			switch msg.String() {
+			case "x":
 				for i := 0; i < m.Session.GetOpponentCount(game.PlayerActorID); i++ {
 					if m.zones.Get(fmt.Sprintf("%s%d", ZoneEnemy, i)).InBounds(m.LastMouse) {
 						cmds = append(cmds, root.TooltipCreate(root.Tooltip{
@@ -151,6 +152,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						}))
 					}
 				}
+			case "s":
+				m.inPlayerView = !m.inPlayerView
 			}
 		}
 	//

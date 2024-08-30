@@ -53,6 +53,12 @@ Represents the fight game state.
 
 </details>
 
+<details> <summary><b><code>GAME_STATE_GAMEOVER</code></b> </summary> <br/>
+
+Represents the game over game state.
+
+</details>
+
 <details> <summary><b><code>GAME_STATE_MERCHANT</code></b> </summary> <br/>
 
 Represents the merchant game state.

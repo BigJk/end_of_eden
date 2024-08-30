@@ -17,6 +17,7 @@ type Choice string
 const (
 	ChoiceWaiting    = Choice("WAITING")
 	ChoiceContinue   = Choice("CONTINUE")
+	ChoiceTutorial   = Choice("TUTORIAL")
 	ChoiceNewGame    = Choice("NEW_GAME")
 	ChoiceNewGameSOD = Choice("NEW_GAME_SOD")
 	ChoiceAbout      = Choice("ABOUT")
@@ -45,6 +46,7 @@ type ChoicesModel struct {
 func NewChoicesModel(zones *zone.Manager, hideSettings bool) ChoicesModel {
 	choices := []list.Item{
 		choiceItem{zones, "Continue", "Ready to continue dying?", ChoiceContinue},
+		choiceItem{zones, "Tutorial", "Learn the basics.", ChoiceTutorial},
 		choiceItem{zones, "New Game", "Start a new try.", ChoiceNewGame},
 		choiceItem{zones, "New Game: Seed of the Day", "Start a new try with the daily seed.", ChoiceNewGameSOD},
 		choiceItem{zones, "About", "Want to know more?", ChoiceAbout},
