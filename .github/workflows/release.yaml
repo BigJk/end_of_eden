@@ -43,6 +43,7 @@ jobs:
           ldflags: "-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'"
           goos: linux
           goarch: amd64
+          compress_assets: zip
   release-linux-gl-amd64:
     permissions: write-all
     name: release linux/amd64 gl
@@ -63,6 +64,7 @@ jobs:
           ldflags: "-X 'github.com/BigJk/end_of_eden/internal/git.Tag=${{ github.ref_name }}' -X 'github.com/BigJk/end_of_eden/internal/git.CommitHash=${{ github.sha }}'"
           goos: linux
           goarch: amd64
+          compress_assets: zip
   release-windows-term-amd64:
     permissions: write-all
     name: release windows/amd64 term
@@ -196,3 +198,46 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: end_of_eden_gl-${{ github.ref_name }}-macos-arm64.zip
+  release-itch:
+    permissions: write-all
+    name: release itch
+    runs-on: ubuntu-latest
+    needs:
+      [
+        release-windows-term-amd64,
+        release-windows-gl-amd64,
+        release-macos-term-amd64,
+        release-macos-gl-amd64,
+        release-macos-term-arm64,
+        release-macos-gl-arm64,
+        release-linux-term-amd64,
+        release-linux-gl-amd64,
+        release-wasm,
+      ]
+    steps:
+      - name: Download Release
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: "BigJk/end_of_eden"
+          tag: ${{ github.ref_name }}
+          fileName: "*.zip"
+      - name: Install Butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          rm butler.zip
+          ./butler -V
+      - name: Push to Itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          ./butler push end_of_eden_term-${{ github.ref_name }}-windows-amd64.zip BigJk/end-of-eden:windows-term-amd64 --userversion ${{ github.ref_name }}
+          ./butler push end_of_eden_gl-${{ github.ref_name }}-windows-amd64.zip BigJk/end-of-eden:windows-gl-amd64 --userversion ${{ github.ref_name }}
+          ./butler push end_of_eden_term-${{ github.ref_name }}-macos-amd64.zip BigJk/end-of-eden:macosx-term-amd64 --userversion ${{ github.ref_name }}
+          ./butler push end_of_eden_gl-${{ github.ref_name }}-macos-amd64.zip BigJk/end-of-eden:macosx-gl-amd64 --userversion ${{ github.ref_name }}
+          ./butler push end_of_eden_term-${{ github.ref_name }}-macos-arm64.zip BigJk/end-of-eden:macosx-term-arm64 --userversion ${{ github.ref_name }}
+          ./butler push end_of_eden_gl-${{ github.ref_name }}-macos-arm64.zip BigJk/end-of-eden:macosx-gl-arm64 --userversion ${{ github.ref_name }}
+          ./butler push end_of_eden_term-${{ github.ref_name }}-linux-amd64.zip BigJk/end-of-eden:linux-term-amd64 --userversion ${{ github.ref_name }}
+          ./butler push end_of_eden_gl-${{ github.ref_name }}-linux-amd64.zip BigJk/end-of-eden:linux-gl-amd64 --userversion ${{ github.ref_name }}
+          ./butler push eoe.wasm-${{ github.ref_name }}-js-wasm.zip BigJk/end-of-eden:web --userversion ${{ github.ref_name }}
