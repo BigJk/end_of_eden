@@ -197,6 +197,65 @@
                 term.onData((data) => bubbletea_write(data));
             }
 
+            function ensureAllFiles() {
+                // Wait for WASM to be loaded
+                if (!globalThis.version) {
+                    setTimeout(ensureAllFiles, 100);
+                    return;
+                }
+
+                // Clear cache if version mismatch
+                const lastVersion = globalThis.settings.getString("lastCachedVersion");
+                if (!lastVersion || lastVersion === "" || globalThis.version !== lastVersion) {
+                    console.log("Clearing file cache due to version mismatch");
+
+                    const keys = Object.keys(window.localStorage);
+                    for (const key of keys) {
+                        if (key.indexOf("assets") !== -1) {
+                            window.localStorage.removeItem(key);
+                        }
+                    }
+                }
+
+                // Cache files if they don't exist
+                fetch("./assets/file_index.json")
+                    .then((index) => index.json())
+                    .then((index) => {
+                        const promises = [];
+                        for (const file of index) {
+                            if (!file.isFile) {
+                                continue;
+                            }
+
+                            // only ensure files that end in .lua or .text
+                            if (!file.path.endsWith(".lua") && !file.path.endsWith(".txt")) {
+                                continue;
+                            }
+
+                            if (window.fsRead(file.path)) {
+                                continue;
+                            }
+
+                            promises.push(
+                                fetch(file.path)
+                                    .then((response) => response.text())
+                                    .then((text) => {
+                                        window.fsWrite(file.path, text);
+                                    }),
+                            );
+                        }
+
+                        if (promises.length === 0) {
+                            return;
+                        }
+
+                        Promise.all(promises).then(() => {
+                            console.log("All files loaded");
+                            globalThis.settings.set("lastCachedVersion", globalThis.version);
+                        });
+                    });
+            }
+
             function init() {
                 const go = new Go();
                 WebAssembly.instantiateStreaming(fetch("./eoe.wasm"), go.importObject).then((result) => {
@@ -206,10 +265,11 @@
                     });
 
                     // Init terminal. This should be done after bubbletea is initialized. For now, I use a timeout.
-                    document.fonts.load((globalThis.settings.getInt("font_size") ?? 14) + 'px "IosevkaTermNerdFontMono"').then(() => initTerminal());
+                    document.fonts.load((globalThis.settings.getInt("font_size") ?? 12) + 'px "IosevkaTermNerdFontMono"').then(() => initTerminal());
                 });
             }
 
+            ensureAllFiles();
             init();
         </script>
     </body>

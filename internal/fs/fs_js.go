@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
 	"io"
 	"net/http"
 	"os"
@@ -16,6 +15,9 @@ import (
 	"sort"
 	"strings"
 	"syscall/js"
+
+	"github.com/BigJk/end_of_eden/internal/git"
+	"github.com/samber/lo"
 )
 
 type noOpWriteCloser struct{}
@@ -51,6 +53,8 @@ func init() {
 		}
 		return nil
 	}))
+
+	js.Global().Set("version", git.Tag)
 }
 
 func ReadDir(path string) ([]FileInfo, error) {
