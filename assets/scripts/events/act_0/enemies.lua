@@ -25,6 +25,32 @@ It seems to be eating the metal from the walls. It looks at you and after a few 
     }
 })
 
+register_event("NANOBOT_SWARM", {
+    name = "Is this a swarm of...",
+    description = [[!!nanobot_swarm.jpg
+
+You are walking through the facility hoping to find a way out. After a few turns you hear a strange noise. You look around and come across a swarm of nanobots.
+
+**It continues to grow and it looks like it's going to attack you.**
+    ]],
+    tags = { "_ACT_0_FIGHT" },
+    choices = {
+        {
+            description = "Fight!",
+            callback = function()
+                add_actor_by_enemy("NANOBOT_SWARM")
+                if random() < 0.25 then
+                    add_actor_by_enemy("NANOBOT_SWARM")
+                end
+                if random() < 0.05 then
+                    add_actor_by_enemy("REPAIR_DRONE")
+                end
+                return GAME_STATE_FIGHT
+            end
+        }
+    }
+})
+
 register_event("CLEAN_BOT", {
     name = "Corpse. Clean. Engage.",
     description = [[!!clean_bot.jpg
