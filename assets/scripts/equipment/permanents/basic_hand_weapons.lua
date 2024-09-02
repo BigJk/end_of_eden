@@ -1,4 +1,5 @@
-local hand_warning = "**Important:** If you already carry a artifact in your hand, you will have to drop it and related cards to pick up the new one."
+local hand_warning =
+"**Important:** If you already carry a artifact in your hand, you will have to drop it and related cards to pick up the new one."
 
 HAND_WEAPONS = {
     {
@@ -53,9 +54,11 @@ HAND_WEAPONS_ARTIFACT_IDS = fun.iter(HAND_WEAPONS):map(function(w) return w.id e
 for _, weapon in pairs(HAND_WEAPONS) do
     register_card(weapon.id, {
         name = l("cards." .. weapon.id .. ".name", weapon.name),
-        description = l("cards." .. weapon.id .. ".description", string.format("Use to deal %s (+3 for each upgrade) damage.", weapon.base_damage)),
+        description = l("cards." .. weapon.id .. ".description",
+            string.format("Use to deal %s (+1 for each upgrade) damage.", weapon.base_damage)),
         state = function(ctx)
-            return string.format(l("cards." .. weapon.id .. ".state", "Use to deal %s damage."), highlight(weapon.base_damage + ctx.level * 3))
+            return string.format(l("cards." .. weapon.id .. ".state", "Use to deal %s damage."),
+                highlight(weapon.base_damage + ctx.level * 1))
         end,
         tags = weapon.tags,
         max_level = 3,
@@ -121,7 +124,8 @@ for _, weapon in pairs(HAND_WEAPONS) do
         }
     })
 
-    add_found_artifact_event(weapon.id, weapon.image, string.format("%s\n\n%s", weapon.description, hand_warning), registered.card[weapon.id].description, weapon.event_tags)
+    add_found_artifact_event(weapon.id, weapon.image, string.format("%s\n\n%s", weapon.description, hand_warning),
+        registered.card[weapon.id].description, weapon.event_tags)
 end
 
 ---hand_weapon_event returns a random hand weapon event weighted by price.
