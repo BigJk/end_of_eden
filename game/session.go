@@ -281,20 +281,25 @@ func (s *Session) LuaErrors() chan LuaError {
 // ToSavedState creates a saved state of the session that can be serialized with Gob.
 func (s *Session) ToSavedState() SavedState {
 	return SavedState{
-		State:            s.state,
-		Seed:             s.seed,
-		Rand:             s.randSrc,
-		Actors:           s.actors,
-		Instances:        s.instances,
-		StagesCleared:    s.stagesCleared,
-		CurrentEvent:     s.currentEvent,
-		CurrentFight:     s.currentFight,
-		PointsPerRound:   s.pointsPerRound,
-		Merchant:         s.merchant,
-		EventHistory:     s.eventHistory,
-		StateCheckpoints: s.stateCheckpoints,
-		CtxData:          s.ctxData,
-		LoadedMods:       s.loadedMods,
+		State:          s.state,
+		Seed:           s.seed,
+		Rand:           s.randSrc,
+		Actors:         s.actors,
+		Instances:      s.instances,
+		StagesCleared:  s.stagesCleared,
+		CurrentEvent:   s.currentEvent,
+		CurrentFight:   s.currentFight,
+		PointsPerRound: s.pointsPerRound,
+		Merchant:       s.merchant,
+		EventHistory:   s.eventHistory,
+		StateCheckpoints: lo.Map(s.stateCheckpoints, func(item StateCheckpoint, index int) StateCheckpoint {
+			return StateCheckpoint{
+				Session: nil,
+				Events:  item.Events,
+			}
+		}),
+		CtxData:    s.ctxData,
+		LoadedMods: s.loadedMods,
 	}
 }
 
@@ -512,6 +517,14 @@ func (s *Session) SetEvent(id string) {
 	if _, ok := s.resources.Events[id]; ok {
 		s.eventHistory = append(s.eventHistory, id)
 		_, _ = s.resources.Events[id].OnEnter.Call(CreateContext("type_id", id))
+	} else {
+		s.log.Println("Event not found:", id)
+		s.currentEvent = ""
+
+		// If we can't find the event, we just go to the next state
+		if s.state == GameStateEvent {
+			s.SetGameState(GameStateRandom)
+		}
 	}
 }
 
