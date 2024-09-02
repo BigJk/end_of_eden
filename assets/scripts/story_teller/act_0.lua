@@ -19,42 +19,29 @@ register_story_teller("_ACT_0", {
             possible = find_events_by_tags({ "_ACT_0_FIGHT" })
         end
 
-        print(#get_event_history())
+        print("[ACT_0 ST] history:", get_event_history())
 
         -- filter out events by id that have already been played
         possible = fun.iter(possible):filter(function(event)
-            return event == "MERCHANT" or not table.contains(history, event.id)
+            return event.id == "MERCHANT" or not table.contains(history, event.id)
         end):totable()
+
+        print("[ACT_0 ST] possible:", fun.iter(possible):map(function(e) return e.id end):totable())
 
         -- fallback for now
         if #possible == 0 then
             possible = find_events_by_tags({ "_ACT_0_FIGHT" })
         end
 
-        local choosen = possible[random_int(0, #possible)]
+        local choosen_id = random_int(0, #possible);
+        print("[ACT_0 ST] choosen_id:", choosen_id)
+
+        local choosen = possible[1 + choosen_id]
         if choosen ~= nil then
+            print("[ACT_0 ST] choosen:", choosen.id)
             set_event(choosen.id)
         end
 
-        -- if we cleared a stage, give the player a random artifact
-        local last_stage_count = fetch("last_stage_count")
-        local current_stage_count = get_stages_cleared()
-        if last_stage_count ~= current_stage_count then
-            local gets_random_artifact = random() < 0.25
-
-            if gets_random_artifact then
-                local player_artifacts = fun.iter(get_actor(PLAYER_ID).artifacts):map(function(id)
-                    return get_artifact(id).id
-                end):totable()
-                local artifacts = find_artifacts_by_tags({ "_ACT_0" })
-                if #artifacts > 0 then
-                    local artifact = choose_weighted_by_price(artifacts)
-                    if not table.contains(player_artifacts, artifact) then
-                        give_artifact(PLAYER_ID, artifact)
-                    end
-                end
-            end
-        end
 
         return GAME_STATE_EVENT
     end

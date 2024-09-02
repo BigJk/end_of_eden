@@ -92,9 +92,9 @@ You found a chest with a strange symbol on it. The chest is protected by a stran
 })
 
 register_event("GAIN_GOLD_ACT_0", {
-    name = "",
+    name = "Old Gold Cache",
     description = [[
-...
+You find an old chest filled with gold. You can either take it or leave.
     ]],
     tags = { "_ACT_0" },
     choices = {

@@ -16,9 +16,11 @@ register_artifact("ARM_MOUNTED_GUN", {
 
 register_card("ARM_MOUNTED_GUN", {
     name = l("cards.ARM_MOUNTED_GUN.name", "Arm Mounted Gun"),
-    description = l("cards.ARM_MOUNTED_GUN.description", "Exhaust. Use your arm mounted gun to deal 15 (+3 for each upgrade) damage."),
+    description = l("cards.ARM_MOUNTED_GUN.description",
+        "Exhaust. Use your arm mounted gun to deal 15 (+3 for each upgrade) damage."),
     state = function(ctx)
-        return string.format(l("cards.ARM_MOUNTED_GUN.state", "Use your arm mounted gun to deal %s damage."), highlight(7 + ctx.level * 3))
+        return string.format(l("cards.ARM_MOUNTED_GUN.state", "%s. Use your arm mounted gun to deal %s damage."),
+            highlight("Exhaust"), highlight(7 + ctx.level * 3))
     end,
     tags = { "ATK", "R", "T", "ARM" },
     max_level = 1,
@@ -33,7 +35,7 @@ register_card("ARM_MOUNTED_GUN", {
             return nil
         end
     },
-    test = function ()
+    test = function()
         return assert_cast_damage("ARM_MOUNTED_GUN", 7)
     end
 })
