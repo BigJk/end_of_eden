@@ -1,5 +1,5 @@
 register_enemy("CYBER_SPIDER", {
-    name = "CYBER Spider",
+    name = l("enemies.CYBER_SPIDER.name", "CYBER Spider"),
     description = "It waits for its prey to come closer",
     look = [[/\o^o/\]],
     color = "#ff4d6d",
@@ -8,10 +8,10 @@ register_enemy("CYBER_SPIDER", {
     gold = 40,
     intend = function(ctx)
         if ctx.round > 0 and ctx.round % 3 == 0 then
-            return "Deal " .. highlight(5) .. " damage"
+            return l("intents.deal_damage", "Deal ") .. highlight(5) .. " damage"
         end
 
-        return "Wait..."
+        return l("intents.wait", "Wait...")
     end,
     callbacks = {
         on_turn = function(ctx)

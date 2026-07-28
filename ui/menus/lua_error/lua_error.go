@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/atotto/clipboard"
@@ -141,7 +142,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 
-				_ = clipboard.WriteAll(fmt.Sprintf(ErrorFormat, "", "Lua Error!", m.err.File, m.err.Line, m.err.Callback, m.err.Type, "Error:", strings.Replace(m.err.Err.Error(), "\t", " ", -1)))
+				_ = clipboard.WriteAll(fmt.Sprintf(ErrorFormat, "", localization.G("ui.lua_error.title", "Lua Error!"), m.err.File, m.err.Line, m.err.Callback, m.err.Type, localization.G("ui.lua_error.error", "Error:"), strings.Replace(m.err.Err.Error(), "	", " ", -1)))
 				m.clipClicked = true
 			} else if m.zones.Get(ZoneBack).InBounds(msg) {
 				return nil, nil
@@ -155,16 +156,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	err := lipgloss.NewStyle().Width(m.Size.Width-30).Border(lipgloss.ThickBorder(), true).Padding(1, 2, 0, 1).BorderForeground(style.BaseGray).Foreground(style.BaseWhite).Render(
-		fmt.Sprintf(ErrorFormat, style.RedText.Copy().Bold(true).Render("Lua Error!"), `
+		fmt.Sprintf(ErrorFormat, style.RedText.Copy().Bold(true).Render(localization.G("ui.lua_error.title", "Lua Error!")), `
 
 If you want to report this error please use "Copy Clipboard"
 and provide the result together with information of what you
-were doing at the moment of error.`, m.err.File, m.err.Line, m.err.Callback, m.err.Type, style.RedText.Copy().Bold(true).Render("Error:"), strings.Replace(m.err.Err.Error(), "\t", " ", -1)) +
+were doing at the moment of error.`, m.err.File, m.err.Line, m.err.Callback, m.err.Type, style.RedText.Copy().Bold(true).Render(localization.G("ui.lua_error.error", "Error:")), strings.Replace(m.err.Err.Error(), "	", " ", -1)) +
 			"\n" +
 			lipgloss.JoinHorizontal(
 				lipgloss.Left,
-				style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneBack).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Render(m.zones.Mark(ZoneBack, "Back")),
-				style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneCopy).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Render(m.zones.Mark(ZoneCopy, lo.Ternary(m.clipClicked, "Copied!", "Copy Clipboard"))),
+				style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneBack).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Render(m.zones.Mark(ZoneBack, localization.G("ui.lua_error.back", "Back"))),
+				style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneCopy).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Render(m.zones.Mark(ZoneCopy, lo.Ternary(m.clipClicked, localization.G("ui.lua_error.copied", "Copied!"), localization.G("ui.lua_error.copy_clipboard", "Copy Clipboard")))),
 			),
 	)
 

@@ -1,5 +1,5 @@
 register_enemy("CYBER_SLIME_MINION", {
-    name = "Cyber Slime Offspring",
+    name = l("enemies.CYBER_SLIME_MINION.name", "Cyber Slime Offspring"),
     description = "A smaller version of the Cyber Slime.",
     look = [[ o ]],
     color = "#00ff00",
@@ -7,7 +7,7 @@ register_enemy("CYBER_SLIME_MINION", {
     max_hp = 4,
     gold = 10,
     intend = function(ctx)
-        return "Deal " .. highlight(1) .. " damage"
+        return l("intents.deal_damage", "Deal ") .. highlight(1) .. " damage"
     end,
     callbacks = {
         on_turn = function(ctx)
@@ -18,7 +18,7 @@ register_enemy("CYBER_SLIME_MINION", {
 })
 
 register_enemy("CYBER_SLIME", {
-    name = "Cyber Slime",
+    name = l("enemies.CYBER_SLIME.name", "Cyber Slime"),
     description = "A cybernetic slime that splits into smaller slimes when defeated.",
     look = [[ (O) ]],
     color = "#00ff00",
@@ -26,7 +26,7 @@ register_enemy("CYBER_SLIME", {
     max_hp = 10,
     gold = 50,
     intend = function(ctx)
-        return "Deal " .. highlight(2) .. " damage"
+        return l("intents.deal_damage", "Deal ") .. highlight(2) .. " damage"
     end,
     callbacks = {
         on_turn = function(ctx)

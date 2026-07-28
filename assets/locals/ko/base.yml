@@ -1,0 +1,44 @@
+ko:
+  basics:
+    on: 켜기
+    off: 끄기
+  settings:
+    audio:
+      title: 오디오
+      description: 오디오를 켜거나 끕니다
+    volume:
+      title: 음량
+      description: 게임 음량을 조절합니다
+    language:
+      title: 언어
+      description: 게임 언어를 변경합니다
+    font_size:
+      title: 글자 크기
+      description: 게임의 글자 크기를 조절합니다
+    font_normal:
+      title: 일반 글꼴
+      description: 일반 글꼴을 설정합니다
+    font_italic:
+      title: 기울임 글꼴
+      description: 기울임 글꼴을 설정합니다
+    font_bold:
+        title: 굵은 글꼴
+        description: 굵은 글꼴을 설정합니다
+    width:
+        title: 가로 크기
+        description: 게임 화면의 가로 크기
+    height:
+        title: 세로 크기
+        description: 게임 화면의 세로 크기
+    crt:
+        title: CRT 효과
+        description: CRT 효과를 켜거나 끕니다 (GPU 사용량이 늘어납니다)
+    grain:
+        title: 그레인 효과
+        description: 그레인 효과를 켜거나 끕니다 (GPU 사용량이 늘어납니다)
+    show_fps:
+        title: FPS 표시
+        description: 화면에 FPS를 표시하거나 숨깁니다
+    fps:
+        title: FPS
+        description: 게임의 최대 FPS

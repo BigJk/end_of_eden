@@ -1,0 +1,576 @@
+ko:
+  cards:
+    MELEE_HIT:
+      name: 맨손 공격
+      description: 맨손으로 %s (+1 강화마다) 의 피해를 줍니다.
+      state: '%s 의 피해를 줍니다.'
+    ARM_MOUNTED_GUN:
+      name: 팔 장착 총
+      description: 팔에 장착된 매우 강력한 무기입니다.
+      state: '%s 의 피해를 줍니다.'
+    CROWBAR:
+      name: 크로우바
+      description: 약간 녹슨 크로우바지만, 아직 쓸 만합니다!
+      state: '%s 의 피해를 줍니다.'
+    VIBRO_KNIFE:
+      name: 바이브로 나이프
+      description: 초음파 진동으로 거의 모든 것을 자를 수 있는 나이프입니다.
+      state: '%s 의 피해를 줍니다.'
+    LZR_PISTOL:
+      name: LZR 권총
+      description: 집중된 빛선을 발사하는 LZR 권총입니다.
+      state: '%s 의 피해를 줍니다.'
+    HAR-II:
+      name: HAR-II
+      description: 높은 연사력을 가진 중형 돌격소총입니다.
+      state: '%s 의 피해를 줍니다.'
+    ADRENALINE_SHOT:
+      name: 아드레날린 주사
+      description: 다음 3턴 동안 행동력을 2 추가로 얻습니다.
+    ENRGY_DRINK_X91:
+      name: ENRGY 드링크 X91
+      description: 행동력 1을 얻습니다.
+      state: 행동력 %s 을 얻습니다.
+    ENRGY_DRINK_X92:
+      name: ENRGY 드링크 X92
+      description: 행동력 2를 얻습니다.
+      state: 행동력 %s 을 얻습니다.
+    ENRGY_DRINK_X93:
+      name: ENRGY 드링크 X93
+      description: 행동력 3을 얻습니다.
+      state: 행동력 %s 을 얻습니다.
+    BLOCK:
+      name: 방어
+      description: 자신을 보호해 방어도를 %s 얻습니다.
+      state: 방어도 %s 을 얻습니다.
+    BOUNCE_SHIELD:
+      name: 튕기는 방패
+      description: 다음 받는 공격의 피해를 튕겨냅니다. 피해를 입긴 합니다.
+      state: 받는 피해 %s 을 막습니다.
+    FLASH_BANG:
+      name: 섬광탄
+      description: 대상에게 "실명" 을 걸어 적의 주는 피해를 감소시킵니다.
+    FLASH_SHIELD:
+      name: 섬광 방패
+      description: 다음 공격을 무효화합니다.
+      state: '%s 의 받는 피해를 막습니다.'
+    KNOCK_OUT:
+      name: 기절
+      description: 대상에게 "기절" 을 걸어 다음 턴을 보내게 합니다.
+    LONG_REST:
+      name: 긴 휴식
+      description: 4 (+1 강화마다) 만큼 체력을 회복합니다.
+      state: 체력 %s 을 회복합니다.
+    NANO_CHARGER:
+      name: 나노 충전기
+      description: 다음 공격의 피해가 2배가 됩니다.
+      state: 다음 공격의 피해가 %s 배가 됩니다.
+    NULLIFY:
+      name: 무효화
+      description: 이번 턴의 모든 피해를 무효화합니다.
+      state: 이번 턴의 모든 피해 %s 을 무효화합니다.
+    REST:
+      name: 짧은 휴식
+      description: 1 (+1 강화마다) 만큼 체력을 회복합니다.
+      state: 체력 %s 을 회복합니다.
+    SMOKE_BOMB:
+      name: 연막탄
+      description: 1턴 동안 모든 적의 명중률을 감소시킵니다.
+      state: 명중률 %s 감소.
+    STIM_PACK:
+      name: 자극제 팩
+      description: '일회용
+
+
+        체력을 5 회복합니다.'
+      state: 체력 %s 을 회복합니다.
+    ULTRA_FLASH_SHIELD:
+      name: 울트라 섬광 방패
+      description: 모든 공격을 무효화합니다.
+      state: '%s 의 모든 피해를 막습니다.'
+  status_effects:
+    ADRENALINE_SHOT:
+      name: 아드레날린 주사
+      description: 행동력 2를 추가로 얻습니다.
+    BLOCK:
+      name: 방어
+      description: 스택마다 받는 피해가 감소합니다.
+    BOUNCE_SHIELD:
+      name: 튕기는 방패
+      description: 다음 공격의 피해를 튕겨냅니다.
+    FLASH_BANG:
+      name: 실명
+      description: 주는 피해가 25% 감소합니다.
+    FLASH_SHIELD:
+      name: 섬광 방패
+      description: 다음 공격을 무효화합니다.
+    KNOCK_OUT:
+      name: 기절
+      description: 행동 불가.
+    NANO_CHARGER:
+      name: 나노 충전
+      description: 다음 공격의 피해가 2배가 됩니다.
+    NULLIFY:
+      name: 무효화 필드
+      description: 이번 턴의 모든 피해를 무효화합니다.
+    SMOKE_BOMB:
+      name: 연막
+      description: 명중률 50% 감소.
+    ULTRA_FLASH_SHIELD:
+      name: 울트라 섬광 방패
+      description: 모든 공격을 무효화합니다.
+    CHARGED:
+      name: 충전됨
+      description: 스택마다 공격의 피해가 증가합니다.
+    CHARGING:
+      name: 충전 중
+      description: 드론이 강력한 공격을 위해 충전 중입니다.
+      state: 강력한 공격을 위해 충전 중입니다.
+    WEAKNESS:
+      name: 약화
+      description: 주는 피해가 1 감소합니다.
+      state: 주는 피해가 %s 감소
+  artifacts:
+    ARM_MOUNTED_GUN:
+      name: 팔 장착 총
+      description: 팔에 장착된 매우 강력한 무기. 손에 들 수 있습니다.
+    BIO_RECYCLER:
+      name: 바이오 리사이클러
+      description: 적 처치 시 체력 1 회복.
+    COMBAT_GLASSES:
+      name: 전투용 안경
+      description: 원거리(R) 카드를 사용할 때마다 추가 피해 1을 줍니다.
+    COMBAT_GLOVES:
+      name: 전투용 장갑
+      description: 근거리(M) 카드를 사용할 때마다 추가 피해 1을 줍니다.
+    GOLD_SCRAPPER:
+      name: 골드 스크래퍼
+      description: 적 처치 시 골드 15 획득.
+    HEADBUT_HELMET:
+      name: 헤드벗 헬멧
+      description: '"기절" 카드 1장을 얻습니다.'
+    INTERVA_JUICER:
+      name: 인터벌 주서
+      description: 전투 시작 시 체력 2 회복.
+      description_suffix: 전투 시작 시
+    PORTABLE_BUFFER:
+      name: PRTBL 버퍼
+      description: 매 턴 시작 시 방어도 1을 얻습니다.
+    REFLECTIVE_ARMOR:
+      name: 반사 갑옷
+      description: 받는 피해의 25%를 공격자에게 되돌립니다.
+    SPEED_ENHANCER:
+      name: 속도 강화기
+      description: 전투 시작 시 손에 카드 1장을 추가로 들고 시작합니다.
+  enemies:
+    RUST_MITE:
+      name: 녹슨 좀벌레
+      description: 금속을 갉아먹는 작은 로봇.
+    CLEAN_BOT:
+      name: 청소 봇
+      description: 청소를 멈추지 않는 봇...
+    LASER_DRONE:
+      name: 레이저 드론
+      description: 강력한 레이저 캐논을 장착한 드론.
+    NANOBOT_SWARM:
+      name: 나노봇 군단
+      description: 점점 커지는 나노봇의 무리.
+    CYBER_SLIME:
+      name: 사이버 슬라임
+      description: 처치되면 더 작은 슬라임으로 분열되는 사이버 슬라임.
+    CYBER_SLIME_MINION:
+      name: 사이버 슬라임 새끼
+      description: 사이버 슬라임의 더 작은 버전.
+    CYBER_SPIDER:
+      name: 사이버 스파이더
+      description: 먹잇감이 가까이 오기를 기다리는 거대한 거미.
+    PLASMA_GOLEM:
+      name: 플라즈마 골렘
+      description: 순수 플라즈마 에너지로 이루어진 골렘.
+    REPAIR_DRONE:
+      name: 수리 드론
+      description: 다른 기계를 수리하고 지원하는 드론.
+    TUTORIAL_DUMMY_1:
+      name: 튜토리얼 허수아비
+      description: 튜토리얼용 허수아비 적
+    TUTORIAL_DUMMY_2:
+      name: 튜토리얼 허수아비
+      description: 튜토리얼용 허수아비 적
+  events:
+    START:
+      name: 깨어나는 중...
+      description: '어둑한 방에서 깨어난다. 붉은 비상등의 희미한 빛이 주변을 음산하게 물들이고 있다. 공기는 퀴퀴하고 고약하며,
+        냉동실의 금속 냄새가 아직 콧속에 남아 있다. 몸은 푹 꺼진 듯 어수선하고, 무슨 일이 일어난 건지 정신이 따라가지 못한다.
+
+
+        몸을 일으키려 하지만, 근육이 뻣뻣하고 반응이 없다. 몇 분쯤 지나서야 근육이 풀리고 힘이 돌아온다. 둘러보니 벽은 칙칙한 회색 금속으로
+        되어 있고, 긁힌 자국과 마모가 가득하다. 어디선가 희미한 윙윙거리는 소리가 들려오는데, 시설이 아직 가동 중이라는 뜻이다.
+
+
+        어떻게 여기까지 왔는지 기억해보지만, 기억은 흐릿하고 단편적이다. 마지막으로 기억나는 건 눈부신 섬광과 귀를 먹먹하게 하는 폭발음이다.
+        분명 세계를 초토화시킨 핵 폭발 중 하나에 휘말린 모양이다.
+
+
+        정신을 차리려 애쓰는 중에 벽에서 깜빡이는 패널이 보인다. *''냉동 수면 오작동''* 이라는 글씨가 굵게 표시되어 있다. 장기간의
+        수면을 일으킨 오류를 마침내 시스템이 감지하고 각성을 알린 것이다.
+
+
+        **잠시 후, 당신은 혼자가 아니라는 사실을 깨닫는다...**'
+      choices:
+        0.description: 무기를 찾아본다. 맨손 무기 획득 체력 4 감소
+        1.description: 용기를 모아 공격한다!
+      choices.0.prefix: '무기를 찾아본다. '
+      choices.0.weapon: 맨손 무기 획득
+      choices.0.damage: 체력 4 감소
+      choices.1.description: 용기를 모아 공격한다!
+    RUST_MITE:
+      name: 탐스러운 금속...
+      description: '출구를 찾기 위해 시설을 걷는 중, 몇 걸음 뒤에서 이상한 소리가 들린다. 둘러보니 이상한 생물이 보인다.
+
+        벽의 금속을 갉아먹고 있는 모양이다. 당신을 바라보다가 잠시 후 돌진해 온다.
+
+
+        **적대적인 것 같다!**'
+      choices:
+        0.description: 싸운다!
+    NANOBOT_SWARM:
+      name: 이건... 군체인가?
+      description: '출구를 찾기 위해 시설을 걷는 중, 몇 걸음 뒤에서 이상한 소리가 들린다. 둘러보니 나노봇의 군체가 보인다.
+
+
+        **군체는 계속 커지고 있으며, 당신을 공격하려 들 것 같다.**'
+      choices:
+        0.description: 싸운다!
+    CLEAN_BOT:
+      name: 시체. 청소. 시작.
+      description: '시설을 탐험하던 중 이상한 소리가 들린다. 갑자기 복도 한쪽에서 이상한 로봇이 나타난다.
+
+        주변을 청소하고 있는 듯하지만, 더 이상 제대로 작동하지 않는 모양이다. 작은 불꽃이 튀는 것이 보인다.
+
+        당신을 보더니 "시체. 청소. 시작." 이라고 말한다.
+
+
+        **무슨 뜻인지는 모르겠지만, 결코 우호적이지 않다!**'
+      choices:
+        0.description: 싸운다!
+    CYBER_SPIDER:
+      name: 천장에 있는 것은 무엇일까?
+      description: '모퉁이를 돌자 천장에 매달려 있는 이상한 생물이 보인다. 거미처럼 생겼지만, 금속으로 만들어져 있다.
+
+        먹잇감이 가까이 오기를 기다리고 있으며, 이쪽으로 갈 다른 길은 없어 보인다.'
+      choices:
+        0.description: 싸운다!
+    LASER_DRONE:
+      name: 위험한 드론이 나타난다...
+      description: '시설을 탐험하던 중, 벽 뒤에서 윙윙거리는 소리가 들린다. 드론이 천장에 매달려 있는 것이 보인다.
+
+        아무 말도 없이 당신을 응시하고 있다.
+
+
+        **위험해 보인다!**'
+      choices:
+        0.description: 싸운다!
+    CYBER_SLIME:
+      name: 이상한 사이버 슬라임이 나타난다...
+      description: '시설을 탐험하던 중, 복도 한쪽에서 윙윙거리는 소리가 들린다. 작은 전구처럼 빛나는 것이 보인다.
+
+
+        **이상한 사이버 슬라임이 천천히 다가오고 있다.**'
+      choices:
+        0.description: 싸운다!
+    PLASMA_GOLEM:
+      name: 빛나는 형체가 나타난다...
+      description: '시설을 더 깊이 탐험하던 중, 방 한가운데에서 빛이 보인다.
+
+        플라즈마 골렘이 일어서며, 천천히 당신을 향해 다가온다.'
+      choices:
+        0.description: 싸운다!
+    MERCHANT:
+      name: 이상한 인물
+      description: '이 여행자가 낯선 상인이다. 키가 크고 마르며, 낡은 로브를 입고 있다. 낡은 가죽 가방을 들고 있으며, 그 안에는
+        보물이 가득 차 있다.
+
+
+        "어서오게, 여행자여. 뭘 사러 왔나?"'
+      choices:
+        0.description: 거래한다
+        1.description: 지나간다
+    ARTIFACT_CHOICE:
+      name: 아티팩트
+      description: 황량한 땅을 여행하던 중, 숨겨진 보물창고를 발견한다. 안에는 기이하고 놀라운 아티팩트들이 가지런히 놓여 있다.
+        단 하나만 선택해도 여정의 흐름이 바뀔 수 있다는 것을 알고 있다. 각 항목을 살피면서, 어깨에 내려앉은 책임감을 느낀다...
+      take_template: '가져간다 '
+      skip: 지나간다...
+      choices:
+        0.description: 가져간다
+        1.description: 지나간다
+    CARD_CHOICE:
+      name: 카드
+      description: 황량한 땅을 여행하던 중, 숨겨진 보물창고를 발견한다. 안에는 기이하고 놀라운 카드들이 가지런히 놓여 있다. 단
+        하나만 선택해도 여정의 흐름이 바뀔 수 있다는 것을 알고 있다. 각 항목을 살피면서, 어깨에 내려앉은 책임감을 느낀다...
+      take_template: '가져간다 '
+      skip: 지나간다...
+      choices:
+        0.description: 가져간다
+        1.description: 지나간다
+    RANDOM_ARTIFACT_ACT_0:
+      name: 랜덤 아티팩트
+      description: 이상한 문양이 새겨진 상자를 발견한다. 상자는 이상한 장벽으로 보호되고 있다. 열어서 대가를 치르거나 떠날 수 있다.
+      choices:
+        0.description: 랜덤 아티팩트 아티팩트 1개 획득 체력 2 감소
+        1.description: 떠난다!
+      choices.0.prefix: '랜덤 아티팩트 '
+    RANDOM_CONSUMEABLE_ACT_0:
+      name: 랜덤 소모품
+      description: 이상한 문양이 새겨진 상자를 발견한다. 상자는 이상한 장벽으로 보호되고 있다. 열어서 대가를 치르거나 떠날 수 있다.
+      choices:
+        0.description: 랜덤 소모품 소모품 1개 획득 체력 2 감소
+        1.description: 떠난다!
+      choices.0.prefix: '랜덤 소모품 '
+    GAIN_GOLD_ACT_0:
+      name: 오래된 금화 보관함
+      description: 금화로 가득 찬 오래된 상자를 발견한다. 가져가거나 떠날 수 있다.
+      choices:
+        0.description: 가져간다! 골드 20 획득
+        1.description: 떠난다!
+      choices.0.prefix: '가져간다! '
+    GOLD_TO_HP_ACT_0:
+      name: 오래된 자판기
+      description: 오래된 자판기를 발견한다. 아직 작동하는 것 같다. 골드 20을 지불해 HP 5를 얻거나 떠날 수 있다.
+      choices:
+        0.description: 골드 20 지불 HP 5 획득
+        1.description: 떠난다!
+      choices.0.prefix: '지불 '
+    MAX_LIFE_ACT_0:
+      name: 공생 기생충
+      description: 이상한 생물을 발견한다. 공생 기생충인 것 같다. 최대 HP를 5 늘려주겠다고 제안한다. 받아들이거나 떠날 수 있다.
+      choices:
+        0.description: 수락한다! 최대 HP 5 증가
+        1.description: 떠난다!
+      choices.0.prefix: '수락한다! '
+    GAMBLE_1_ACT_0:
+      name: 전기 장벽
+      description: 가운데에 이상한 장치가 있는 방을 발견한다. 보관함을 보호하는 전기 장벽인 것 같다. 해제하거나 떠날 수 있다.
+      choices:
+        0.description: 50% 확률 아티팩트 & 소모품 획득 50% 확률 체력 2 감소
+        1.description: 떠난다!
+      choices.0.prefix: '50% '
+    UPRAGDE_CARD_ACT_0:
+      name: 업그레이드 스테이션
+      description: 오래된 자동 작업대를 발견한다. 다시 작동하게 만들 수 있다. 랜덤 카드를 업그레이드하거나 떠날 수 있다.
+      choices:
+        0.description: 카드 업그레이드 카드 1장 업그레이드 체력 2 감소
+        1.description: 떠난다!
+      choices.0.prefix: '카드 업그레이드 '
+    TUTORIAL_START:
+      name: 환영합니다!
+      description: '*End of Eden*에 오신 걸 환영합니다!
+
+
+        이 게임은 로그라이트 덱빌더로, 종말 이후의 세계를 탐험하고, 카드와 아티팩트를 수집하며, 적과 싸웁니다. **가능한 한 오래 살아남으세요!**
+
+
+        **먼저 키보드 단축키부터 알아봅시다**
+
+
+        - *ESC* - 메뉴 열기 (카드, 아티팩트 보기 또는 선택 취소)
+
+        - *SPACE* - 턴 종료
+
+        - *방향키 좌/우* - 카드 또는 공격할 적 선택
+
+        - *ENTER* - 선택 확정
+
+        - *X* - 적 위에 마우스를 두고 X를 누르면 적에 대한 자세한 정보를 볼 수 있습니다
+
+        - *S* - 플레이어 상태 열기
+
+
+        **마우스**를 사용해서 카드와 적을 선택하고 버튼을 클릭할 수도 있습니다.
+
+
+        **카드**
+
+
+        당신은 공격, 방어 또는 상태 효과를 적용하는 데 사용할 수 있는 카드 덱을 가지고 있습니다. 카드는 화면 하단에서 볼 수 있습니다.
+        모든 카드는 매 턴마다 초기화되는 행동력을 소모합니다. 현명하게 사용하세요!
+
+
+        **전투**
+
+
+        계속하기를 누르면 허수아비 적과 싸우게 됩니다. 처치할 수 있는지 확인해 보세요!
+
+        '
+      choices:
+        0.description: 계속하기
+    TUTORIAL_1:
+      name: 상태 효과
+      description: '*훌륭해요! 허수아비 적을 처치했습니다!*
+
+
+        이제 당신에게 *상태 효과*를 걸 적과 싸우게 됩니다. 상태 효과는 긍정적이거나 부정적일 수 있으며, 카드, 적 또는 다른 출처에서
+        적용될 수 있습니다. 당신에게 적용된 상태 효과는 화면 하단에 표시됩니다. 클릭하거나 *S*를 눌러 자세한 정보를 볼 수 있습니다.
+
+
+        계속하기를 누르면 허수아비 적과 싸우게 됩니다. 처치할 수 있는지 확인해 보세요!
+
+        '
+      choices:
+        0.description: 계속하기
+    TUTORIAL_2:
+      name: 상인
+      description: '*훌륭해요! 허수아비 적들을 처치했습니다!*
+
+
+        가끔씩 상인을 만날 수 있습니다. 상인은 골드로 살 수 있는 카드와 아티팩트를 제공합니다. 카드를 제거하거나 업그레이드할 수도 있습니다.
+        골드는 적을 처치하면 얻습니다.
+
+
+        계속하기를 누르면 상인을 만납니다. *무언가를 사거나 업그레이드해 보세요!*
+
+        '
+      choices:
+        0.description: 계속하기
+      intent: '적용 '
+    TUTORIAL_3:
+      name: 완료!
+      description: '*훌륭해요! 무언가를 샀습니다!*
+
+
+        이것이 튜토리얼의 끝입니다. 이제 세계를 탐험하고 적과 싸우는 것을 계속할 수 있습니다. 행운을 빕니다!
+
+        '
+      choices:
+        0.description: 계속하기
+    TUTORIAL_4:
+      name: 가라!
+      description: '*이제 떠날 시간입니다...*
+
+        '
+      choices:
+        0.description: 계속하기
+  intents:
+    deal_damage: 피해 %s
+    block: 방어 %s
+    heal_ally: 아군 HP %s 회복
+    charge_laser: 강력한 레이저 공격 충전 중
+    charge_plasma: 강력한 플라즈마 공격 충전 중
+    wait: 대기 중...
+    load_battery: 배터리 충전
+    standby: 대기 중...
+    deal_heal: 피해 %s. 회복 %s HP.
+  ui:
+    one_time: 일회용
+    heal_2: HP 2 회복
+    found_template: '발견: '
+    found_event_template: '!!%s
+
+
+      **무언가를 발견했다!** %s'
+    take_template: '가져간다 '
+    leave: 떠난다...
+    gain_1_artifact: 아티팩트 1개 획득
+    gain_1_consumeable: 소모품 1개 획득
+    take_2_damage: 체력 2 감소
+    gain_20_gold: 골드 20 획득
+    pay_20_gold: 골드 20 지불
+    gain_5_hp: HP 5 회복
+    gain_5_max_hp: 최대 HP 5 증가
+    gain_artifact_and_consumeable: 아티팩트 & 소모품 획득
+    upgrade_a_card: 카드 1장 업그레이드
+    menu:
+      title: 메인 메뉴
+      continue: 이어서
+      continue_desc: 죽기를 계속할 준비가 되셨나요?
+      tutorial: 튜토리얼
+      tutorial_desc: 기본을 배워보세요.
+      new_game: 새 게임
+      new_game_desc: 새로운 도전을 시작하세요.
+      new_game_sod: '새 게임: 오늘의 시드'
+      new_game_sod_desc: 오늘의 시드로 새로운 도전을 시작합니다.
+      about: 정보
+      about_desc: 더 알고 싶으신가요?
+      settings: 설정
+      settings_desc: 다른 설정도 살리는 데 도움이 안 됩니다...
+      mods: 모드
+      mods_desc: 게임을 더 재밌게!
+      exit: 종료
+      exit_desc: 이제 충분히 하셨나요?
+    overview:
+      character: 캐릭터
+      character_desc: 스탯을 확인합니다.
+      logs: 로그
+      logs_desc: 무슨 일이 있었는지 확인합니다.
+      artifacts: 아티팩트
+      artifacts_desc: 아티팩트를 살펴봅니다.
+      cards: 카드
+      cards_desc: 카드를 살펴봅니다.
+      quit: 나가기
+      quit_desc: 메뉴로 돌아갑니다.
+    merchant:
+      wares: 상인 물품
+      leave: 상인 떠나기
+      buy_item: 물품 구매
+      upgrade_card_fmt: ↑  카드 업그레이드 (%d$)
+    gameview:
+      end_turn: 턴 종료
+      intend: '예정:'
+      status_effects: '상태 효과:'
+      player_status: 플레이어 상태
+      press_esc: '''esc''를 눌러 닫기'
+    gameover:
+      run_statistic: 런 통계
+      stages: '스테이지 '
+      damage_done: '가한 피해 '
+      damage_received: '받은 피해 '
+      gold_collected: '획득 골드 '
+      accept_fate: 운명을 받아들이세요...
+    carousel:
+      continue: 계속
+    lua_error:
+      back: 뒤로
+      copied: 복사됨!
+      copy_clipboard: 클립보드에 복사
+      title: Lua 오류!
+      error: '오류:'
+    settings:
+      title: 설정
+    init:
+      settings: 설정 초기화 중. 잠시만 기다려 주세요...
+      audio: 오디오 초기화 중. 잠시만 기다려 주세요...
+      proc_gen: 생성기 초기화 중. 잠시만 기다려 주세요...
+      localization: 다국어 초기화 중. 잠시만 기다려 주세요...
+      done: 완료!
+    title: End Of Eden
+    about_text: 미래 500년 뒤, 기후 변화와 핵전쟁으로 황폐해진 세계에 오신 걸 환영합니다. 남은 인간은 거의 사라지고, 그 자리는
+      변이체와 식물 기반 생물들이 차지했습니다. 이 곤조-판타지 설정 속에서, 당신은 잊혀진 지하 시설에서 냉동 수면에서 깨어납니다. 혼자이고,
+      다른 모든 냉동 수면 캡슐은 깨져 있습니다. 이 낯설고 위험한 세계를 헤쳐 나가며, 당신의 격리가 어떤 비밀로 인한 것인지 밝혀내야 합니다...
+    about:
+      version_fmt: '버전: %s (%s)'
+      back: 뒤로
+  weapons:
+    crowbar:
+      name: 크로우바
+      description: 약간 녹슨 크로우바지만, 아직 쓸 만합니다!
+    vibro_knife:
+      name: VIBRO 나이프
+      description: 초음파 진동으로 거의 모든 것을 자를 수 있는 나이프입니다.
+    lzr_pistol:
+      name: LZR 권총
+      description: 집중된 빛선을 발사하는 LZR 권총입니다.
+    har_ii:
+      name: HAR-II
+      description: 높은 연사력을 가진 중형 돌격소총입니다.
+  log:
+    type.info: 정보
+    type.warning: 경고
+    type.danger: 위험
+    type.success: 성공
+    session.saving: 세션 저장 중...
+    player.hit_enemy: 적에게 %d 의 피해를 입혔습니다.
+    player.took_damage: '%d 의 피해를 입었습니다.'
+    enemy.took_damage_fmt: '%s(이)가 %d 의 피해를 입었습니다.'
+    enemy.died_dropped_gold: '%s(이)가 죽고 %d 골드를 떨어뜨렸습니다!'
+    player.healed: '%d 만큼 회복했습니다.'
+    enemy.healed: '%s(이)가 %d 만큼 회복했습니다.'

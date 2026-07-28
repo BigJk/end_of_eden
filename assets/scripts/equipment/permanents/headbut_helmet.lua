@@ -1,6 +1,6 @@
 register_artifact("HEADBUT_HELMET", {
-    name = "Headbut Helmet",
-    description = "Gain 1 Knock Out card.",
+    name = l("artifacts.HEADBUT_HELMET.name", "Headbut Helmet"),
+    description = l("artifacts.HEADBUT_HELMET.description", "Gain 1 Knock Out card."),
     tags = { "_ACT_0" },
     price = 200,
     order = 0,

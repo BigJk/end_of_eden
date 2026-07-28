@@ -1,6 +1,6 @@
 register_artifact("COMBAT_GLASSES", {
-    name = "Combat Glasses",
-    description = "Whenever you play a " .. highlight("Ranged (R)") .. " card, deal " .. highlight("1 additional damage"),
+    name = l("artifacts.COMBAT_GLASSES.name", "Combat Glasses"),
+    description = l("artifacts.COMBAT_GLASSES.description", "Whenever you play a " .. highlight("Ranged (R)") .. " card, deal " .. highlight("1 additional damage")),
     tags = { "_ACT_0" },
     price = 100,
     order = 0,

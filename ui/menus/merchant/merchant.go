@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
 	"github.com/BigJk/end_of_eden/ui/root"
@@ -162,10 +163,10 @@ func (m Model) View() string {
 	case StateMain:
 		buttons := []string{
 			style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneUpgrade).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2, 1, 2).
-				Render(m.zones.Mark(ZoneUpgrade, fmt.Sprintf("↑  Upgrade Card (%d$)", game.DefaultUpgradeCost))),
+				Render(m.zones.Mark(ZoneUpgrade, fmt.Sprintf(localization.G("ui.merchant.upgrade_card_fmt", "↑  Upgrade Card (%d$)"), game.DefaultUpgradeCost))),
 			"",
 			style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneLeave).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 2).
-				Render(m.zones.Mark(ZoneLeave, "Leave Merchant")),
+				Render(m.zones.Mark(ZoneLeave, localization.G("ui.merchant.leave", "Leave Merchant"))),
 		}
 
 		if len(m.session.GetCards(game.PlayerActorID)) > 3 {
@@ -225,7 +226,7 @@ func (m Model) View() string {
 			selectedItemLook,
 			style.HeaderStyle.Copy().Background(
 				lo.Ternary(canBuy, lo.Ternary(m.zones.Get(ZoneBuyItem).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker), style.BaseGrayDarker),
-			).Margin(1, 2).Render(m.zones.Mark(ZoneBuyItem, "Buy Item")),
+			).Margin(1, 2).Render(m.zones.Mark(ZoneBuyItem, localization.G("ui.merchant.buy_item", "Buy Item"))),
 		)
 	case StateRemove:
 		fallthrough
@@ -265,7 +266,7 @@ func (m Model) View() string {
 	return lipgloss.Place(m.Size.Width, m.Size.Height-5, lipgloss.Left, lipgloss.Top,
 		lipgloss.JoinVertical(
 			lipgloss.Top,
-			style.HeaderStyle.Render("Merchant Wares"),
+			style.HeaderStyle.Render(localization.G("ui.merchant.wares", "Merchant Wares")),
 			lipgloss.JoinHorizontal(lipgloss.Left, faceSection, shopSection),
 		),
 	)

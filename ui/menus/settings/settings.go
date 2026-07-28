@@ -213,7 +213,7 @@ func (m Model) setup() Model {
 	delegation.Styles.SelectedDesc = delegation.Styles.SelectedDesc.Foreground(style.BaseRedDarker).BorderForeground(style.BaseRed)
 
 	m.list = list.New(m.items(), delegation, 0, 0)
-	m.list.Title = "Settings"
+	m.list.Title = localization.G("ui.settings.title", "Settings")
 	m.list.SetFilteringEnabled(true)
 	m.list.SetShowFilter(true)
 	m.list.SetShowStatusBar(false)

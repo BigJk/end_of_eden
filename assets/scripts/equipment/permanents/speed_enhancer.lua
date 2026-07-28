@@ -1,6 +1,6 @@
 register_artifact("SPEED_ENHANCER", {
-    name = "Speed Enhancer",
-    description = "Start with a additional card at the beginning of combat.",
+    name = l("artifacts.SPEED_ENHANCER.name", "Speed Enhancer"),
+    description = l("artifacts.SPEED_ENHANCER.description", "Start with a additional card at the beginning of combat."),
     tags = { "_ACT_0" },
     price = 100,
     order = 0,

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/animation"
 	"github.com/BigJk/end_of_eden/ui/root"
@@ -128,14 +129,14 @@ func (m Model) View() string {
 				lipgloss.NewStyle().Margin(2, 0, 1, 0).Padding(1, 3).Border(lipgloss.ThickBorder()).BorderForeground(style.BaseRedDarker).Foreground(style.BaseWhite).Render(
 					fmt.Sprintf(
 						"%s\n\n%s%d\n%s%d\n%s%d\n%s%d",
-						style.BoldStyle.Render("Run Statistic"),
-						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Stages ")), m.session.GetStagesCleared(),
-						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Damage Done ")), m.allDamage,
-						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Damage Received ")), m.allDamageReceived,
-						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", "Gold Collected ")), m.allGold,
+						style.BoldStyle.Render(localization.G("ui.gameover.run_statistic", "Run Statistic")),
+						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", localization.G("ui.gameover.stages", "Stages "))), m.session.GetStagesCleared(),
+						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", localization.G("ui.gameover.damage_done", "Damage Done "))), m.allDamage,
+						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", localization.G("ui.gameover.damage_received", "Damage Received "))), m.allDamageReceived,
+						style.BoldStyle.Render(fmt.Sprintf("%-20s :  ", localization.G("ui.gameover.gold_collected", "Gold Collected "))), m.allGold,
 					),
 				),
-				m.zones.Mark(ZoneToMenu, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneToMenu).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Render("Accept your fate...")),
+				m.zones.Mark(ZoneToMenu, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneToMenu).InBounds(m.lastMouse), style.BaseRed, style.BaseRedDarker)).Render(localization.G("ui.gameover.accept_fate", "Accept your fate..."))),
 			),
 		),
 	)

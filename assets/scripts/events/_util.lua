@@ -7,7 +7,7 @@ function create_artifact_choice(artifacts, options)
         local art = get_artifact(type)
 
         return {
-            description = "Take " .. text_bold(art.name) .. text_italic(" (" .. art.description .. ")"),
+            description = l("events.ARTIFACT_CHOICE.take_template", "Take ") .. text_bold(art.name) .. text_italic(" (" .. art.description .. ")"),
             callback = function()
                 give_artifact(type, PLAYER_ID)
                 return nil
@@ -15,16 +15,16 @@ function create_artifact_choice(artifacts, options)
         }
     end):totable()
     choices[#choices + 1] = {
-        description = "Skip...",
+        description = l("events.ARTIFACT_CHOICE.skip", "Skip..."),
         callback = function()
             return nil
         end
     }
 
     local def = {
-        name = "Artifact",
+        name = l("events.ARTIFACT_CHOICE.name", "Artifact"),
         description =
-        [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]],
+        l("events.ARTIFACT_CHOICE.description", [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]]),
         choices = choices,
         on_end = function()
             return GAME_STATE_RANDOM
@@ -59,7 +59,7 @@ function create_card_choice(cards, options)
         local art = get_artifact(type)
 
         return {
-            description = "Take " .. text_bold(art.name) .. text_italic(" (" .. art.description .. ")"),
+            description = l("events.CARD_CHOICE.take_template", "Take ") .. text_bold(art.name) .. text_italic(" (" .. art.description .. ")"),
             callback = function()
                 give_card(type, PLAYER_ID)
                 return nil
@@ -67,16 +67,16 @@ function create_card_choice(cards, options)
         }
     end):totable()
     choices[#choices + 1] = {
-        description = "Skip...",
+        description = l("events.CARD_CHOICE.skip", "Skip..."),
         callback = function()
             return nil
         end
     }
 
     local def = {
-        name = "Cards",
+        name = l("events.CARD_CHOICE.name", "Cards"),
         description =
-        [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]],
+        l("events.CARD_CHOICE.description", [[As you journey through the desolate land, you come across a hidden cache. Inside, you find an array of strange and wondrous artifacts, each with their own mysterious powers. You know that choosing just one could change the course of your journey forever. As you examine each item, you feel the weight of the responsibility resting on your shoulders...]]),
         choices = choices,
         on_end = function()
             return GAME_STATE_RANDOM

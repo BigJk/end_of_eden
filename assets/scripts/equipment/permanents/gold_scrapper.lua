@@ -1,6 +1,6 @@
 register_artifact("GOLD_SCRAPPER", {
-    name = "Gold Scrapper",
-    description = "Gain 15 gold on kill.",
+    name = l("artifacts.GOLD_SCRAPPER.name", "Gold Scrapper"),
+    description = l("artifacts.GOLD_SCRAPPER.description", "Gain 15 gold on kill."),
     tags = { "_ACT_0" },
     price = 200,
     order = 0,

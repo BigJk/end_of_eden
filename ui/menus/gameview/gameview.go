@@ -6,6 +6,7 @@ import (
 
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
 	"github.com/BigJk/end_of_eden/ui/menus/carousel"
@@ -519,7 +520,7 @@ func (m Model) fightStatusBottom() string {
 		),
 		lipgloss.Place(40, 3, lipgloss.Right, lipgloss.Center, lipgloss.JoinHorizontal(
 			lipgloss.Center,
-			m.zones.Mark(ZoneEndTurn, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneEndTurn).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 4, 0, 0).Render("End Turn")),
+			m.zones.Mark(ZoneEndTurn, style.HeaderStyle.Copy().Background(lo.Ternary(m.zones.Get(ZoneEndTurn).InBounds(m.LastMouse), style.BaseRed, style.BaseRedDarker)).Margin(0, 4, 0, 0).Render(localization.G("ui.gameview.end_turn", "End Turn"))),
 			style.RedDarkerText.Render(`▀ █▌█▌▪
  ·██·
 ▪▐█·█▌`))),
@@ -537,9 +538,9 @@ func (m Model) fightCardViewHeight() int {
 func (m Model) fightEnemyInspectTooltipView() string {
 	enemy := m.Session.GetOpponents(game.PlayerActorID)[m.selectedOpponent]
 
-	intend := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Intend:") + "\n\n" + m.Session.GetActorIntend(enemy.GUID) + "\n\n"
+	intend := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render(localization.G("ui.gameview.intend", "Intend:")) + "\n\n" + m.Session.GetActorIntend(enemy.GUID) + "\n\n"
 
-	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Status Effects:") + "\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
+	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render(localization.G("ui.gameview.status_effects", "Status Effects:")) + "\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
 		return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
 	}), "\n\n")
 
@@ -551,9 +552,9 @@ func (m Model) fightEnemyInspectTooltipView() string {
 func (m Model) fightEnemyInspectView() string {
 	enemy := m.Session.GetOpponents(game.PlayerActorID)[m.selectedOpponent]
 
-	intend := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Intend:") + "\n\n" + m.Session.GetActorIntend(enemy.GUID) + "\n\n"
+	intend := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render(localization.G("ui.gameview.intend", "Intend:")) + "\n\n" + m.Session.GetActorIntend(enemy.GUID) + "\n\n"
 
-	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Status Effects:") + "\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
+	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render(localization.G("ui.gameview.status_effects", "Status Effects:")) + "\n\n" + strings.Join(lo.Map(enemy.StatusEffects.ToSlice(), func(guid string, index int) string {
 		return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
 	}), "\n\n")
 
@@ -571,7 +572,7 @@ func (m Model) fightEnemyInspectView() string {
 func (m Model) playerInspectView() string {
 	player := m.Session.GetPlayer()
 
-	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render("Status Effects:") + "\n\n" + strings.Join(lo.Map(player.StatusEffects.ToSlice(), func(guid string, index int) string {
+	status := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(style.BaseWhite).Render(localization.G("ui.gameview.status_effects", "Status Effects:")) + "\n\n" + strings.Join(lo.Map(player.StatusEffects.ToSlice(), func(guid string, index int) string {
 		return components.StatusEffect(m.Session, guid) + ": " + m.Session.GetStatusEffectState(guid)
 	}), "\n\n")
 
@@ -579,7 +580,7 @@ func (m Model) playerInspectView() string {
 		lipgloss.NewStyle().Border(lipgloss.ThickBorder(), true).Padding(1, 2).BorderForeground(style.BaseRedDarker).Render(
 			lipgloss.JoinHorizontal(lipgloss.Top,
 				lipgloss.NewStyle().Margin(0, 0, 0, 3).Width(30).Render(
-					lipgloss.NewStyle().Foreground(style.BaseWhite).Bold(true).Underline(true).Render("Player Status")+"\n\n"+status+"\n\n"+style.GrayText.Render("press 'esc' to close"),
+					lipgloss.NewStyle().Foreground(style.BaseWhite).Bold(true).Underline(true).Render(localization.G("ui.gameview.player_status", "Player Status"))+"\n\n"+status+"\n\n"+style.GrayText.Render(localization.G("ui.gameview.press_esc", "press 'esc' to close")),
 				),
 			),
 		),

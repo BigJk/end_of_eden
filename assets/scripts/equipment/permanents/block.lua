@@ -1,8 +1,8 @@
 register_card("BLOCK", {
-    name = "Block",
-    description = "Shield yourself and gain 5 " .. highlight("block") .. ".",
+    name = l("cards.BLOCK.name", "Block"),
+    description = l("cards.BLOCK.description", "Shield yourself and gain 5 " .. highlight("block") .. "."),
     state = function(ctx)
-        return "Shield yourself and gain " .. highlight(1 + ctx.level) .. " block."
+        return l("cards.BLOCK.state", "Shield yourself and gain ") .. highlight(1 + ctx.level) .. " block."
     end,
     tags = { "DEF" },
     max_level = 1,
@@ -19,12 +19,12 @@ register_card("BLOCK", {
 })
 
 register_status_effect("BLOCK", {
-    name = "Block",
-    description = "Decreases incoming damage for each stack",
+    name = l("status_effects.BLOCK.name", "Block"),
+    description = l("status_effects.BLOCK.description", "Decreases incoming damage for each stack"),
     look = "B",
     foreground = COLOR_BLUE,
     state = function(ctx)
-        return "Takes " .. highlight(ctx.stacks) .. " less damage"
+        return l("status_effects.BLOCK.state", "Takes ") .. highlight(ctx.stacks) .. " less damage"
     end,
     can_stack = true,
     decay = DECAY_ALL,

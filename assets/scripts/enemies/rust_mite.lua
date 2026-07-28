@@ -8,10 +8,10 @@ register_enemy("RUST_MITE", {
     gold = 35,
     intend = function(ctx)
         if ctx.round % 4 == 0 then
-            return "Load battery"
+            return l("intents.load_battery", "Load battery")
         end
 
-        return "Deal " .. highlight(simulate_deal_damage(ctx.guid, PLAYER_ID, 1)) .. " damage"
+        return l("intents.deal_damage", "Deal ") .. highlight(simulate_deal_damage(ctx.guid, PLAYER_ID, 1)) .. " damage"
     end,
     callbacks = {
         on_turn = function(ctx)

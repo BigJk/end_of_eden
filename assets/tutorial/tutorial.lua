@@ -9,7 +9,7 @@ register_enemy("TUTORIAL_DUMMY_1", {
     max_hp = 4,
     gold = 0,
     intend = function(ctx)
-        return "Deal " .. highlight(simulate_deal_damage(ctx.guid, PLAYER_ID, 1)) .. " damage"
+        return l("intents.deal_damage", "Deal ") .. highlight(simulate_deal_damage(ctx.guid, PLAYER_ID, 1)) .. " damage"
     end,
     callbacks = {
         on_turn = function(ctx)
@@ -28,7 +28,7 @@ register_enemy("TUTORIAL_DUMMY_2", {
     max_hp = 3,
     gold = 0,
     intend = function(ctx)
-        return "Apply " .. highlight("Weakness")
+        return l("events.TUTORIAL_2.intent", "Apply ") .. highlight(l("status_effects.WEAKNESS.name", "Weakness"))
     end,
     callbacks = {
         on_turn = function(ctx)
@@ -39,12 +39,12 @@ register_enemy("TUTORIAL_DUMMY_2", {
 })
 
 register_status_effect("WEAKNESS", {
-    name = "Weakness",
-    description = "Decreases damage dealt by 1",
+    name = l("status_effects.WEAKNESS.name", "Weakness"),
+    description = l("status_effects.WEAKNESS.description", "Decreases damage dealt by 1"),
     look = "W",
     foreground = COLOR_RED,
     state = function(ctx)
-        return "Deals " .. highlight(1) .. " less damage"
+        return l("status_effects.WEAKNESS.state", "Deals ") .. highlight(1) .. " less damage"
     end,
     rounds = 2,
     decay = DECAY_ONE,
@@ -84,8 +84,8 @@ register_card("MELEE_HIT", {
 })
 
 register_event("START", {
-    name = "Welcome!",
-    description = [[Welcome to *End of Eden*!
+    name = l("events.TUTORIAL_START.name", "Welcome!"),
+    description = l("events.TUTORIAL_START.description", [[Welcome to *End of Eden*!
 
 This game is a roguelite deckbuilder where you explore a post-apocalyptic world, collect cards and artifacts and fight enemies. **Try to stay alive as long as possible!**
 
@@ -108,10 +108,10 @@ You have a deck of cards that you can use to attack, defend or apply status effe
 
 If you press Continue you will fight a dummy enemy. See if you are able to kill it!
 
-]],
+]]),
     choices = {
         {
-            description = "Continue",
+            description = l("events.TUTORIAL_START.choices.0.description", "Continue"),
             callback = function()
                 return nil
             end
@@ -129,16 +129,16 @@ If you press Continue you will fight a dummy enemy. See if you are able to kill 
 })
 
 register_event("TUTORIAL_1", {
-    name = "Status Effects",
-    description = [[*Awesome! You have defeated the dummy enemy!*
+    name = l("events.TUTORIAL_1.name", "Status Effects"),
+    description = l("events.TUTORIAL_1.description", [[*Awesome! You have defeated the dummy enemy!*
 
 Now you will face a enemy that will apply a *status effect* on you. Status effects can be positive or negative and can be applied by cards, enemies or other sources. Status effects that are applied to you are shown on the bottom of the screen. You can click on them or press *S* to see more information.
 
 If you press Continue you will fight some dummy enemies. See if you are able to kill them!
-]],
+]]),
     choices = {
         {
-            description = "Continue",
+            description = l("events.TUTORIAL_1.choices.0.description", "Continue"),
             callback = function()
                 return nil
             end
@@ -156,16 +156,16 @@ If you press Continue you will fight some dummy enemies. See if you are able to 
 })
 
 register_event("TUTORIAL_2", {
-    name = "The Merchant",
-    description = [[*Awesome! You have defeated the dummy enemies!*
+    name = l("events.TUTORIAL_2.name", "The Merchant"),
+    description = l("events.TUTORIAL_2.description", [[*Awesome! You have defeated the dummy enemies!*
 
 Every now and then you will encounter a merchant. The merchant will offer you cards and artifacts that you can buy with gold. You can also remove or upgrade cards. Gold is earned by defeating enemies.
 
 If you press Continue you will meet the merchant. *Try to buy or upgrade something!*
-]],
+]]),
     choices = {
         {
-            description = "Continue",
+            description = l("events.TUTORIAL_2.choices.0.description", "Continue"),
             callback = function()
                 return nil
             end
@@ -180,14 +180,14 @@ If you press Continue you will meet the merchant. *Try to buy or upgrade somethi
 })
 
 register_event("TUTORIAL_3", {
-    name = "Finished!",
-    description = [[*Awesome! You have bought some stuff!*
+    name = l("events.TUTORIAL_3.name", "Finished!"),
+    description = l("events.TUTORIAL_3.description", [[*Awesome! You have bought some stuff!*
 
 This is the end of the tutorial. You can now continue to explore the world and fight enemies. Good luck!
-]],
+]]),
     choices = {
         {
-            description = "Continue",
+            description = l("events.TUTORIAL_3.choices.0.description", "Continue"),
             callback = function()
                 return nil
             end
@@ -206,11 +206,11 @@ This is the end of the tutorial. You can now continue to explore the world and f
 
 
 register_event("TUTORIAL_4", {
-    name = "Be gone!",
-    description = [[*It is time to go...*]],
+    name = l("events.TUTORIAL_4.name", "Be gone!"),
+    description = l("events.TUTORIAL_4.description", [[*It is time to go...*]]),
     choices = {
         {
-            description = "Continue",
+            description = l("events.TUTORIAL_4.choices.0.description", "Continue"),
             callback = function()
                 return nil
             end

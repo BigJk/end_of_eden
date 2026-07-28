@@ -4,9 +4,9 @@ local hand_warning =
 HAND_WEAPONS = {
     {
         id = "CROWBAR",
-        name = "Crowbar",
+        name = l("weapons.crowbar.name", "Crowbar"),
         image = "red_room.jpg",
-        description = "A crowbar. It's a bit rusty, but it should still be useful!",
+        description = l("weapons.crowbar.description", "A crowbar. It's a bit rusty, but it should still be useful!"),
         base_damage = 2,
         base_cards = 3,
         tags = { "ATK", "M", "T", "HND" },
@@ -16,8 +16,8 @@ HAND_WEAPONS = {
     },
     {
         id = "VIBRO_KNIFE",
-        name = "VIBRO Knife",
-        description = "A VIBRO knife. Uses ultrasonic vibrations to cut through almost anything.",
+        name = l("weapons.vibro_knife.name", "VIBRO Knife"),
+        description = l("weapons.vibro_knife.description", "A VIBRO knife. Uses ultrasonic vibrations to cut through almost anything."),
         base_damage = 3,
         base_cards = 3,
         tags = { "ATK", "M", "T", "HND" },
@@ -27,8 +27,8 @@ HAND_WEAPONS = {
     },
     {
         id = "LZR_PISTOL",
-        name = "LZR Pistol",
-        description = "A LZR pistol. Fires a concentrated beam of light.",
+        name = l("weapons.lzr_pistol.name", "LZR Pistol"),
+        description = l("weapons.lzr_pistol.description", "A LZR pistol. Fires a concentrated beam of light."),
         base_damage = 4,
         base_cards = 3,
         tags = { "ATK", "R", "T", "HND" },
@@ -37,9 +37,9 @@ HAND_WEAPONS = {
         price = 280
     },
     {
-        id = "HAR_II",
-        name = "HAR-II",
-        description = "A HAR-II. A heavy assault rifle with a high rate of fire.",
+        id = "HAR-II",
+        name = l("weapons.har_ii.name", "HAR-II"),
+        description = l("weapons.har_ii.description", "A HAR-II. A heavy assault rifle with a high rate of fire."),
         base_damage = 5,
         base_cards = 3,
         tags = { "ATK", "R", "T", "HND" },

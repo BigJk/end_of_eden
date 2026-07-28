@@ -1,6 +1,6 @@
 register_artifact("INTERVA_JUICER", {
-    name = "Interval Juicer",
-    description = highlight("Heal 2") .. " at the beginning of combat",
+    name = l("artifacts.INTERVA_JUICER.name", "Interval Juicer"),
+    description = highlight(l("ui.heal_2", "Heal 2")) .. l("artifacts.INTERVA_JUICER.description_suffix", " at the beginning of combat"),
     tags = { "_ACT_0" },
     price = 200,
     order = 0,

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/game"
 	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/components"
 	"github.com/BigJk/end_of_eden/ui/root"
@@ -20,6 +21,23 @@ import (
 	"strings"
 	"time"
 )
+
+// logTypeLabel returns the localized display label for a game.LogType.
+// Defined locally because importing game.LogTypeLabel into this UI package
+// would create a cycle (game → ui → ... → ui/menus/overview → game).
+func logTypeLabel(t game.LogType) string {
+	switch t {
+	case game.LogTypeInfo:
+		return localization.G("log.type.info", "INFO")
+	case game.LogTypeWarning:
+		return localization.G("log.type.warning", "WARNING")
+	case game.LogTypeDanger:
+		return localization.G("log.type.danger", "DANGER")
+	case game.LogTypeSuccess:
+		return localization.G("log.type.success", "SUCCESS")
+	}
+	return string(t)
+}
 
 var (
 	styleMenuContent = lipgloss.NewStyle().Margin(0, 0, 0, 2).Padding(0, 1).Border(lipgloss.NormalBorder(), false, false, false, true).BorderForeground(style.BaseGrayDarker)
@@ -78,11 +96,11 @@ type MenuModel struct {
 
 func New(parent tea.Model, zones *zone.Manager, session *game.Session) MenuModel {
 	choices := []list.Item{
-		choiceItem{zones, "Character", "Check your stats.", ChoiceCharacter},
-		choiceItem{zones, "Logs", "Check what happened.", ChoiceLogs},
-		choiceItem{zones, "Artifacts", "Inspect your artifacts.", ChoiceArtifacts},
-		choiceItem{zones, "Cards", "Inspect your cards.", ChoiceCards},
-		choiceItem{zones, "Quit", "Return to menu.", ChoiceQuit},
+		choiceItem{zones, localization.G("ui.overview.character", "Character"), localization.G("ui.overview.character_desc", "Check your stats."), ChoiceCharacter},
+		choiceItem{zones, localization.G("ui.overview.logs", "Logs"), localization.G("ui.overview.logs_desc", "Check what happened."), ChoiceLogs},
+		choiceItem{zones, localization.G("ui.overview.artifacts", "Artifacts"), localization.G("ui.overview.artifacts_desc", "Inspect your artifacts."), ChoiceArtifacts},
+		choiceItem{zones, localization.G("ui.overview.cards", "Cards"), localization.G("ui.overview.cards_desc", "Inspect your cards."), ChoiceCards},
+		choiceItem{zones, localization.G("ui.overview.quit", "Quit"), localization.G("ui.overview.quit_desc", "Return to menu."), ChoiceQuit},
 	}
 
 	delegation := list.NewDefaultDelegate()
@@ -333,7 +351,7 @@ func (m MenuModel) updateLogViewport() MenuModel {
 				fmt.Sprintf("  %s |- %s %s %s",
 					lipgloss.NewStyle().Foreground(style.BaseGray).Render(fmt.Sprintf("#%05d", index)),
 					lipgloss.NewStyle().Foreground(style.BaseGray).Render(item.Time.Format(time.RFC822)),
-					styleLogs[item.Type].Render(fmt.Sprintf(" [ %-8s ]", item.Type)),
+					styleLogs[item.Type].Render(fmt.Sprintf(" [ %-8s ]", logTypeLabel(item.Type))),
 					item.Message,
 				),
 				m.contentWidth()-style.ListStyle.GetHorizontalFrameSize(),

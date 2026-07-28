@@ -2,6 +2,7 @@ package carousel
 
 import (
 	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
@@ -119,7 +120,7 @@ func (m Model) View() string {
 		return "○"
 	}), " "))
 
-	doneButton := style.HeaderStyle.Copy().Background(m.ZoneBackground(ZoneDoneButton, style.BaseRed, style.BaseRedDarker)).Render(m.ZoneMark(ZoneDoneButton, "Continue"))
+	doneButton := style.HeaderStyle.Copy().Background(m.ZoneBackground(ZoneDoneButton, style.BaseRed, style.BaseRedDarker)).Render(m.ZoneMark(ZoneDoneButton, localization.G("ui.carousel.continue", "Continue")))
 
 	return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Center, title, middle, dots, doneButton))
 }

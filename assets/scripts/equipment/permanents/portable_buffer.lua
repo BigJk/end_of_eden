@@ -1,6 +1,6 @@
 register_artifact("PORTABLE_BUFFER", {
-    name = "PRTBL Buffer",
-    description = "Start each turn with 1 " .. highlight("Block"),
+    name = l("artifacts.PORTABLE_BUFFER.name", "PRTBL Buffer"),
+    description = l("artifacts.PORTABLE_BUFFER.description", "Start each turn with 1 " .. highlight("Block")),
     tags = { "_ACT_0" },
     price = 100,
     order = 0,

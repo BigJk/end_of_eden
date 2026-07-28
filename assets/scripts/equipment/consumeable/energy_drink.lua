@@ -1,20 +1,20 @@
 local drinks = {
     {
-        id = "ENERGY_DRINK",
+        id = "ENRGY_DRINK_X91",
         name = "ENRGY Drink X91",
         description = "Gain 1 action point.",
         price = 150,
         action_points = 1,
     },
     {
-        id = "ENERGY_DRINK_2",
+        id = "ENRGY_DRINK_X92",
         name = "ENRGY Drink X92",
         description = "Gain 2 action points.",
         price = 250,
         action_points = 2,
     },
     {
-        id = "ENERGY_DRINK_3",
+        id = "ENRGY_DRINK_X93",
         name = "ENRGY Drink X93",
         description = "Gain 3 action points.",
         price = 350,
@@ -27,7 +27,7 @@ for _, drink in ipairs(drinks) do
         name = l("cards." .. drink.id .. ".name", drink.name),
         description = string.format(
             l("cards." .. drink.id .. ".description","%s\n\n%s"),
-            highlight("One-Time"),
+            highlight(l("ui.one_time", "One-Time")),
             drink.description
         ),
         tags = { "UTIL", "_ACT_0" },

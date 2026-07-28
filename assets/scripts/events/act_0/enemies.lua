@@ -1,16 +1,16 @@
 register_event("RUST_MITE", {
-    name = "Tasty metals...",
-    description = [[!!rust_mite.jpg
+    name = l("events.RUST_MITE.name", "Tasty metals..."),
+    description = l("events.RUST_MITE.description", [[!!rust_mite.jpg
 
 You are walking through the facility hoping to find a way out. After a few turns you hear a strange noise. You look around and come across a strange being.
 It seems to be eating the metal from the walls. It looks at you and after a few seconds it rushes towards you.
 
 **It seems to be hostile!**
-    ]],
+    ]]),
     tags = { "_ACT_0_FIGHT" },
     choices = {
         {
-            description = "Fight!",
+            description = l("events.RUST_MITE.choices.0.description", "Fight!"),
             callback = function()
                 add_actor_by_enemy("RUST_MITE")
                 if random() < 0.25 then
@@ -26,17 +26,17 @@ It seems to be eating the metal from the walls. It looks at you and after a few 
 })
 
 register_event("NANOBOT_SWARM", {
-    name = "Is this a swarm of...",
-    description = [[!!nanobot_swarm.jpg
+    name = l("events.NANOBOT_SWARM.name", "Is this a swarm of..."),
+    description = l("events.NANOBOT_SWARM.description", [[!!nanobot_swarm.jpg
 
 You are walking through the facility hoping to find a way out. After a few turns you hear a strange noise. You look around and come across a swarm of nanobots.
 
 **It continues to grow and it looks like it's going to attack you.**
-    ]],
+    ]]),
     tags = { "_ACT_0_FIGHT" },
     choices = {
         {
-            description = "Fight!",
+            description = l("events.NANOBOT_SWARM.choices.0.description", "Fight!"),
             callback = function()
                 add_actor_by_enemy("NANOBOT_SWARM")
                 if random() < 0.25 then
@@ -52,19 +52,19 @@ You are walking through the facility hoping to find a way out. After a few turns
 })
 
 register_event("CLEAN_BOT", {
-    name = "Corpse. Clean. Engage.",
-    description = [[!!clean_bot.jpg
+    name = l("events.CLEAN_BOT.name", "Corpse. Clean. Engage."),
+    description = l("events.CLEAN_BOT.description", [[!!clean_bot.jpg
 
 While exploring the facility you hear a strange noise. Suddenly a strange robot appears from one of the corridors.
 It seems to be cleaning up the area, but it's not working properly anymore and you can see small sparks coming out of it.
 It looks at you and says "Corpse. Clean. Engage.".
 
 **You're not sure what it means, but it doesn't seem to be friendly!**
-    ]],
+    ]]),
     tags = { "_ACT_0_FIGHT" },
     choices = {
         {
-            description = "Fight!",
+            description = l("events.CLEAN_BOT.choices.0.description", "Fight!"),
             callback = function()
                 add_actor_by_enemy("CLEAN_BOT")
                 if random() < 0.25 then
@@ -80,16 +80,16 @@ It looks at you and says "Corpse. Clean. Engage.".
 })
 
 register_event("CYBER_SPIDER", {
-    name = "What is this thing at the ceiling?",
-    description = [[!!cyber_spider.jpg
+    name = l("events.CYBER_SPIDER.name", "What is this thing at the ceiling?"),
+    description = l("events.CYBER_SPIDER.description", [[!!cyber_spider.jpg
 
 You come around a corner and see a strange creature hanging from the ceiling. It looks like a spider, but it's made out of metal.
 It seems to be waiting for its prey to come closer and there is no way around it.
-    ]],
+    ]]),
     tags = { "_ACT_0_FIGHT" },
     choices = {
         {
-            description = "Fight!",
+            description = l("events.CYBER_SPIDER.choices.0.description", "Fight!"),
             callback = function()
                 add_actor_by_enemy("CYBER_SPIDER")
                 if random() < 0.25 then
@@ -105,18 +105,18 @@ It seems to be waiting for its prey to come closer and there is no way around it
 })
 
 register_event("LASER_DRONE", {
-    name = "A menacing drone appears...",
+    name = l("events.LASER_DRONE.name", "A menacing drone appears..."),
     description =
-    [[!!laser_drone.jpg
+    l("events.LASER_DRONE.description", [[!!laser_drone.jpg
 
 As you explore the facility, you hear a high-pitched whirring sound. A drone equipped with a powerful laser cannon appears in front of you.
 
 **It looks ready to attack!**
-    ]],
+    ]]),
     tags = { "_ACT_0_FIGHT" },
     choices = {
         {
-            description = "Fight!",
+            description = l("events.LASER_DRONE.choices.0.description", "Fight!"),
             callback = function()
                 add_actor_by_enemy("LASER_DRONE")
                 if random() < 0.10 then
@@ -132,18 +132,18 @@ As you explore the facility, you hear a high-pitched whirring sound. A drone equ
 })
 
 register_event("PLASMA_GOLEM", {
-    name = "A glowing figure emerges...",
+    name = l("events.PLASMA_GOLEM.name", "A glowing figure emerges..."),
     description =
-    [[!!plasma_golem.jpg
+    l("events.PLASMA_GOLEM.description", [[!!plasma_golem.jpg
 
 As you delve deeper into the facility, you notice a bright glow emanating from a nearby chamber. A massive golem made of pure plasma energy steps into view.
 
 **It looks ready to unleash its power!**
-    ]],
+    ]]),
     tags = { "_ACT_0_FIGHT" },
     choices = {
         {
-            description = "Fight!",
+            description = l("events.PLASMA_GOLEM.choices.0.description", "Fight!"),
             callback = function()
                 add_actor_by_enemy("PLASMA_GOLEM")
                 if random() < 0.05 then
@@ -156,18 +156,18 @@ As you delve deeper into the facility, you notice a bright glow emanating from a
 })
 
 register_event("CYBER_SLIME", {
-    name = "A strange cybernetic slime appears...",
+    name = l("events.CYBER_SLIME.name", "A strange cybernetic slime appears..."),
     description =
-    [[!!cyber_slime.jpg
+    l("events.CYBER_SLIME.description", [[!!cyber_slime.jpg
 
 As you explore the facility, you come across a strange cybernetic slime. It seems to be pulsating with energy and looks hostile.
 
 **Prepare for a fight!**
-    ]],
+    ]]),
     tags = { "_ACT_0_FIGHT" },
     choices = {
         {
-            description = "Fight!",
+            description = l("events.CYBER_SLIME.choices.0.description", "Fight!"),
             callback = function()
                 add_actor_by_enemy("CYBER_SLIME")
                 if random() < 0.10 then

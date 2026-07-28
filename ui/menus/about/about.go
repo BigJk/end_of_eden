@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BigJk/end_of_eden/internal/git"
 	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui"
 	"github.com/BigJk/end_of_eden/ui/style"
 	tea "github.com/charmbracelet/bubbletea"
@@ -53,9 +54,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	title := style.TitleStyle.Render(ui.Title)
 
-	version := versionStyle.Render(fmt.Sprintf("Version: %s (%s)", git.Tag, git.CommitHash))
-	about := aboutStyle.Height(lipgloss.Height(ui.About)).Width(ui.Min(m.Size.Width, 65)).Render(ui.About)
-	back := m.zones.Mark("back", style.HeaderStyle.Render("Back"))
+	aboutText := ui.AboutText()
+	version := versionStyle.Render(fmt.Sprintf(localization.G("ui.about.version_fmt", "Version: %s (%s)"), git.Tag, git.CommitHash))
+	about := aboutStyle.Height(lipgloss.Height(aboutText)).Width(ui.Min(m.Size.Width, 65)).Render(aboutText)
+	back := m.zones.Mark("back", style.HeaderStyle.Render(localization.G("ui.about.back", "Back")))
 
 	return lipgloss.JoinVertical(lipgloss.Top, title, version, about, back)
 }

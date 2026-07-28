@@ -1,7 +1,7 @@
 REPAIR_DRONE_HEAL = 2
 
 register_enemy("REPAIR_DRONE", {
-    name = "Repair Drone",
+    name = l("enemies.REPAIR_DRONE.name", "Repair Drone"),
     description = "A drone designed to repair and support other machines.",
     look = [[]rr[]],
     color = "#00ff00",
@@ -15,11 +15,11 @@ register_enemy("REPAIR_DRONE", {
         for _, opponent_guid in ipairs(opponents) do
             local opponent = get_actor(opponent_guid)
             if opponent_guid ~= ctx.guid and opponent.hp < opponent.max_hp then
-                return "Heal " .. highlight(REPAIR_DRONE_HEAL) .. " HP to an ally"
+                return l("intents.heal_ally", "Heal ") .. highlight(REPAIR_DRONE_HEAL) .. " HP to an ally"
             end
         end
 
-        return "Standby..."
+        return l("intents.standby", "Standby...")
     end,
     callbacks = {
         on_turn = function(ctx)

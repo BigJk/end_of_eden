@@ -1,6 +1,6 @@
 register_artifact("COMBAT_GLOVES", {
-    name = "Combat Gloves",
-    description = "Whenever you play a " .. highlight("Melee (M)") .. " card, deal " .. highlight("1 additional damage"),
+    name = l("artifacts.COMBAT_GLOVES.name", "Combat Gloves"),
+    description = l("artifacts.COMBAT_GLOVES.description", "Whenever you play a " .. highlight("Melee (M)") .. " card, deal " .. highlight("1 additional damage")),
     tags = { "_ACT_0" },
     price = 100,
     order = 0,

@@ -1,5 +1,5 @@
 register_enemy("CLEAN_BOT", {
-    name = "Cleaning Bot",
+    name = l("enemies.CLEAN_BOT.name", "Cleaning Bot"),
     description = "It never stopped cleaning...",
     look = [[ \_/
 (* *)
@@ -11,10 +11,10 @@ register_enemy("CLEAN_BOT", {
     intend = function(ctx)
         local self = get_actor(ctx.guid)
         if self.hp <= 4 then
-            return "Block " .. highlight(2)
+            return l("intents.block", "Block ") .. highlight(2)
         end
 
-        return "Deal " .. highlight(2) .. " damage"
+        return l("intents.deal_damage", "Deal ") .. highlight(2) .. " damage"
     end,
     callbacks = {
         on_player_turn = function(ctx)

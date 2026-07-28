@@ -1,6 +1,6 @@
 register_card("ADRENALINE_SHOT", {
-    name = "Adrenaline Shot",
-    description = "Gain 2 additional action points for the next 3 turns.",
+    name = l("cards.ADRENALINE_SHOT.name", "Adrenaline Shot"),
+    description = l("cards.ADRENALINE_SHOT.description", "Gain 2 additional action points for the next 3 turns."),
     tags = { "BUFF", "_ACT_0" },
     max_level = 0,
     color = COLOR_RED,
@@ -17,8 +17,8 @@ register_card("ADRENALINE_SHOT", {
 })
 
 register_status_effect("ADRENALINE_SHOT", {
-    name = "Adrenaline Shot",
-    description = "Gain 2 additional action points.",
+    name = l("status_effects.ADRENALINE_SHOT.name", "Adrenaline Shot"),
+    description = l("status_effects.ADRENALINE_SHOT.description", "Gain 2 additional action points."),
     look = "AS",
     foreground = COLOR_RED,
     can_stack = false,

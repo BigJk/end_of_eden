@@ -1,6 +1,6 @@
 register_event("START", {
-    name = "Waking up...",
-    description = [[!!cryo_start.jpg
+    name = l("events.START.name", "Waking up..."),
+    description = l("events.START.description", [[!!cryo_start.jpg
 
 You wake up in a dimly lit room, the faint glow of a red emergency light casting an eerie hue over the surroundings. The air is musty and stale, the metallic scent of the cryo-chamber still lingering in your nostrils. You feel groggy and disoriented, your mind struggling to process what's happening.
 
@@ -10,11 +10,11 @@ You try to remember how you ended up here, but your memories are hazy and fragme
 
 As you struggle to gather your bearings, you notice a blinking panel on the wall, with the words *"Cryo Sleep Malfunction"* displayed in bold letters. It seems that the system has finally detected the error that caused your prolonged slumber and triggered your awakening.
 
-**Shortly after you realize that you are not alone...**]],
+**Shortly after you realize that you are not alone...**]]),
     choices = {
         {
-            description = "Try to find a weapon. " ..
-                highlight('Find melee weapon') .. " " .. highlight_warn("Take 4 damage"),
+            description = l("events.START.choices.0.prefix", "Try to find a weapon. ") ..
+                highlight(l("events.START.choices.0.weapon", "Find melee weapon")) .. " " .. highlight_warn(l("events.START.choices.0.damage", "Take 4 damage")),
             callback = function()
                 give_artifact(
                     choose_weighted_by_price(find_artifacts_by_tags({ "HND", "M" })), PLAYER_ID
@@ -24,7 +24,7 @@ As you struggle to gather your bearings, you notice a blinking panel on the wall
             end
         },
         {
-            description = "Gather your strength and attack it!",
+            description = l("events.START.choices.1.description", "Gather your strength and attack it!"),
             callback = function()
                 give_card("MELEE_HIT", PLAYER_ID)
                 give_card("MELEE_HIT", PLAYER_ID)

@@ -65,6 +65,6 @@ func (m Model) View() string {
 	return lipgloss.Place(m.Size.Width, m.Size.Height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(
 		lipgloss.Center,
 		frameFramed,
-		frameStyle.Render(lipgloss.NewStyle().Width(100-4).Render(ui.About)),
+		frameStyle.Render(lipgloss.NewStyle().Width(100-4).Render(ui.AboutText())),
 	))
 }

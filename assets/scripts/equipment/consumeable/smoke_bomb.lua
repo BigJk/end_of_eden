@@ -1,6 +1,6 @@
 register_card("SMOKE_BOMB", {
-    name = "Smoke Bomb",
-    description = "Reduces the accuracy of all enemies for 1 turn.",
+    name = l("cards.SMOKE_BOMB.name", "Smoke Bomb"),
+    description = l("cards.SMOKE_BOMB.description", "Reduces the accuracy of all enemies for 1 turn."),
     tags = { "CC", "_ACT_0" },
     max_level = 0,
     color = COLOR_GRAY,
@@ -20,8 +20,8 @@ register_card("SMOKE_BOMB", {
 })
 
 register_status_effect("SMOKE_BOMB", {
-    name = "Smoke Bomb",
-    description = "Reduces accuracy by 50%.",
+    name = l("status_effects.SMOKE_BOMB.name", "Smoke Bomb"),
+    description = l("status_effects.SMOKE_BOMB.description", "Reduces accuracy by 50%."),
     look = "SB",
     foreground = COLOR_GRAY,
     can_stack = false,

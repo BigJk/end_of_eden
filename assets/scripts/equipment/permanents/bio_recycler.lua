@@ -1,6 +1,6 @@
 register_artifact("BIO_RECYCLER", {
-    name = "Bio Recycler",
-    description = "Heal 1 on kill.",
+    name = l("artifacts.BIO_RECYCLER.name", "Bio Recycler"),
+    description = l("artifacts.BIO_RECYCLER.description", "Heal 1 on kill."),
     tags = { "_ACT_0" },
     price = 200,
     order = 0,

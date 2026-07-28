@@ -566,7 +566,7 @@ func (s *Session) SetupFight() {
 
 	// Save after each fight
 	{
-		s.Log(LogTypeSuccess, "Session saving...")
+		s.Log(LogTypeSuccess, localization.G("log.session.saving", "Session saving..."))
 
 		save, err := s.GobEncode()
 		if err != nil {
@@ -1730,11 +1730,11 @@ func (s *Session) DealDamage(source string, card string, target string, damage i
 	}
 
 	if source == PlayerActorID {
-		s.Log(LogTypeSuccess, fmt.Sprintf("You hit the enemy for %d damage", damage))
+		s.Log(LogTypeSuccess, fmt.Sprintf(localization.G("log.player.hit_enemy", "You hit the enemy for %d damage"), damage))
 	} else if target == PlayerActorID {
-		s.Log(LogTypeDanger, fmt.Sprintf("You took %d damage", damage))
+		s.Log(LogTypeDanger, fmt.Sprintf(localization.G("log.player.took_damage", "You took %d damage"), damage))
 	} else {
-		s.Log(LogTypeSuccess, fmt.Sprintf("%s took %d damage", val.Name, damage))
+		s.Log(LogTypeSuccess, fmt.Sprintf(localization.G("log.enemy.took_damage_fmt", "%s took %d damage"), val.Name, damage))
 	}
 
 	// Negative damage aka heal is not allowed!
@@ -1759,7 +1759,7 @@ func (s *Session) DealDamage(source string, card string, target string, damage i
 				Damage: damage,
 			},
 		})
-		s.Log(LogTypeSuccess, fmt.Sprintf("%s died and dropped %d gold!", val.Name, val.Gold))
+		s.Log(LogTypeSuccess, fmt.Sprintf(localization.G("log.enemy.died_dropped_gold", "%s died and dropped %d gold!"), val.Name, val.Gold))
 		s.GivePlayerGold(val.Gold)
 
 		// Trigger OnActorDie callbacks
@@ -1863,9 +1863,9 @@ func (s *Session) Heal(source string, target string, heal int, flat bool) int {
 		}
 
 		if target == PlayerActorID {
-			s.Log(LogTypeSuccess, fmt.Sprintf("You healed %d damage", heal))
+			s.Log(LogTypeSuccess, fmt.Sprintf(localization.G("log.player.healed", "You healed %d damage"), heal))
 		} else {
-			s.Log(LogTypeDanger, fmt.Sprintf("%s healed %d damage", val.Name, heal))
+			s.Log(LogTypeDanger, fmt.Sprintf(localization.G("log.enemy.healed", "%s healed %d damage"), val.Name, heal))
 		}
 
 		// Negative heal aka damage is not allowed!

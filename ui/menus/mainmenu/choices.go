@@ -4,6 +4,7 @@ import (
 	"runtime"
 
 	"github.com/BigJk/end_of_eden/system/audio"
+	"github.com/BigJk/end_of_eden/system/localization"
 	"github.com/BigJk/end_of_eden/ui/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -45,20 +46,20 @@ type ChoicesModel struct {
 
 func NewChoicesModel(zones *zone.Manager, hideSettings bool) ChoicesModel {
 	choices := []list.Item{
-		choiceItem{zones, "Continue", "Ready to continue dying?", ChoiceContinue},
-		choiceItem{zones, "Tutorial", "Learn the basics.", ChoiceTutorial},
-		choiceItem{zones, "New Game", "Start a new try.", ChoiceNewGame},
-		choiceItem{zones, "New Game: Seed of the Day", "Start a new try with the daily seed.", ChoiceNewGameSOD},
-		choiceItem{zones, "About", "Want to know more?", ChoiceAbout},
-		choiceItem{zones, "Settings", "Other settings won't let you survive...", ChoiceSettings},
-		choiceItem{zones, "Mods", "Make the game even more fun!", ChoiceMods},
-		choiceItem{zones, "Exit", "Got enough already?", ChoiceExit},
+		choiceItem{zones, localization.G("ui.menu.continue", "Continue"), localization.G("ui.menu.continue_desc", "Ready to continue dying?"), ChoiceContinue},
+		choiceItem{zones, localization.G("ui.menu.tutorial", "Tutorial"), localization.G("ui.menu.tutorial_desc", "Learn the basics."), ChoiceTutorial},
+		choiceItem{zones, localization.G("ui.menu.new_game", "New Game"), localization.G("ui.menu.new_game_desc", "Start a new try."), ChoiceNewGame},
+		choiceItem{zones, localization.G("ui.menu.new_game_sod", "New Game: Seed of the Day"), localization.G("ui.menu.new_game_sod_desc", "Start a new try with the daily seed."), ChoiceNewGameSOD},
+		choiceItem{zones, localization.G("ui.menu.about", "About"), localization.G("ui.menu.about_desc", "Want to know more?"), ChoiceAbout},
+		choiceItem{zones, localization.G("ui.menu.settings", "Settings"), localization.G("ui.menu.settings_desc", "Other settings won't let you survive..."), ChoiceSettings},
+		choiceItem{zones, localization.G("ui.menu.mods", "Mods"), localization.G("ui.menu.mods_desc", "Make the game even more fun!"), ChoiceMods},
+		choiceItem{zones, localization.G("ui.menu.exit", "Exit"), localization.G("ui.menu.exit_desc", "Got enough already?"), ChoiceExit},
 	}
 
 	// Hide exit on web
 	if runtime.GOOS == "js" {
 		choices = lo.Filter(choices, func(value list.Item, i int) bool {
-			return value.(choiceItem).title != "Exit" || value.(choiceItem).title == "Mods"
+			return value.(choiceItem).title != localization.G("ui.menu.exit", "Exit") || value.(choiceItem).title == localization.G("ui.menu.mods", "Mods")
 		})
 	}
 
@@ -79,7 +80,7 @@ func NewChoicesModel(zones *zone.Manager, hideSettings bool) ChoicesModel {
 		selected: ChoiceWaiting,
 	}
 
-	model.list.Title = "Main Menu"
+	model.list.Title = localization.G("ui.menu.title", "Main Menu")
 	model.list.SetFilteringEnabled(false)
 	model.list.SetShowFilter(false)
 	model.list.SetShowStatusBar(false)

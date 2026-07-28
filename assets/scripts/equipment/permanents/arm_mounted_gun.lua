@@ -1,6 +1,6 @@
 register_artifact("ARM_MOUNTED_GUN", {
-    name = "Arm Mounted Gun",
-    description = "Weapon that is mounted on your arm. It is very powerful.",
+    name = l("artifacts.ARM_MOUNTED_GUN.name", "Arm Mounted Gun"),
+    description = l("artifacts.ARM_MOUNTED_GUN.description", "Weapon that is mounted on your arm. It is very powerful."),
     tags = { "ARM" },
     price = 250,
     order = 0,

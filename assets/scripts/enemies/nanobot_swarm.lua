@@ -7,7 +7,7 @@ register_enemy("NANOBOT_SWARM", {
     max_hp = 100,
     gold = 50,
     intend = function(ctx)
-        return "Deal " ..
+        return l("intents.deal_heal", "Deal ") ..
         highlight(simulate_deal_damage(ctx.guid, PLAYER_ID, ctx.round + 1)) .. " damage. Heal " .. highlight(1) .. " HP."
     end,
     callbacks = {

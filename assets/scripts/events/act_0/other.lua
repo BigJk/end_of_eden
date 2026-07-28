@@ -1,22 +1,22 @@
 register_event("MERCHANT", {
-    name = "A strange figure",
+    name = l("events.MERCHANT.name", "A strange figure"),
     description =
-    [[!!merchant.jpg
+    l("events.MERCHANT.description", [[!!merchant.jpg
 
 The merchant is a tall, lanky figure draped in a long, tattered coat made of plant fibers and animal hides. Their face is hidden behind a mask made of twisted roots and vines, giving them an unsettling, almost alien appearance.
 
 Despite their strange appearance, the merchant is a shrewd negotiator and a skilled trader. They carry with them a collection of bizarre and exotic items, including plant-based weapons, animal pelts, and strange, glowing artifacts that seem to pulse with an otherworldly energy.
 
-The merchant is always looking for a good deal, and they're not above haggling with potential customers...]],
+The merchant is always looking for a good deal, and they're not above haggling with potential customers...]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Trade",
+            description = l("events.MERCHANT.choices.0.description", "Trade"),
             callback = function()
                 return GAME_STATE_MERCHANT
             end
         }, {
-        description = "Pass",
+        description = l("events.MERCHANT.choices.1.description", "Pass"),
         callback = function()
             return GAME_STATE_RANDOM
         end
@@ -29,16 +29,16 @@ The merchant is always looking for a good deal, and they're not above haggling w
 
 
 register_event("RANDOM_ARTIFACT_ACT_0", {
-    name = "Random Artifact",
-    description = [[!!artifact_chest.jpg
+    name = l("events.RANDOM_ARTIFACT_ACT_0.name", "Random Artifact"),
+    description = l("events.RANDOM_ARTIFACT_ACT_0.description", [[!!artifact_chest.jpg
 
 You found a chest with a strange symbol on it. The chest is protected by a strange barrier. You can either open it and take some damage or leave.
-    ]],
+    ]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Random Artifact " ..
-                highlight_success("Gain 1 Artifact") .. " " .. highlight_warn("Take 2 damage"),
+            description = l("events.RANDOM_ARTIFACT_ACT_0.choices.0.prefix", "Random Artifact ") ..
+                highlight_success(l("ui.gain_1_artifact", "Gain 1 Artifact")) .. " " .. highlight_warn(l("ui.take_2_damage", "Take 2 damage")),
             callback = function()
                 local possible = find_artifacts_by_tags({ "_ACT_0" })
                 local choosen = choose_weighted_by_price(possible)
@@ -50,7 +50,7 @@ You found a chest with a strange symbol on it. The chest is protected by a stran
             end
         },
         {
-            description = "Leave!",
+            description = l("events.RANDOM_ARTIFACT_ACT_0.choices.1.description", "Leave!"),
             callback = function()
                 return nil
             end
@@ -59,16 +59,16 @@ You found a chest with a strange symbol on it. The chest is protected by a stran
 })
 
 register_event("RANDOM_CONSUMEABLE_ACT_0", {
-    name = "Random Consumeable",
-    description = [[!!artifact_chest.jpg
+    name = l("events.RANDOM_CONSUMEABLE_ACT_0.name", "Random Consumeable"),
+    description = l("events.RANDOM_CONSUMEABLE_ACT_0.description", [[!!artifact_chest.jpg
 
 You found a chest with a strange symbol on it. The chest is protected by a strange barrier. You can either open it and take some damage or leave.
-    ]],
+    ]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Random Artifact " ..
-                highlight_success("Gain 1 Consumeable") .. " " .. highlight_warn("Take 2 damage"),
+            description = l("events.RANDOM_CONSUMEABLE_ACT_0.choices.0.prefix", "Random Artifact ") ..
+                highlight_success(l("ui.gain_1_consumeable", "Gain 1 Consumeable")) .. " " .. highlight_warn(l("ui.take_2_damage", "Take 2 damage")),
             callback = function()
                 local possible = fun.iter(find_cards_by_tags({ "_ACT_0" }))
                     :filter(function(card)
@@ -83,7 +83,7 @@ You found a chest with a strange symbol on it. The chest is protected by a stran
             end
         },
         {
-            description = "Leave!",
+            description = l("events.RANDOM_CONSUMEABLE_ACT_0.choices.1.description", "Leave!"),
             callback = function()
                 return nil
             end
@@ -92,21 +92,21 @@ You found a chest with a strange symbol on it. The chest is protected by a stran
 })
 
 register_event("GAIN_GOLD_ACT_0", {
-    name = "Old Gold Cache",
-    description = [[
+    name = l("events.GAIN_GOLD_ACT_0.name", "Old Gold Cache"),
+    description = l("events.GAIN_GOLD_ACT_0.description", [[
 You find an old chest filled with gold. You can either take it or leave.
-    ]],
+    ]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Take it! " .. highlight_success("Gain 20 Gold"),
+            description = l("events.GAIN_GOLD_ACT_0.choices.0.prefix", "Take it! ") .. highlight_success(l("ui.gain_20_gold", "Gain 20 Gold")),
             callback = function()
                 give_player_gold(20)
                 return nil
             end
         },
         {
-            description = "Leave!",
+            description = l("events.GAIN_GOLD_ACT_0.choices.1.description", "Leave!"),
             callback = function()
                 return nil
             end
@@ -116,14 +116,14 @@ You find an old chest filled with gold. You can either take it or leave.
 
 
 register_event("GOLD_TO_HP_ACT_0", {
-    name = "Old Vending Machine",
-    description = [[
+    name = l("events.GOLD_TO_HP_ACT_0.name", "Old Vending Machine"),
+    description = l("events.GOLD_TO_HP_ACT_0.description", [[
 You find an old vending machine, it seems to be still working. You can either pay 20 Gold to get 5 HP or leave.
-    ]],
+    ]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Pay " .. highlight_warn("20 Gold") .. " " .. highlight_success("Gain 5 HP"),
+            description = l("events.GOLD_TO_HP_ACT_0.choices.0.prefix", "Pay ") .. highlight_warn(l("ui.pay_20_gold", "20 Gold")) .. " " .. highlight_success(l("ui.gain_5_hp", "Gain 5 HP")),
             callback = function()
                 if get_actor(PLAYER_ID).gold < 20 then
                     return nil
@@ -134,7 +134,7 @@ You find an old vending machine, it seems to be still working. You can either pa
             end
         },
         {
-            description = "Leave!",
+            description = l("events.GOLD_TO_HP_ACT_0.choices.1.description", "Leave!"),
             callback = function()
                 return nil
             end
@@ -143,22 +143,22 @@ You find an old vending machine, it seems to be still working. You can either pa
 })
 
 register_event("MAX_LIFE_ACT_0", {
-    name = "Symbiotic Parasite",
-    description = [[!!symbiotic_parasite.jpg
+    name = l("events.MAX_LIFE_ACT_0.name", "Symbiotic Parasite"),
+    description = l("events.MAX_LIFE_ACT_0.description", [[!!symbiotic_parasite.jpg
 
 You find a strange creature, it seems to be a symbiotic parasite. It offers to increase your max HP by 5. You can either accept or leave.
-    ]],
+    ]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Accept it! " .. highlight_success("Gain 5 Max HP"),
+            description = l("events.MAX_LIFE_ACT_0.choices.0.prefix", "Accept it! ") .. highlight_success(l("ui.gain_5_max_hp", "Gain 5 Max HP")),
             callback = function()
                 actor_add_max_hp(PLAYER_ID, 5)
                 return nil
             end
         },
         {
-            description = "Leave!",
+            description = l("events.MAX_LIFE_ACT_0.choices.1.description", "Leave!"),
             callback = function()
                 return nil
             end
@@ -167,16 +167,16 @@ You find a strange creature, it seems to be a symbiotic parasite. It offers to i
 })
 
 register_event("GAMBLE_1_ACT_0", {
-    name = "Electro Barrier",
-    description = [[!!electro_barrier.jpg
+    name = l("events.GAMBLE_1_ACT_0.name", "Electro Barrier"),
+    description = l("events.GAMBLE_1_ACT_0.description", [[!!electro_barrier.jpg
 
 You find a room with a strange device in the middle. It seems to be some kind of electro barrier protecting a storage container. You can either try to disable the barrier or leave.
-    ]],
+    ]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "50% " ..
-                highlight_success("Gain Artifact & Consumeable") .. " 50% " .. highlight_warn("Take 2 damage"),
+            description = l("events.GAMBLE_1_ACT_0.choices.0.prefix", "50% ") ..
+                highlight_success(l("ui.gain_artifact_and_consumeable", "Gain Artifact & Consumeable")) .. " 50% " .. highlight_warn(l("ui.take_2_damage", "Take 2 damage")),
             callback = function()
                 local possible_artifacts = find_artifacts_by_tags({ "_ACT_0" })
                 local possible_consumeables = fun.iter(find_cards_by_tags({ "_ACT_0" }))
@@ -199,7 +199,7 @@ You find a room with a strange device in the middle. It seems to be some kind of
             end
         },
         {
-            description = "Leave!",
+            description = l("events.GAMBLE_1_ACT_0.choices.1.description", "Leave!"),
             callback = function()
                 return nil
             end
@@ -208,16 +208,16 @@ You find a room with a strange device in the middle. It seems to be some kind of
 })
 
 register_event("UPRAGDE_CARD_ACT_0", {
-    name = "Upgrade Station",
-    description = [[!!upgrade_station.jpg
+    name = l("events.UPRAGDE_CARD_ACT_0.name", "Upgrade Station"),
+    description = l("events.UPRAGDE_CARD_ACT_0.description", [[!!upgrade_station.jpg
 
 You find a old automatic workstation. You are able to get it working again. You can either upgrade a random card or leave.
-    ]],
+    ]]),
     tags = { "_ACT_0" },
     choices = {
         {
-            description = "Upgrade a card " ..
-                highlight_success("Upgrade a card") .. " " .. highlight_warn("Take 2 damage"),
+            description = l("events.UPRAGDE_CARD_ACT_0.choices.0.prefix", "Upgrade a card ") ..
+                highlight_success(l("ui.upgrade_a_card", "Upgrade a card")) .. " " .. highlight_warn(l("ui.take_2_damage", "Take 2 damage")),
             callback = function()
                 local cards = fun.iter(get_cards(PLAYER_ID))
                     :filter(function(guid)
@@ -240,7 +240,7 @@ You find a old automatic workstation. You are able to get it working again. You 
             end
         },
         {
-            description = "Leave!",
+            description = l("events.UPRAGDE_CARD_ACT_0.choices.1.description", "Leave!"),
             callback = function()
                 return nil
             end

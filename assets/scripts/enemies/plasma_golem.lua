@@ -1,5 +1,5 @@
 register_enemy("PLASMA_GOLEM", {
-    name = "Plasma Golem",
+    name = l("enemies.PLASMA_GOLEM.name", "Plasma Golem"),
     description = "A golem made of pure plasma energy.",
     look = [[
   /\
@@ -11,9 +11,9 @@ register_enemy("PLASMA_GOLEM", {
     gold = 80,
     intend = function(ctx)
         if ctx.round % 2 == 0 then
-            return "Charge up for a powerful plasma attack"
+            return l("intents.charge_plasma", "Charge up for a powerful plasma attack")
         else
-            return "Deal " .. highlight(8) .. " damage"
+            return l("intents.deal_damage", "Deal ") .. highlight(8) .. " damage"
         end
     end,
     callbacks = {

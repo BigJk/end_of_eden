@@ -48,10 +48,10 @@ func main() {
 		return
 	}
 
-	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render("End Of Eden"))
+	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(style.BaseRed).Render(localization.G("ui.title", "End Of Eden")))
 
 	// Init settings
-	fmt.Println(loadStyle.Render("Initializing Settings. Please wait..."))
+	fmt.Println(loadStyle.Render(localization.G("ui.init.settings", "Initializing Settings. Please wait...")))
 	{
 		vi := viper.Viper{
 			SettingsName: "settings_term",
@@ -65,17 +65,17 @@ func main() {
 			panic(err)
 		}
 	}
-	fmt.Println(loadStyle.Render("Done!"))
+	fmt.Println(loadStyle.Render(localization.G("ui.init.done", "Done!")))
 
 	// Init audio
 	if *audioFlag {
-		fmt.Println(loadStyle.Render("Initializing Audio. Please wait..."))
+		fmt.Println(loadStyle.Render(localization.G("ui.init.audio", "Initializing Audio. Please wait...")))
 		audio.InitAudio()
-		fmt.Println(loadStyle.Render("Done!"))
+		fmt.Println(loadStyle.Render(localization.G("ui.init.done", "Done!")))
 	}
 
 	// Init generators
-	fmt.Println(loadStyle.Render("Initializing Proc-Gen. Please wait..."))
+	fmt.Println(loadStyle.Render(localization.G("ui.init.proc_gen", "Initializing Proc-Gen. Please wait...")))
 	{
 		// Init face generator
 		if err := faces.InitGlobal("./assets/gen/faces"); err != nil {
@@ -85,17 +85,17 @@ func main() {
 		// Init other gens
 		gen.InitGen()
 	}
-	fmt.Println(loadStyle.Render("Done!"))
+	fmt.Println(loadStyle.Render(localization.G("ui.init.done", "Done!")))
 
 	// Init Localization
-	fmt.Println(loadStyle.Render("Initializing Localization. Please wait..."))
+	fmt.Println(loadStyle.Render(localization.G("ui.init.localization", "Initializing Localization. Please wait...")))
 	{
 		if err := localization.Global.AddFolder("./assets/locals"); err != nil {
 			panic(err)
 		}
 		localization.SetCurrent(settings.GetString("language"))
 	}
-	fmt.Println(loadStyle.Render("Done!"))
+	fmt.Println(loadStyle.Render(localization.G("ui.init.done", "Done!")))
 
 	// Redirect log to file
 	_ = os.Mkdir("./logs", 0777)
